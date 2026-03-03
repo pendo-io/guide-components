@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendo Guide Components - Test Harness</title>
+    <!-- Load the real component library CSS -->
+    <link rel="stylesheet" href="../dist/pendo-guide-components.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .harness {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            height: 100vh;
+        }
+
+        .editor-panel {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-panel h2 {
+            margin: 0;
+            padding: 16px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #252526;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .preview-header h2 {
+            margin: 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .preview-controls label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .preview-controls select {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .preview-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow: auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .preview-area.theme-light { background: #f5f5f5; }
+        .preview-area.theme-dark { background: #1a1a1a; }
+        .preview-area.theme-brand { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+        .event-log {
+            background: #252526;
+            color: #d4d4d4;
+            padding: 12px 16px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 120px;
+            overflow-y: auto;
+            border-top: 1px solid #3c3c3c;
+        }
+
+        .event-log-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .event-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .event-item:last-child { border-bottom: none; }
+        .event-type { color: #569cd6; }
+        .event-detail { color: #ce9178; }
+
+        .examples-bar {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #252526;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .example-btn {
+            padding: 6px 12px;
+            background: #0e639c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .example-btn:hover { background: #1177bb; }
+
+        /* ============================================================
+           Pendo Guide Component Styles (inline for test harness)
+           ============================================================ */
+
+        pendo-guide {
+            --pendo-primary: var(--brand-primary, #E84855);
+            --pendo-primary-hover: var(--brand-primary-hover, #d43d4a);
+            --pendo-font: var(--brand-font, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+            --pendo-radius: var(--brand-radius, 8px);
+            --pendo-bg: var(--brand-surface, #ffffff);
+            --pendo-text: var(--brand-text, #1a1a1a);
+            --pendo-text-muted: var(--brand-text-muted, #666666);
+            --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            --pendo-spacing: 24px;
+            --pendo-spacing-sm: 12px;
+            --pendo-spacing-xs: 8px;
+            --pendo-focus: var(--brand-focus, #005fcc);
+            --pendo-border: var(--brand-border, #e0e0e0);
+
+            display: block;
+            background: var(--pendo-bg);
+            border-radius: var(--pendo-radius);
+            box-shadow: var(--pendo-shadow);
+            padding: var(--pendo-spacing);
+            font-family: var(--pendo-font);
+            color: var(--pendo-text);
+            max-width: 400px;
+            width: 100%;
+            line-height: 1.5;
+        }
+
+        pendo-title {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--pendo-text);
+            margin: 0 0 var(--pendo-spacing-sm) 0;
+            line-height: 1.3;
+        }
+
+        pendo-text {
+            display: block;
+            font-size: 0.9375rem;
+            color: var(--pendo-text);
+            margin: 0 0 var(--pendo-spacing) 0;
+            line-height: 1.6;
+        }
+
+        pendo-text:last-child { margin-bottom: 0; }
+
+        pendo-button { display: inline-block; }
+        pendo-button + pendo-button { margin-left: var(--pendo-spacing-xs); }
+
+        .pendo-button {
+            all: unset;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: var(--pendo-radius);
+            font-family: var(--pendo-font);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+        }
+
+        .pendo-button:hover { opacity: 0.9; }
+        .pendo-button--primary { background: var(--pendo-primary); color: var(--pendo-primary-text, #ffffff); }
+        .pendo-button--primary:hover { background: var(--pendo-primary-hover); opacity: 1; }
+        .pendo-button--secondary { background: transparent; border: 1px solid var(--pendo-border); color: var(--pendo-text); }
+        .pendo-button--secondary:hover { background: rgba(0, 0, 0, 0.05); opacity: 1; }
+        .pendo-button:focus-visible { outline: 2px solid var(--pendo-focus); outline-offset: 2px; }
+
+        pendo-image { display: block; margin: var(--pendo-spacing-sm) 0; }
+        pendo-image img { display: block; max-width: 100%; height: auto; border-radius: 4px; }
+
+        pendo-divider {
+            display: block;
+            height: 1px;
+            background: var(--pendo-border);
+            margin: var(--pendo-spacing) 0;
+        }
+
+        pendo-video { display: block; margin: var(--pendo-spacing-sm) 0; }
+        pendo-video iframe, pendo-video video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: none;
+            border-radius: 4px;
+        }
+
+        /* Banner layout */
+        .pendo-guide--banner {
+            max-width: none;
+            border-radius: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: var(--pendo-spacing);
+            padding: var(--pendo-spacing-sm) var(--pendo-spacing);
+        }
+        .pendo-guide--banner pendo-title { margin: 0; font-size: 1rem; white-space: nowrap; }
+        .pendo-guide--banner pendo-text { margin: 0; font-size: 0.875rem; flex: 1; }
+        .pendo-guide--banner pendo-button { flex-shrink: 0; }
+
+        /* Slideout layout */
+        .pendo-guide--slideout {
+            max-width: 320px;
+        }
+
+        .pendo-guide__progress {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--pendo-spacing);
+            padding-bottom: var(--pendo-spacing-sm);
+            border-bottom: 1px solid var(--pendo-border);
+        }
+
+        .pendo-guide__progress-text { font-size: 0.8125rem; color: var(--pendo-text-muted); }
+        .pendo-guide__progress-dots { display: flex; gap: 6px; }
+        .pendo-guide__progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pendo-border); }
+        .pendo-guide__progress-dot--complete { background: var(--pendo-primary); opacity: 0.5; }
+        .pendo-guide__progress-dot--current { background: var(--pendo-primary); opacity: 1; }
+
+        /* pendo-link */
+        pendo-link { display: inline; }
+        .pendo-link {
+            color: var(--pendo-primary);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            cursor: pointer;
+        }
+        .pendo-link:hover { color: var(--pendo-primary-hover); }
+
+        /* pendo-list */
+        pendo-list { display: block; margin: var(--pendo-spacing-sm) 0; }
+        .pendo-list__items { margin: 0; padding-left: 1.5em; }
+        .pendo-list--bullet .pendo-list__items { list-style-type: disc; }
+        .pendo-list--numbered .pendo-list__items { list-style-type: decimal; }
+        .pendo-list--check .pendo-list__items { padding-left: 0; list-style: none; }
+        .pendo-list__item { margin-bottom: 0.5em; font-size: 0.9375rem; }
+        .pendo-list--check .pendo-list__item { display: flex; align-items: flex-start; gap: 0.5em; }
+        .pendo-list__check { flex-shrink: 0; width: 1.25em; color: var(--pendo-text-muted); }
+        .pendo-list__check--checked { color: var(--pendo-primary); }
+
+        /* pendo-input */
+        pendo-input { display: block; margin: var(--pendo-spacing-sm) 0; }
+        .pendo-input__wrapper { display: flex; flex-direction: column; gap: 0.375em; }
+        .pendo-input__label { font-size: 0.875rem; font-weight: 500; color: var(--pendo-text); }
+        .pendo-input__required { color: var(--pendo-primary); }
+        .pendo-input__field {
+            width: 100%;
+            padding: 0.625em 0.75em;
+            font-family: var(--pendo-font);
+            font-size: 0.9375rem;
+            color: var(--pendo-text);
+            background: var(--pendo-bg);
+            border: 1px solid var(--pendo-border);
+            border-radius: calc(var(--pendo-radius) / 2);
+        }
+        .pendo-input__field:focus {
+            outline: none;
+            border-color: var(--pendo-primary);
+            box-shadow: 0 0 0 3px rgba(232, 72, 85, 0.15);
+        }
+        .pendo-input__checkbox-group, .pendo-input__radio-group { display: flex; flex-direction: column; gap: 0.5em; }
+        .pendo-input__checkbox-item, .pendo-input__radio-item {
+            display: flex; align-items: center; gap: 0.5em; cursor: pointer; font-size: 0.9375rem;
+        }
+        .pendo-input__checkbox-item input, .pendo-input__radio-item input {
+            width: 1.125em; height: 1.125em; accent-color: var(--pendo-primary);
+        }
+
+        /* Poll components */
+        .pendo-poll { display: block; margin: var(--pendo-spacing-sm) 0; }
+        .pendo-poll__fieldset { border: none; margin: 0; padding: 0; }
+        .pendo-poll__question { display: block; font-size: 0.9375rem; font-weight: 500; color: var(--pendo-text); margin-bottom: var(--pendo-spacing-sm); }
+
+        /* Star rating */
+        .pendo-star-rating__stars { display: flex; gap: 4px; }
+        .pendo-star-rating__star { cursor: pointer; transition: transform 0.1s ease; }
+        .pendo-star-rating__star:hover { transform: scale(1.1); }
+        .pendo-star-rating__icon { width: 32px; height: 32px; fill: var(--pendo-border); stroke: var(--pendo-border); stroke-width: 1px; transition: fill 0.15s ease; }
+        .pendo-star-rating__star--selected .pendo-star-rating__icon,
+        .pendo-star-rating__star--highlighted .pendo-star-rating__icon { fill: #F5A623; stroke: #E09000; }
+
+        /* NPS */
+        .pendo-nps__scale { display: flex; gap: 4px; margin-bottom: 8px; }
+        .pendo-nps__score {
+            display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border: 1px solid var(--pendo-border);
+            border-radius: 4px; background: var(--pendo-bg); cursor: pointer; transition: all 0.15s ease;
+        }
+        .pendo-nps__score:hover { border-color: var(--pendo-primary); }
+        .pendo-nps__score--selected { background: var(--pendo-primary); border-color: var(--pendo-primary); color: #ffffff; }
+        .pendo-nps__score-value { font-size: 0.75rem; font-weight: 500; }
+        .pendo-nps__labels { display: flex; justify-content: space-between; }
+        .pendo-nps__label { font-size: 0.75rem; color: var(--pendo-text-muted); }
+
+        /* Number scale */
+        .pendo-number-scale__wrapper { display: inline-block; }
+        .pendo-number-scale__scale { display: flex; gap: 4px; }
+        .pendo-number-scale__item {
+            display: flex; align-items: center; justify-content: center;
+            min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid var(--pendo-border);
+            border-radius: 4px; background: var(--pendo-bg); cursor: pointer; transition: all 0.15s ease;
+        }
+        .pendo-number-scale__item:hover { border-color: var(--pendo-primary); }
+        .pendo-number-scale__item--selected { background: var(--pendo-primary); border-color: var(--pendo-primary); color: #ffffff; }
+        .pendo-number-scale__value { font-size: 0.875rem; font-weight: 500; }
+        .pendo-number-scale__labels { display: flex; justify-content: space-between; margin-top: 6px; }
+        .pendo-number-scale__label { font-size: 0.75rem; color: var(--pendo-text-muted); }
+
+        /* Open text */
+        .pendo-open-text__wrapper { display: flex; flex-direction: column; gap: 0.375em; }
+        .pendo-open-text__input {
+            width: 100%; padding: 0.625em 0.75em; font-family: var(--pendo-font);
+            font-size: 0.9375rem; color: var(--pendo-text); background: var(--pendo-bg);
+            border: 1px solid var(--pendo-border); border-radius: calc(var(--pendo-radius) / 2);
+            resize: vertical; min-height: 4em;
+        }
+        .pendo-open-text__input:focus { outline: none; border-color: var(--pendo-primary); box-shadow: 0 0 0 3px rgba(232, 72, 85, 0.15); }
+        .pendo-open-text__counter { font-size: 0.75rem; color: var(--pendo-text-muted); text-align: right; }
+
+        /* Emoji scale */
+        .pendo-emoji-scale__options { display: flex; gap: 12px; justify-content: center; }
+        .pendo-emoji-scale__option { cursor: pointer; padding: 8px; border-radius: 50%; transition: all 0.15s ease; border: 2px solid transparent; }
+        .pendo-emoji-scale__option:hover { background: rgba(0, 0, 0, 0.05); }
+        .pendo-emoji-scale__option--selected { border-color: var(--pendo-primary); background: rgba(232, 72, 85, 0.1); }
+        .pendo-emoji-scale__emoji { font-size: 2rem; line-height: 1; display: block; }
+
+        .pendo-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+        /* Dark theme support */
+        .theme-dark pendo-guide {
+            --pendo-bg: #1a1a1a;
+            --pendo-text: #f0f0f0;
+            --pendo-text-muted: #999999;
+            --pendo-border: #333333;
+        }
+    </style>
+</head>
+<body>
+    <div class="harness">
+        <div class="editor-panel">
+            <h2>HTML Editor</h2>
+            <div class="examples-bar">
+                <button class="example-btn" onclick="loadExample('welcome')">Welcome</button>
+                <button class="example-btn" onclick="loadExample('multistep')">Multi-step</button>
+                <button class="example-btn" onclick="loadExample('checklist')">Checklist</button>
+                <button class="example-btn" onclick="loadExample('form')">Form</button>
+                <button class="example-btn" onclick="loadExample('banner')">Banner</button>
+                <button class="example-btn" onclick="loadExample('slideout')">Slideout</button>
+                <button class="example-btn" onclick="loadExample('starRating')">Star Rating</button>
+                <button class="example-btn" onclick="loadExample('nps')">NPS</button>
+                <button class="example-btn" onclick="loadExample('numberScale')">Number Scale</button>
+                <button class="example-btn" onclick="loadExample('feedback')">Feedback</button>
+            </div>
+            <textarea id="editor" class="editor-textarea" spellcheck="false"></textarea>
+            <div class="event-log">
+                <div class="event-log-title">Event Log</div>
+                <div id="events"></div>
+            </div>
+        </div>
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h2>Preview</h2>
+                <div class="preview-controls">
+                    <label>Background:</label>
+                    <select id="theme-select" onchange="updateTheme()">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="brand">Brand Gradient</option>
+                    </select>
+                    <label style="margin-left: 16px;">Pendo Theme:</label>
+                    <select id="pendo-theme-select" onchange="applyPendoTheme()">
+                        <option value="default">Default (Pendo Red)</option>
+                        <option value="corporate">Corporate Blue</option>
+                        <option value="forest">Forest Green</option>
+                        <option value="purple">Purple Haze</option>
+                        <option value="minimal">Minimal Dark</option>
+                        <option value="warm">Warm Sunset</option>
+                    </select>
+                </div>
+            </div>
+            <div id="preview" class="preview-area theme-light"></div>
+        </div>
+    </div>
+
+    <!-- Load the real component library JS -->
+    <script src="../dist/pendo-guide-components.js"></script>
+
+    <script>
+        // ============================================================
+        // Test Harness Logic
+        // ============================================================
+
+        const examples = {
+            welcome: `<pendo-guide>
+    <pendo-title>Welcome to Acme!</pendo-title>
+    <pendo-text>We're excited to have you here. Let's take a quick tour to get you started.</pendo-text>
+    <pendo-text>Check out our <pendo-link href="https://docs.example.com">documentation</pendo-link> for more details.</pendo-text>
+    <pendo-button action="next-step">Get Started</pendo-button>
+    <pendo-button action="dismiss" variant="secondary">Maybe Later</pendo-button>
+</pendo-guide>`,
+
+            multistep: `<pendo-guide step="2" total-steps="4">
+    <pendo-title>Create Your First Project</pendo-title>
+    <pendo-text>Click the "New Project" button in the top right corner to create your first project.</pendo-text>
+    <pendo-button action="next-step">Next</pendo-button>
+    <pendo-button action="previous-step" variant="secondary">Back</pendo-button>
+</pendo-guide>`,
+
+            media: `<pendo-guide>
+    <pendo-title>New Feature: Dark Mode</pendo-title>
+    <pendo-image src="https://placehold.co/350x180/1a1a1a/ffffff?text=Dark+Mode+Preview" alt="Dark mode preview"></pendo-image>
+    <pendo-text>You can now switch to dark mode in your settings. It's easier on the eyes!</pendo-text>
+    <pendo-button action="link:https://docs.example.com/dark-mode">Learn More</pendo-button>
+    <pendo-button action="dismiss" variant="secondary">Dismiss</pendo-button>
+</pendo-guide>`,
+
+            checklist: `<pendo-guide>
+    <pendo-title>Getting Started Checklist</pendo-title>
+    <pendo-text>Complete these steps to get the most out of Acme:</pendo-text>
+    <pendo-list type="check">
+        <pendo-list-item checked>Create your account</pendo-list-item>
+        <pendo-list-item checked>Set up your profile</pendo-list-item>
+        <pendo-list-item>Invite team members</pendo-list-item>
+        <pendo-list-item>Create your first project</pendo-list-item>
+    </pendo-list>
+    <pendo-button action="next-step">Continue Setup</pendo-button>
+    <pendo-button action="dismiss" variant="secondary">Skip for Now</pendo-button>
+</pendo-guide>`,
+
+            form: `<pendo-guide>
+    <pendo-title>Quick Feedback</pendo-title>
+    <pendo-text>Help us improve by sharing your experience.</pendo-text>
+    <pendo-input type="text" name="name" label="Your Name" placeholder="Enter your name"></pendo-input>
+    <pendo-input type="textarea" name="feedback" label="Feedback" placeholder="What do you think?"></pendo-input>
+    <pendo-input type="select" name="category" label="Category" options="Bug Report,Feature Request,General Feedback"></pendo-input>
+    <pendo-button action="dismiss">Submit</pendo-button>
+</pendo-guide>`,
+
+            banner: `<!-- Banner: full-width bar at top or bottom -->
+<!-- Note: .pendo-guide--banner class is applied by pendo-client renderer -->
+<pendo-guide class="pendo-guide--banner">
+    <pendo-title>New Feature Available!</pendo-title>
+    <pendo-text>Check out our new analytics dashboard.</pendo-text>
+    <pendo-button action="link:https://example.com/analytics">Try It</pendo-button>
+    <pendo-button action="dismiss" variant="secondary">Dismiss</pendo-button>
+</pendo-guide>`,
+
+            slideout: `<!-- Slideout: side panel -->
+<!-- Note: .pendo-guide--slideout class is applied by pendo-client renderer -->
+<pendo-guide class="pendo-guide--slideout">
+    <pendo-title>Need Help?</pendo-title>
+    <pendo-text>Here are some tips to get you started:</pendo-text>
+    <pendo-list type="numbered">
+        <pendo-list-item>Click the + button to create a new item</pendo-list-item>
+        <pendo-list-item>Drag and drop to reorder</pendo-list-item>
+        <pendo-list-item>Double-click to edit inline</pendo-list-item>
+    </pendo-list>
+    <pendo-divider></pendo-divider>
+    <pendo-text>Still stuck? <pendo-link href="https://help.example.com">Visit our help center</pendo-link></pendo-text>
+    <pendo-button action="dismiss">Got it</pendo-button>
+</pendo-guide>`,
+
+            starRating: `<pendo-guide>
+    <pendo-title>How was your experience?</pendo-title>
+    <pendo-text>Your feedback helps us improve.</pendo-text>
+    <pendo-star-rating question="Rate this feature:"></pendo-star-rating>
+    <pendo-open-text question="Any additional comments?" placeholder="Tell us more..."></pendo-open-text>
+    <pendo-button action="dismiss">Submit</pendo-button>
+</pendo-guide>`,
+
+            nps: `<pendo-guide>
+    <pendo-title>We'd love your feedback</pendo-title>
+    <pendo-nps question="How likely are you to recommend us to a colleague?"></pendo-nps>
+    <pendo-button action="next-step">Next</pendo-button>
+</pendo-guide>`,
+
+            numberScale: `<pendo-guide>
+    <pendo-title>Rate This Feature</pendo-title>
+    <pendo-number-scale
+        question="How satisfied are you with this feature?"
+        min="1"
+        max="7"
+        low-label="Very dissatisfied"
+        high-label="Very satisfied">
+    </pendo-number-scale>
+    <pendo-divider></pendo-divider>
+    <pendo-number-scale
+        question="How easy was it to use?"
+        min="1"
+        max="5"
+        low-label="Very difficult"
+        high-label="Very easy">
+    </pendo-number-scale>
+    <pendo-button action="dismiss">Submit</pendo-button>
+</pendo-guide>`,
+
+            feedback: `<pendo-guide>
+    <pendo-title>Quick Check-in</pendo-title>
+    <pendo-text>How are you feeling about this feature?</pendo-text>
+    <pendo-emoji-scale question=""></pendo-emoji-scale>
+    <pendo-divider></pendo-divider>
+    <pendo-open-text question="What could we do better?" placeholder="Optional feedback..."></pendo-open-text>
+    <pendo-button action="dismiss">Submit Feedback</pendo-button>
+    <pendo-button action="dismiss" variant="secondary">Skip</pendo-button>
+</pendo-guide>`
+        };
+
+        // ============================================================
+        // Sample Pendo Themes (buildingBlocks format)
+        // ============================================================
+
+        const pendoThemes = {
+            default: {
+                container: {
+                    background: '#FFFFFF',
+                    borderColor: '#E0E0E0',
+                    borderRadius: '8px',
+                    shadowColor: 'rgba(0, 0, 0, 0.15)',
+                    shadowOffsetHorizontal: '0px',
+                    shadowOffsetVertical: '4px',
+                    shadowRadius: '24px',
+                    shadowSpread: '0px',
+                    paddingTop: '24px'
+                },
+                primaryButton: {
+                    background: '#E84855',
+                    borderRadius: '8px',
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                    hover: { background: '#d43d4a' }
+                },
+                title: { fontColor: '#1a1a1a' },
+                paragraph: { fontColor: '#666666' }
+            },
+            corporate: {
+                container: {
+                    background: '#FFFFFF',
+                    borderColor: '#CBD5E1',
+                    borderRadius: '4px',
+                    shadowColor: 'rgba(0, 0, 0, 0.1)',
+                    shadowOffsetHorizontal: '0px',
+                    shadowOffsetVertical: '2px',
+                    shadowRadius: '8px',
+                    shadowSpread: '0px',
+                    paddingTop: '20px'
+                },
+                primaryButton: {
+                    background: '#1E40AF',
+                    borderRadius: '4px',
+                    fontFamily: '"Segoe UI", Roboto, sans-serif',
+                    hover: { background: '#1E3A8A' }
+                },
+                title: { fontColor: '#0F172A' },
+                paragraph: { fontColor: '#475569' }
+            },
+            forest: {
+                container: {
+                    background: '#F0FDF4',
+                    borderColor: '#86EFAC',
+                    borderRadius: '12px',
+                    shadowColor: 'rgba(34, 197, 94, 0.2)',
+                    shadowOffsetHorizontal: '0px',
+                    shadowOffsetVertical: '4px',
+                    shadowRadius: '16px',
+                    shadowSpread: '0px',
+                    paddingTop: '24px'
+                },
+                primaryButton: {
+                    background: '#16A34A',
+                    borderRadius: '24px',
+                    fontFamily: 'system-ui, sans-serif',
+                    hover: { background: '#15803D' }
+                },
+                title: { fontColor: '#14532D' },
+                paragraph: { fontColor: '#166534' }
+            },
+            purple: {
+                container: {
+                    background: '#FAF5FF',
+                    borderColor: '#D8B4FE',
+                    borderRadius: '16px',
+                    shadowColor: 'rgba(147, 51, 234, 0.2)',
+                    shadowOffsetHorizontal: '0px',
+                    shadowOffsetVertical: '8px',
+                    shadowRadius: '24px',
+                    shadowSpread: '0px',
+                    paddingTop: '28px'
+                },
+                primaryButton: {
+                    background: '#9333EA',
+                    borderRadius: '12px',
+                    fontFamily: '"Inter", system-ui, sans-serif',
+                    hover: { background: '#7E22CE' }
+                },
+                title: { fontColor: '#581C87' },
+                paragraph: { fontColor: '#7C3AED' }
+            },
+            minimal: {
+                container: {
+                    background: '#18181B',
+                    borderColor: '#3F3F46',
+                    borderRadius: '8px',
+                    shadowColor: 'rgba(0, 0, 0, 0.5)',
+                    shadowOffsetHorizontal: '0px',
+                    shadowOffsetVertical: '8px',
+                    shadowRadius: '32px',
+                    shadowSpread: '0px',
+                    paddingTop: '24px'
+                },
+                primaryButton: {
+                    background: '#FAFAFA',
+                    borderRadius: '6px',
+                    fontFamily: 'system-ui, sans-serif',
+                    fontColor: '#18181B',
+                    hover: { background: '#E4E4E7' }
+                },
+                title: { fontColor: '#FAFAFA' },
+                paragraph: { fontColor: '#A1A1AA' }
+            },
+            warm: {
+                container: {
+                    background: '#FFFBEB',
+                    borderColor: '#FCD34D',
+                    borderRadius: '12px',
+                    shadowColor: 'rgba(245, 158, 11, 0.2)',
+                    shadowOffsetHorizontal: '0px',
+                    shadowOffsetVertical: '4px',
+                    shadowRadius: '20px',
+                    shadowSpread: '0px',
+                    paddingTop: '24px'
+                },
+                primaryButton: {
+                    background: '#F59E0B',
+                    borderRadius: '8px',
+                    fontFamily: 'Georgia, serif',
+                    hover: { background: '#D97706' }
+                },
+                title: { fontColor: '#78350F' },
+                paragraph: { fontColor: '#92400E' }
+            }
+        };
+
+        // Convert buildingBlocks to CSS custom properties
+        function buildingBlocksToCSS(bb) {
+            const css = {};
+            const container = bb.container || {};
+
+            if (container.background) css['--pendo-bg'] = container.background;
+            if (container.borderColor) css['--pendo-border'] = container.borderColor;
+            if (container.borderRadius) css['--pendo-radius'] = container.borderRadius;
+
+            // Build box-shadow
+            if (container.shadowColor) {
+                const h = container.shadowOffsetHorizontal || '0px';
+                const v = container.shadowOffsetVertical || '0px';
+                const blur = container.shadowRadius || '0px';
+                const spread = container.shadowSpread || '0px';
+                css['--pendo-shadow'] = `${h} ${v} ${blur} ${spread} ${container.shadowColor}`;
+            }
+
+            if (container.paddingTop) css['--pendo-spacing'] = container.paddingTop;
+
+            const primaryButton = bb.primaryButton || {};
+            if (primaryButton.background) css['--pendo-primary'] = primaryButton.background;
+            if (primaryButton.hover?.background) css['--pendo-primary-hover'] = primaryButton.hover.background;
+            if (primaryButton.fontFamily) css['--pendo-font'] = primaryButton.fontFamily;
+            if (primaryButton.borderRadius) css['--pendo-button-radius'] = primaryButton.borderRadius;
+            if (primaryButton.fontColor) css['--pendo-primary-text'] = primaryButton.fontColor;
+
+            if (bb.title?.fontColor) css['--pendo-text'] = bb.title.fontColor;
+            if (bb.paragraph?.fontColor) css['--pendo-text-muted'] = bb.paragraph.fontColor;
+
+            return css;
+        }
+
+        // Apply Pendo theme to the guide in preview
+        function applyPendoTheme() {
+            const themeName = document.getElementById('pendo-theme-select').value;
+            const bb = pendoThemes[themeName];
+            const guideEl = document.querySelector('#preview pendo-guide');
+
+            if (!guideEl || !bb) return;
+
+            // Clear previous theme styles
+            const allProps = ['--pendo-bg', '--pendo-border', '--pendo-radius', '--pendo-shadow',
+                             '--pendo-spacing', '--pendo-primary', '--pendo-primary-hover', '--pendo-primary-text',
+                             '--pendo-font', '--pendo-button-radius', '--pendo-text', '--pendo-text-muted'];
+            allProps.forEach(prop => guideEl.style.removeProperty(prop));
+
+            // Apply new theme
+            const cssProps = buildingBlocksToCSS(bb);
+            Object.entries(cssProps).forEach(([prop, value]) => {
+                guideEl.style.setProperty(prop, value);
+            });
+
+            logThemeEvent(themeName, cssProps);
+        }
+
+        function logThemeEvent(themeName, cssProps) {
+            const events = document.getElementById('events');
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `<span class="event-type">theme-applied</span>: <span class="event-detail">${themeName} (${Object.keys(cssProps).length} properties)</span>`;
+            events.insertBefore(item, events.firstChild);
+            while (events.children.length > 10) events.removeChild(events.lastChild);
+        }
+
+        function loadExample(name) {
+            document.getElementById('editor').value = examples[name];
+            updatePreview();
+            // Re-apply theme after loading new example
+            setTimeout(applyPendoTheme, 0);
+        }
+
+        function updateTheme() {
+            const theme = document.getElementById('theme-select').value;
+            const preview = document.getElementById('preview');
+            preview.className = 'preview-area theme-' + theme;
+        }
+
+        function updatePreview() {
+            const html = document.getElementById('editor').value;
+            const preview = document.getElementById('preview');
+            preview.innerHTML = html;
+
+            // Attach event listeners to new elements
+            preview.querySelectorAll('pendo-guide').forEach(guide => {
+                guide.addEventListener('pendo-action', logEvent);
+                guide.addEventListener('pendo-response', logEvent);
+            });
+
+            // Apply current Pendo theme
+            applyPendoTheme();
+        }
+
+        function logEvent(e) {
+            const events = document.getElementById('events');
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `<span class="event-type">${e.type}</span>: <span class="event-detail">${JSON.stringify(e.detail)}</span>`;
+            events.insertBefore(item, events.firstChild);
+
+            while (events.children.length > 10) {
+                events.removeChild(events.lastChild);
+            }
+        }
+
+        // Auto-update preview on editor change
+        document.getElementById('editor').addEventListener('input', updatePreview);
+
+        // Load initial example
+        loadExample('welcome');
+    </script>
+</body>
+</html>

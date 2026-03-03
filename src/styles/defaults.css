@@ -1,0 +1,864 @@
+/**
+ * @pendo/guide-components - Default Styles
+ *
+ * These styles provide sensible defaults while allowing easy customization
+ * via CSS custom properties. Components inherit from customer design tokens
+ * when available.
+ */
+
+/* =============================================================================
+   CSS Custom Properties (Theming)
+   Customers can override these, or they inherit from brand variables
+   ============================================================================= */
+
+pendo-guide,
+.pendo-guide {
+    /* Primary theming - inherit from customer's design tokens if available */
+    --pendo-primary: var(--brand-primary, #E84855);
+    --pendo-primary-hover: var(--brand-primary-hover, #d43d4a);
+    --pendo-font: var(--brand-font, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    --pendo-radius: var(--brand-radius, 8px);
+    --pendo-bg: var(--brand-surface, #ffffff);
+    --pendo-text: var(--brand-text, #1a1a1a);
+    --pendo-text-muted: var(--brand-text-muted, #666666);
+
+    /* Component-specific */
+    --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    --pendo-spacing: 24px;
+    --pendo-spacing-sm: 12px;
+    --pendo-spacing-xs: 8px;
+    --pendo-focus: var(--brand-focus, #005fcc);
+    --pendo-border: var(--brand-border, #e0e0e0);
+}
+
+/* =============================================================================
+   CSS Reset (Light DOM protection)
+   Prevents external styles from breaking components
+   ============================================================================= */
+
+pendo-guide,
+pendo-guide *,
+pendo-guide *::before,
+pendo-guide *::after {
+    box-sizing: border-box;
+}
+
+pendo-guide {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================================================
+   pendo-guide (Container)
+   ============================================================================= */
+
+pendo-guide,
+.pendo-guide {
+    display: block;
+    background: var(--pendo-bg);
+    border-radius: var(--pendo-radius);
+    box-shadow: var(--pendo-shadow);
+    padding: var(--pendo-spacing);
+    font-family: var(--pendo-font);
+    color: var(--pendo-text);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Semantic layout elements */
+pendo-guide-content {
+    display: block;
+}
+
+pendo-guide-footer {
+    display: flex;
+    gap: var(--pendo-spacing-xs);
+    margin-top: var(--pendo-spacing);
+    justify-content: flex-end;
+}
+
+/* Layout variants (applied by pendo-client) */
+.pendo-guide--lightbox {
+    /* Lightbox is centered via container positioning */
+}
+
+.pendo-guide--tooltip {
+    /* Container handles absolute positioning; this is relative for caret */
+    position: relative;
+    min-width: 280px;
+    width: max-content;
+    max-width: 360px;
+}
+
+.pendo-guide--tooltip::before {
+    content: '';
+    position: absolute;
+    border: 8px solid transparent;
+    z-index: 1;
+}
+
+.pendo-guide--tooltip-bottom::before {
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-color: var(--pendo-bg);
+}
+
+.pendo-guide--tooltip-top::before {
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top-color: var(--pendo-bg);
+}
+
+.pendo-guide--tooltip-left::before {
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left-color: var(--pendo-bg);
+}
+
+.pendo-guide--tooltip-right::before {
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-right-color: var(--pendo-bg);
+}
+
+.pendo-guide--banner {
+    max-width: none;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* Horizontal layout for banner */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pendo-spacing);
+    padding: var(--pendo-spacing-sm) var(--pendo-spacing);
+}
+
+.pendo-guide--banner pendo-title {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.pendo-guide--banner pendo-text {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.pendo-guide--banner pendo-button + pendo-button {
+    margin-left: var(--pendo-spacing-xs);
+}
+
+/* Slideout layout */
+.pendo-guide--slideout {
+    max-width: 360px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.pendo-guide--slideout-right,
+.pendo-guide--slideout-top-right,
+.pendo-guide--slideout-bottom-right {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.pendo-guide--slideout-left,
+.pendo-guide--slideout-top-left,
+.pendo-guide--slideout-bottom-left {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* =============================================================================
+   pendo-title
+   ============================================================================= */
+
+pendo-title,
+.pendo-guide__title {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--pendo-text);
+    margin: 0 0 var(--pendo-spacing-sm) 0;
+    line-height: 1.3;
+}
+
+/* =============================================================================
+   pendo-text
+   ============================================================================= */
+
+pendo-text,
+.pendo-guide__text {
+    display: block;
+    font-size: 0.9375rem;
+    color: var(--pendo-text);
+    margin: 0 0 var(--pendo-spacing) 0;
+    line-height: 1.6;
+}
+
+pendo-text:last-child {
+    margin-bottom: 0;
+}
+
+/* =============================================================================
+   pendo-button
+   ============================================================================= */
+
+pendo-button {
+    display: inline-block;
+}
+
+pendo-button + pendo-button {
+    margin-left: var(--pendo-spacing-xs);
+}
+
+.pendo-button {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--pendo-spacing-sm) var(--pendo-spacing);
+    border-radius: var(--pendo-radius);
+    font-family: var(--pendo-font);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.pendo-button:hover {
+    opacity: 0.9;
+}
+
+.pendo-button--primary {
+    background: var(--pendo-primary);
+    color: var(--pendo-primary-text, #ffffff);
+}
+
+.pendo-button--primary:hover {
+    background: var(--pendo-primary-hover);
+    opacity: 1;
+}
+
+.pendo-button--secondary {
+    background: transparent;
+    border: 1px solid var(--pendo-border);
+    color: var(--pendo-text);
+}
+
+.pendo-button--secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+    opacity: 1;
+}
+
+/* Button container for multiple buttons */
+pendo-guide > pendo-button:last-child,
+pendo-guide > :last-child pendo-button {
+    margin-top: var(--pendo-spacing-sm);
+}
+
+/* =============================================================================
+   pendo-image
+   ============================================================================= */
+
+pendo-image,
+.pendo-guide__image-container {
+    display: block;
+    margin: var(--pendo-spacing-sm) 0;
+}
+
+.pendo-guide__image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: calc(var(--pendo-radius) / 2);
+}
+
+.pendo-guide__image-container--error {
+    background: var(--pendo-border);
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pendo-guide__image-container--error::after {
+    content: 'Image failed to load';
+    color: var(--pendo-text-muted);
+    font-size: 0.875rem;
+}
+
+/* =============================================================================
+   pendo-divider
+   ============================================================================= */
+
+pendo-divider,
+.pendo-guide__divider {
+    display: block;
+    height: 1px;
+    background: var(--pendo-border);
+    margin: var(--pendo-spacing) 0;
+    border: none;
+}
+
+/* =============================================================================
+   pendo-video
+   ============================================================================= */
+
+pendo-video,
+.pendo-guide__video-container {
+    display: block;
+    margin: var(--pendo-spacing-sm) 0;
+}
+
+.pendo-guide__video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+    border-radius: calc(var(--pendo-radius) / 2);
+    background: #000;
+}
+
+/* =============================================================================
+   pendo-link
+   ============================================================================= */
+
+pendo-link {
+    display: inline;
+}
+
+.pendo-link {
+    color: var(--pendo-primary);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.pendo-link:hover {
+    color: var(--pendo-primary-hover);
+}
+
+.pendo-link:focus-visible {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* =============================================================================
+   pendo-list
+   ============================================================================= */
+
+pendo-list,
+.pendo-list {
+    display: block;
+    margin: var(--pendo-spacing-sm) 0;
+}
+
+.pendo-list__items {
+    margin: 0;
+    padding-left: 1.5em;
+    list-style: none;
+}
+
+.pendo-list--bullet .pendo-list__items {
+    list-style-type: disc;
+}
+
+.pendo-list--numbered .pendo-list__items {
+    list-style-type: decimal;
+}
+
+.pendo-list--check .pendo-list__items {
+    padding-left: 0;
+}
+
+.pendo-list__item {
+    margin-bottom: 0.5em;
+    font-size: 0.9375rem;
+    color: var(--pendo-text);
+    line-height: 1.5;
+}
+
+.pendo-list__item:last-child {
+    margin-bottom: 0;
+}
+
+.pendo-list--check .pendo-list__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5em;
+}
+
+.pendo-list__check {
+    flex-shrink: 0;
+    width: 1.25em;
+    height: 1.25em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875em;
+    color: var(--pendo-text-muted);
+}
+
+.pendo-list__check--checked {
+    color: var(--pendo-primary);
+}
+
+/* =============================================================================
+   pendo-input
+   ============================================================================= */
+
+pendo-input,
+.pendo-input {
+    display: block;
+    margin: var(--pendo-spacing-sm) 0;
+}
+
+.pendo-input__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375em;
+}
+
+.pendo-input__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--pendo-text);
+}
+
+.pendo-input__required {
+    color: var(--pendo-primary);
+}
+
+.pendo-input__field {
+    width: 100%;
+    padding: 0.625em 0.75em;
+    font-family: var(--pendo-font);
+    font-size: 0.9375rem;
+    color: var(--pendo-text);
+    background: var(--pendo-bg);
+    border: 1px solid var(--pendo-border);
+    border-radius: calc(var(--pendo-radius) / 2);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pendo-input__field::placeholder {
+    color: var(--pendo-text-muted);
+}
+
+.pendo-input__field:focus {
+    outline: none;
+    border-color: var(--pendo-primary);
+    box-shadow: 0 0 0 3px rgba(232, 72, 85, 0.15);
+}
+
+.pendo-input__field:invalid:not(:placeholder-shown) {
+    border-color: #dc3545;
+}
+
+textarea.pendo-input__field {
+    resize: vertical;
+    min-height: 4em;
+}
+
+select.pendo-input__field {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5em center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5em;
+}
+
+/* Checkbox and radio styles */
+.pendo-input__checkbox-group,
+.pendo-input__radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.pendo-input__checkbox-item,
+.pendo-input__radio-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    color: var(--pendo-text);
+}
+
+.pendo-input__checkbox-item input,
+.pendo-input__radio-item input {
+    width: 1.125em;
+    height: 1.125em;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--pendo-primary);
+}
+
+/* =============================================================================
+   Poll Components (Base)
+   ============================================================================= */
+
+.pendo-poll {
+    display: block;
+    margin: var(--pendo-spacing-sm) 0;
+}
+
+.pendo-poll__fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.pendo-poll__question {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--pendo-text);
+    margin-bottom: var(--pendo-spacing-sm);
+}
+
+/* =============================================================================
+   pendo-star-rating
+   ============================================================================= */
+
+.pendo-star-rating__stars {
+    display: flex;
+    gap: 4px;
+}
+
+.pendo-star-rating__star {
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.pendo-star-rating__star:hover {
+    transform: scale(1.1);
+}
+
+.pendo-star-rating__icon {
+    width: 32px;
+    height: 32px;
+    fill: var(--pendo-border);
+    stroke: var(--pendo-border);
+    stroke-width: 1px;
+    transition: fill 0.15s ease;
+}
+
+.pendo-star-rating__star--selected .pendo-star-rating__icon,
+.pendo-star-rating__star--highlighted .pendo-star-rating__icon {
+    fill: #F5A623;
+    stroke: #E09000;
+}
+
+.pendo-star-rating__star:focus-within .pendo-star-rating__icon {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* =============================================================================
+   pendo-nps
+   ============================================================================= */
+
+.pendo-nps__scale {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.pendo-nps__score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 24px;
+    height: 32px;
+    border: 1px solid var(--pendo-border);
+    border-radius: 4px;
+    background: var(--pendo-bg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pendo-nps__score:hover {
+    border-color: var(--pendo-primary);
+}
+
+.pendo-nps__score--selected {
+    background: var(--pendo-primary);
+    border-color: var(--pendo-primary);
+    color: #ffffff;
+}
+
+.pendo-nps__score:focus-within {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+}
+
+.pendo-nps__score-value {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.pendo-nps__labels {
+    display: flex;
+    justify-content: space-between;
+}
+
+.pendo-nps__label {
+    font-size: 0.75rem;
+    color: var(--pendo-text-muted);
+}
+
+/* =============================================================================
+   pendo-number-scale
+   ============================================================================= */
+
+.pendo-number-scale__wrapper {
+    display: inline-block;
+}
+
+.pendo-number-scale__scale {
+    display: flex;
+    gap: 4px;
+}
+
+.pendo-number-scale__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid var(--pendo-border);
+    border-radius: 4px;
+    background: var(--pendo-bg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pendo-number-scale__item:hover {
+    border-color: var(--pendo-primary);
+}
+
+.pendo-number-scale__item--selected {
+    background: var(--pendo-primary);
+    border-color: var(--pendo-primary);
+    color: #ffffff;
+}
+
+.pendo-number-scale__item:focus-within {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+}
+
+.pendo-number-scale__value {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.pendo-number-scale__labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+.pendo-number-scale__label {
+    font-size: 0.75rem;
+    color: var(--pendo-text-muted);
+}
+
+/* =============================================================================
+   pendo-open-text
+   ============================================================================= */
+
+.pendo-open-text__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375em;
+}
+
+.pendo-open-text__input {
+    width: 100%;
+    padding: 0.625em 0.75em;
+    font-family: var(--pendo-font);
+    font-size: 0.9375rem;
+    color: var(--pendo-text);
+    background: var(--pendo-bg);
+    border: 1px solid var(--pendo-border);
+    border-radius: calc(var(--pendo-radius) / 2);
+    resize: vertical;
+    min-height: 4em;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pendo-open-text__input::placeholder {
+    color: var(--pendo-text-muted);
+}
+
+.pendo-open-text__input:focus {
+    outline: none;
+    border-color: var(--pendo-primary);
+    box-shadow: 0 0 0 3px rgba(232, 72, 85, 0.15);
+}
+
+.pendo-open-text__counter {
+    font-size: 0.75rem;
+    color: var(--pendo-text-muted);
+    text-align: right;
+}
+
+/* =============================================================================
+   pendo-emoji-scale
+   ============================================================================= */
+
+.pendo-emoji-scale__options {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.pendo-emoji-scale__option {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.15s ease;
+    border: 2px solid transparent;
+}
+
+.pendo-emoji-scale__option:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.pendo-emoji-scale__option--selected {
+    border-color: var(--pendo-primary);
+    background: rgba(232, 72, 85, 0.1);
+}
+
+.pendo-emoji-scale__option:focus-within {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+}
+
+.pendo-emoji-scale__emoji {
+    font-size: 2rem;
+    line-height: 1;
+    display: block;
+}
+
+/* =============================================================================
+   Progress Indicator
+   ============================================================================= */
+
+.pendo-guide__progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--pendo-spacing);
+    padding-bottom: var(--pendo-spacing-sm);
+    border-bottom: 1px solid var(--pendo-border);
+}
+
+.pendo-guide__progress-text {
+    font-size: 0.8125rem;
+    color: var(--pendo-text-muted);
+}
+
+.pendo-guide__progress-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.pendo-guide__progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pendo-border);
+    transition: background-color 0.2s ease;
+}
+
+.pendo-guide__progress-dot--complete {
+    background: var(--pendo-primary);
+    opacity: 0.5;
+}
+
+.pendo-guide__progress-dot--current {
+    background: var(--pendo-primary);
+    opacity: 1;
+}
+
+/* =============================================================================
+   Accessibility
+   ============================================================================= */
+
+/* Visible focus indicators */
+.pendo-button:focus-visible {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+}
+
+pendo-guide:focus {
+    outline: none;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    pendo-guide,
+    pendo-guide * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Visually hidden but screen-reader accessible */
+.pendo-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* =============================================================================
+   Dark Mode Support (via prefers-color-scheme or .dark class)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    pendo-guide:not([data-theme="light"]),
+    .pendo-guide:not([data-theme="light"]) {
+        --pendo-bg: var(--brand-surface-dark, #1a1a1a);
+        --pendo-text: var(--brand-text-dark, #f0f0f0);
+        --pendo-text-muted: var(--brand-text-muted-dark, #999999);
+        --pendo-border: var(--brand-border-dark, #333333);
+        --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+}
+
+[data-theme="dark"] pendo-guide,
+.dark pendo-guide {
+    --pendo-bg: var(--brand-surface-dark, #1a1a1a);
+    --pendo-text: var(--brand-text-dark, #f0f0f0);
+    --pendo-text-muted: var(--brand-text-muted-dark, #999999);
+    --pendo-border: var(--brand-border-dark, #333333);
+    --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}

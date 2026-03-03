@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendo HTML Guides - Integration Test</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 8px; }
+        .subtitle { color: #666; margin-bottom: 24px; }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .card h2 { margin: 0 0 16px 0; font-size: 16px; color: #333; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; color: #666; margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea { min-height: 120px; font-family: monospace; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .btn-primary { background: #E84855; color: white; }
+        .btn-primary:hover { background: #d43d4a; }
+        .btn-secondary { background: #eee; color: #333; }
+        .btn-secondary:hover { background: #ddd; }
+
+        .status { padding: 12px; border-radius: 4px; margin-top: 16px; font-size: 14px; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #cce5ff; color: #004085; }
+
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+        .log-entry { padding: 4px 0; border-bottom: 1px solid #333; }
+        .log-entry:last-child { border-bottom: none; }
+        .log-time { color: #888; }
+        .log-type { color: #569cd6; }
+        .log-msg { color: #ce9178; }
+
+        /* Pendo Guide Component Styles */
+        pendo-guide {
+            --pendo-primary: var(--brand-primary, #E84855);
+            --pendo-font: system-ui, -apple-system, sans-serif;
+            --pendo-radius: 8px;
+            --pendo-bg: #ffffff;
+            --pendo-text: #1a1a1a;
+            --pendo-text-muted: #666666;
+            --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+            --pendo-spacing: 24px;
+            --pendo-spacing-sm: 12px;
+            --pendo-spacing-xs: 8px;
+            --pendo-border: #e0e0e0;
+
+            display: block;
+            background: var(--pendo-bg);
+            border-radius: var(--pendo-radius);
+            box-shadow: var(--pendo-shadow);
+            padding: var(--pendo-spacing);
+            font-family: var(--pendo-font);
+            color: var(--pendo-text);
+            max-width: 400px;
+            line-height: 1.5;
+        }
+        pendo-title { display: block; font-size: 1.25rem; font-weight: 600; margin: 0 0 12px 0; }
+        pendo-text { display: block; font-size: 0.9375rem; margin: 0 0 24px 0; }
+        pendo-button { display: inline-block; }
+        pendo-button + pendo-button { margin-left: 8px; }
+        .pendo-button {
+            all: unset;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .pendo-button--primary { background: #E84855; color: white; }
+        .pendo-button--secondary { background: transparent; border: 1px solid #e0e0e0; color: #333; }
+        pendo-divider { display: block; height: 1px; background: #e0e0e0; margin: 24px 0; }
+        pendo-image img { max-width: 100%; border-radius: 4px; }
+
+        .pendo-guide__progress {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #e0e0e0;
+        }
+        .pendo-guide__progress-text { font-size: 0.8125rem; color: #666; }
+        .pendo-guide__progress-dots { display: flex; gap: 6px; }
+        .pendo-guide__progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #e0e0e0; }
+        .pendo-guide__progress-dot--complete { background: #E84855; opacity: 0.5; }
+        .pendo-guide__progress-dot--current { background: #E84855; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pendo HTML Guides - Integration Test</h1>
+        <p class="subtitle">Test the HtmlGuides plugin against pendo-dev</p>
+
+        <div class="card">
+            <h2>1. Configuration</h2>
+            <div class="form-group">
+                <label>Environment</label>
+                <select id="env">
+                    <option value="https://app.pendo-dev.pendo-dev.com">pendo-dev</option>
+                    <option value="https://app.pendo-test.pendo-test.com">pendo-test</option>
+                    <option value="https://app.pendo.io">production</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Subscription ID</label>
+                <input type="text" id="subId" placeholder="e.g., 123456789">
+            </div>
+            <div class="form-group">
+                <label>API Key (Integration Key)</label>
+                <input type="password" id="apiKey" placeholder="Your integration key">
+            </div>
+            <div class="form-group">
+                <label>App ID</label>
+                <input type="text" id="appId" placeholder="e.g., -123456789">
+                <button class="btn btn-secondary" style="margin-top: 8px;" onclick="listApps()">Load Apps</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Create HTML Guide</h2>
+            <div class="form-group">
+                <label>Guide Name</label>
+                <input type="text" id="guideName" value="HTML Test Guide">
+            </div>
+            <div class="form-group">
+                <label>HTML Content</label>
+                <textarea id="htmlContent"><pendo-guide>
+    <pendo-title>Welcome to HTML Guides!</pendo-title>
+    <pendo-text>This guide was created via API with HTML content stored in step attributes.</pendo-text>
+    <pendo-button action="next-step">Continue</pendo-button>
+    <pendo-button action="dismiss" variant="secondary">Dismiss</pendo-button>
+</pendo-guide></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="createGuide()">Create Guide</button>
+            <button class="btn btn-secondary" onclick="listGuides()">List Guides</button>
+            <div id="createStatus"></div>
+        </div>
+
+        <div class="card">
+            <h2>3. Render Guide from JSON</h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 16px;">
+                Paste guide JSON (from curl) to render with our components. This bypasses CORS restrictions.
+            </p>
+            <div class="form-group">
+                <label>Guide JSON (paste from curl output)</label>
+                <textarea id="guideJson" style="min-height: 150px; font-size: 12px;"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="renderGuideFromJson()">Render Guide</button>
+            <button class="btn btn-secondary" onclick="loadSampleGuide()">Load Sample</button>
+            <button class="btn btn-secondary" onclick="simulateGuide()">Render Editor Content</button>
+            <button class="btn btn-secondary" onclick="clearGuide()">Clear</button>
+            <div id="fetchStatus"></div>
+            <div id="guideContainer" style="margin-top: 20px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>4. Event Log</h2>
+            <div id="log" class="log">
+                <div class="log-entry"><span class="log-time">[--:--:--]</span> <span class="log-type">INFO</span> <span class="log-msg">Ready</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // Pendo Guide Components (inline)
+        // ============================================================
+        class PendoBaseElement extends HTMLElement {
+            emitAction(action, params = {}) {
+                this.dispatchEvent(new CustomEvent('pendo-action', {
+                    detail: { action, params },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+            generateId() {
+                return 'pendo-' + Math.random().toString(36).substring(2, 11);
+            }
+        }
+
+        class PendoGuide extends PendoBaseElement {
+            connectedCallback() {
+                const step = parseInt(this.getAttribute('step') || '1', 10);
+                const totalSteps = parseInt(this.getAttribute('total-steps') || '1', 10);
+                if (totalSteps > 1) this.renderProgress(step, totalSteps);
+                this.setAttribute('role', 'dialog');
+                this.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') this.emitAction('dismiss');
+                });
+            }
+            renderProgress(step, totalSteps) {
+                const progress = document.createElement('div');
+                progress.className = 'pendo-guide__progress';
+                const dots = Array.from({ length: totalSteps }, (_, i) => {
+                    const classes = ['pendo-guide__progress-dot'];
+                    if (i < step) classes.push('pendo-guide__progress-dot--complete');
+                    if (i === step - 1) classes.push('pendo-guide__progress-dot--current');
+                    return `<span class="${classes.join(' ')}"></span>`;
+                }).join('');
+                progress.innerHTML = `<span class="pendo-guide__progress-text">Step ${step} of ${totalSteps}</span><div class="pendo-guide__progress-dots">${dots}</div>`;
+                this.insertBefore(progress, this.firstChild);
+            }
+        }
+        customElements.define('pendo-guide', PendoGuide);
+
+        class PendoTitle extends PendoBaseElement {
+            connectedCallback() { this.setAttribute('role', 'heading'); }
+        }
+        customElements.define('pendo-title', PendoTitle);
+
+        class PendoText extends PendoBaseElement {}
+        customElements.define('pendo-text', PendoText);
+
+        class PendoButton extends PendoBaseElement {
+            connectedCallback() {
+                const action = this.getAttribute('action') || 'dismiss';
+                const variant = this.getAttribute('variant') || 'primary';
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `pendo-button pendo-button--${variant}`;
+                button.innerHTML = this.innerHTML;
+                this.innerHTML = '';
+                this.appendChild(button);
+                button.addEventListener('click', () => {
+                    const [actionType, param] = action.split(':');
+                    log('ACTION', `${actionType}${param ? ': ' + param : ''}`);
+                    this.emitAction(actionType, param ? { param } : {});
+                });
+            }
+        }
+        customElements.define('pendo-button', PendoButton);
+
+        class PendoDivider extends PendoBaseElement {
+            connectedCallback() { this.setAttribute('role', 'separator'); }
+        }
+        customElements.define('pendo-divider', PendoDivider);
+
+        class PendoImage extends PendoBaseElement {
+            connectedCallback() {
+                const src = this.getAttribute('src');
+                const alt = this.getAttribute('alt') || '';
+                if (src) {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = alt;
+                    this.appendChild(img);
+                }
+            }
+        }
+        customElements.define('pendo-image', PendoImage);
+
+        // ============================================================
+        // Test Page Logic
+        // ============================================================
+        function log(type, msg) {
+            const logEl = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-type">${type}</span> <span class="log-msg">${msg}</span>`;
+            logEl.insertBefore(entry, logEl.firstChild);
+        }
+
+        function showStatus(id, type, msg) {
+            const el = document.getElementById(id);
+            el.className = `status ${type}`;
+            el.textContent = msg;
+        }
+
+        async function listApps() {
+            const env = document.getElementById('env').value;
+            const subId = document.getElementById('subId').value;
+            const apiKey = document.getElementById('apiKey').value;
+
+            if (!subId || !apiKey) {
+                showStatus('createStatus', 'error', 'Please enter Subscription ID and API Key first');
+                return;
+            }
+
+            log('INFO', `Fetching apps from ${env}...`);
+
+            try {
+                const response = await fetch(`${env}/api/s/${subId}/app`, {
+                    headers: { 'X-Pendo-Integration-Key': apiKey }
+                });
+                const data = await response.json();
+
+                if (response.ok && Array.isArray(data)) {
+                    log('SUCCESS', `Found ${data.length} apps`);
+                    data.forEach(app => log('INFO', `  - ${app.displayName || app.name} (${app.id})`));
+                    if (data.length > 0) {
+                        document.getElementById('appId').value = data[0].id;
+                        log('INFO', `Auto-selected first app: ${data[0].id}`);
+                    }
+                } else {
+                    log('ERROR', `Failed to fetch apps: ${JSON.stringify(data)}`);
+                }
+            } catch (err) {
+                log('ERROR', `Request failed: ${err.message}`);
+            }
+        }
+
+        async function createGuide() {
+            const env = document.getElementById('env').value;
+            const subId = document.getElementById('subId').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const appId = document.getElementById('appId').value;
+            const guideName = document.getElementById('guideName').value;
+            const htmlContent = document.getElementById('htmlContent').value;
+
+            if (!subId || !apiKey || !appId) {
+                showStatus('createStatus', 'error', 'Please enter Subscription ID, API Key, and App ID');
+                return;
+            }
+
+            log('INFO', `Creating guide "${guideName}" on ${env}...`);
+
+            const payload = {
+                name: guideName,
+                appId: parseInt(appId, 10),
+                state: 'draft',
+                launchMethod: 'auto',
+                isMultiStep: false,
+                steps: [{
+                    buildingBlockLayoutType: 'lightbox',
+                    attributes: {
+                        htmlContent: htmlContent
+                    }
+                }]
+            };
+
+            try {
+                const response = await fetch(`${env}/api/s/${subId}/guide`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Pendo-Integration-Key': apiKey
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log('SUCCESS', `Guide created with ID: ${data.id}`);
+                    showStatus('createStatus', 'success', `Guide created! ID: ${data.id}`);
+                } else {
+                    log('ERROR', `Failed: ${JSON.stringify(data)}`);
+                    showStatus('createStatus', 'error', `Failed: ${data.message || JSON.stringify(data)}`);
+                }
+            } catch (err) {
+                log('ERROR', `Request failed: ${err.message}`);
+                showStatus('createStatus', 'error', `Request failed: ${err.message}`);
+            }
+        }
+
+        async function listGuides() {
+            const env = document.getElementById('env').value;
+            const subId = document.getElementById('subId').value;
+            const apiKey = document.getElementById('apiKey').value;
+
+            if (!subId || !apiKey) {
+                showStatus('createStatus', 'error', 'Please enter Subscription ID and API Key');
+                return;
+            }
+
+            log('INFO', `Listing guides on ${env}...`);
+
+            try {
+                const response = await fetch(`${env}/api/s/${subId}/guide?expand=*`, {
+                    headers: {
+                        'X-Pendo-Integration-Key': apiKey
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const htmlGuides = data.filter(g =>
+                        g.steps?.some(s => s.attributes?.htmlContent) ||
+                        g.editorType === 'html'
+                    );
+                    log('SUCCESS', `Found ${data.length} guides, ${htmlGuides.length} HTML guides`);
+                    if (htmlGuides.length > 0) {
+                        htmlGuides.forEach(g => log('INFO', `  - ${g.name} (${g.id})`));
+                    }
+                    showStatus('createStatus', 'info', `Found ${htmlGuides.length} HTML guides of ${data.length} total`);
+                } else {
+                    log('ERROR', `Failed: ${JSON.stringify(data)}`);
+                    showStatus('createStatus', 'error', `Failed: ${data.message || 'Unknown error'}`);
+                }
+            } catch (err) {
+                log('ERROR', `Request failed: ${err.message}`);
+                showStatus('createStatus', 'error', `Request failed: ${err.message}`);
+            }
+        }
+
+        function renderGuideFromJson() {
+            const jsonText = document.getElementById('guideJson').value.trim();
+            const container = document.getElementById('guideContainer');
+
+            if (!jsonText) {
+                showStatus('fetchStatus', 'error', 'Please paste guide JSON');
+                return;
+            }
+
+            let guide;
+            try {
+                guide = JSON.parse(jsonText);
+            } catch (e) {
+                log('ERROR', `Invalid JSON: ${e.message}`);
+                showStatus('fetchStatus', 'error', 'Invalid JSON');
+                return;
+            }
+
+            log('SUCCESS', `Parsed guide: ${guide.name}`);
+
+            // Check if it's an HTML guide
+            const htmlStep = guide.steps?.find(s => s.attributes?.htmlContent);
+            if (!htmlStep) {
+                log('ERROR', 'Guide does not have htmlContent in step attributes');
+                showStatus('fetchStatus', 'error', 'Not an HTML guide (no htmlContent found)');
+                return;
+            }
+
+            const htmlContent = htmlStep.attributes.htmlContent;
+            log('INFO', `Found htmlContent: ${htmlContent.substring(0, 100)}...`);
+
+            // Render the guide (this simulates what HtmlGuides plugin does)
+            renderHtmlGuide(guide, htmlStep, container);
+            showStatus('fetchStatus', 'success', `Rendered guide: ${guide.name} (${guide.steps.length} steps)`);
+        }
+
+        function loadSampleGuide() {
+            const sampleGuide = {
+                "id": "sample-html-guide",
+                "name": "Sample HTML Guide",
+                "isMultiStep": true,
+                "steps": [
+                    {
+                        "id": "step-1",
+                        "rank": 0,
+                        "buildingBlockLayoutType": "lightbox",
+                        "attributes": {
+                            "htmlContent": "<pendo-guide><pendo-title>Welcome</pendo-title><pendo-text>This is the first step of a sample multi-step HTML guide.</pendo-text><pendo-button action=\"next-step\">Next</pendo-button><pendo-button action=\"dismiss\" variant=\"secondary\">Skip</pendo-button></pendo-guide>"
+                        }
+                    },
+                    {
+                        "id": "step-2",
+                        "rank": 1,
+                        "buildingBlockLayoutType": "lightbox",
+                        "attributes": {
+                            "htmlContent": "<pendo-guide><pendo-title>Step 2</pendo-title><pendo-text>Here is more information you should know.</pendo-text><pendo-button action=\"previous-step\" variant=\"secondary\">Back</pendo-button><pendo-button action=\"next-step\">Continue</pendo-button></pendo-guide>"
+                        }
+                    },
+                    {
+                        "id": "step-3",
+                        "rank": 2,
+                        "buildingBlockLayoutType": "lightbox",
+                        "attributes": {
+                            "htmlContent": "<pendo-guide><pendo-title>All Done</pendo-title><pendo-text>You have completed the guide.</pendo-text><pendo-button action=\"previous-step\" variant=\"secondary\">Back</pendo-button><pendo-button action=\"dismiss\">Finish</pendo-button></pendo-guide>"
+                        }
+                    }
+                ]
+            };
+            document.getElementById('guideJson').value = JSON.stringify(sampleGuide, null, 2);
+            log('INFO', 'Loaded sample multi-step guide');
+        }
+
+        function renderHtmlGuide(guide, step, container) {
+            const layout = step.buildingBlockLayoutType || 'lightbox';
+            const htmlContent = step.attributes.htmlContent;
+            const stepIndex = guide.steps.indexOf(step);
+            const totalSteps = guide.steps.length;
+
+            log('INFO', `Rendering ${layout} guide step ${stepIndex + 1}/${totalSteps}`);
+
+            // Add step/totalSteps attributes if multi-step
+            let processedHtml = htmlContent;
+            if (totalSteps > 1) {
+                processedHtml = htmlContent.replace('<pendo-guide', `<pendo-guide step="${stepIndex + 1}" total-steps="${totalSteps}"`);
+            }
+
+            // Wrap in layout container
+            let wrapper;
+            if (layout === 'lightbox') {
+                wrapper = `
+                    <div class="pendo-html-guide pendo-html-guide--lightbox"
+                         data-guide-id="${guide.id}"
+                         data-step-id="${step.id}"
+                         style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+                        ${processedHtml}
+                    </div>
+                `;
+            } else {
+                wrapper = `
+                    <div class="pendo-html-guide pendo-html-guide--${layout}"
+                         data-guide-id="${guide.id}"
+                         data-step-id="${step.id}"
+                         style="display: flex; justify-content: center;">
+                        ${processedHtml}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = wrapper;
+
+            // Listen for events
+            const guideEl = container.querySelector('.pendo-html-guide');
+            guideEl.addEventListener('pendo-action', (e) => {
+                log('EVENT', `pendo-action: ${JSON.stringify(e.detail)}`);
+                handleGuideAction(e.detail.action, guide, step, container);
+            });
+        }
+
+        function handleGuideAction(action, guide, currentStep, container) {
+            const stepIndex = guide.steps.indexOf(currentStep);
+
+            switch (action) {
+                case 'dismiss':
+                    container.innerHTML = '<p style="color: #666; font-style: italic;">Guide dismissed</p>';
+                    break;
+                case 'next-step':
+                    if (stepIndex < guide.steps.length - 1) {
+                        const nextStep = guide.steps[stepIndex + 1];
+                        if (nextStep.attributes?.htmlContent) {
+                            renderHtmlGuide(guide, nextStep, container);
+                        } else {
+                            log('WARN', 'Next step has no htmlContent');
+                        }
+                    } else {
+                        log('INFO', 'Already on last step');
+                    }
+                    break;
+                case 'previous-step':
+                    if (stepIndex > 0) {
+                        const prevStep = guide.steps[stepIndex - 1];
+                        if (prevStep.attributes?.htmlContent) {
+                            renderHtmlGuide(guide, prevStep, container);
+                        }
+                    } else {
+                        log('INFO', 'Already on first step');
+                    }
+                    break;
+                default:
+                    log('INFO', `Unhandled action: ${action}`);
+            }
+        }
+
+        function simulateGuide() {
+            const htmlContent = document.getElementById('htmlContent').value;
+            const container = document.getElementById('guideContainer');
+
+            log('INFO', 'Simulating guide render...');
+
+            // This simulates what HtmlGuides plugin does
+            container.innerHTML = `
+                <div class="pendo-html-guide" data-step-id="sim-step-1" style="display: flex; justify-content: center;">
+                    ${htmlContent}
+                </div>
+            `;
+
+            // Listen for events
+            container.addEventListener('pendo-action', (e) => {
+                log('EVENT', `pendo-action: ${JSON.stringify(e.detail)}`);
+                if (e.detail.action === 'dismiss') {
+                    container.innerHTML = '<p style="color: #666; font-style: italic;">Guide dismissed</p>';
+                }
+            });
+
+            log('SUCCESS', 'Guide rendered');
+        }
+
+        function clearGuide() {
+            document.getElementById('guideContainer').innerHTML = '';
+            log('INFO', 'Guide container cleared');
+        }
+
+        // Init
+        log('INFO', 'Integration test page loaded');
+    </script>
+</body>
+</html>

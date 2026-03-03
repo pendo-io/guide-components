@@ -1,0 +1,44 @@
+{
+  "name": "@pendo/guide-components",
+  "version": "0.1.0",
+  "description": "Custom elements for rendering Pendo HTML guides",
+  "main": "dist/pendo-guide-components.js",
+  "module": "dist/pendo-guide-components.esm.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/pendo-guide-components.esm.js",
+      "require": "./dist/pendo-guide-components.js"
+    },
+    "./styles": "./dist/pendo-guide-components.css",
+    "./dist/*": "./dist/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "serve": "npx serve -l 3001",
+    "harness": "npm run build && npx serve -l 3001",
+    "test": "vitest",
+    "test:a11y": "vitest run --grep a11y"
+  },
+  "keywords": [
+    "pendo",
+    "guides",
+    "web-components",
+    "custom-elements"
+  ],
+  "author": "Pendo.io",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.9.0",
+    "rollup-plugin-css-only": "^4.5.2",
+    "vitest": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
