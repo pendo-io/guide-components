@@ -55,6 +55,7 @@ pendo-guide {
 
 pendo-guide,
 .pendo-guide {
+    position: relative;
     display: block;
     background: var(--pendo-bg);
     border-radius: var(--pendo-radius);
@@ -264,6 +265,42 @@ pendo-button + pendo-button {
 pendo-guide > pendo-button:last-child,
 pendo-guide > :last-child pendo-button {
     margin-top: var(--pendo-spacing-sm);
+}
+
+/* =============================================================================
+   pendo-close-button
+   ============================================================================= */
+
+pendo-close-button {
+    position: absolute;
+    top: var(--pendo-spacing-sm);
+    right: var(--pendo-spacing-sm);
+    z-index: 1;
+}
+
+.pendo-close-button {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--pendo-text-muted);
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.pendo-close-button:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--pendo-text);
+}
+
+.pendo-close-button:focus-visible {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
 }
 
 /* =============================================================================
@@ -851,6 +888,10 @@ pendo-guide:focus {
         --pendo-text-muted: var(--brand-text-muted-dark, #999999);
         --pendo-border: var(--brand-border-dark, #333333);
         --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    pendo-guide:not([data-theme="light"]) .pendo-close-button:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
 }
 

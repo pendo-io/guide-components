@@ -13,6 +13,7 @@ export { PendoGuide } from './elements/pendo-guide.js';
 export { PendoTitle } from './elements/pendo-title.js';
 export { PendoText } from './elements/pendo-text.js';
 export { PendoButton } from './elements/pendo-button.js';
+export { PendoCloseButton } from './elements/pendo-close-button.js';
 
 // Media elements
 export { PendoImage } from './elements/pendo-image.js';
