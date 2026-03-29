@@ -3,6 +3,9 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PendoButton } from '../src/elements/pendo-button.js';
+import { registerGuideComponents } from '../src/register.js';
+
+registerGuideComponents();
 
 describe('PendoButton', () => {
     describe('parseAction', () => {

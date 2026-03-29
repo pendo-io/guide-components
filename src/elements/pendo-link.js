@@ -40,4 +40,3 @@ export class PendoLink extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-link', PendoLink);

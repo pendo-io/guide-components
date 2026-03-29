@@ -120,4 +120,3 @@ export class PendoNps extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-nps', PendoNps);

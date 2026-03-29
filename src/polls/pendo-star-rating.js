@@ -119,4 +119,3 @@ export class PendoStarRating extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-star-rating', PendoStarRating);

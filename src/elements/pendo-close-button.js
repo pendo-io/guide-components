@@ -37,6 +37,4 @@ class PendoCloseButton extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-close-button', PendoCloseButton);
-
 export { PendoCloseButton };
