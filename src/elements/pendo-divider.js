@@ -13,6 +13,4 @@ class PendoDivider extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-divider', PendoDivider);
-
 export { PendoDivider };

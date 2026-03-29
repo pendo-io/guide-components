@@ -232,4 +232,3 @@ export class PendoInput extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-input', PendoInput);

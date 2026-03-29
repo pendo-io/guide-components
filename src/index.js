@@ -2,7 +2,7 @@
  * @pendo/guide-components
  *
  * Custom elements for rendering Pendo HTML guides.
- * Import this module to register all pendo-* custom elements.
+ * Call registerGuideComponents() to register all pendo-* custom elements.
  */
 
 // Base class (exported for extension)
@@ -34,6 +34,9 @@ export { PendoEmojiScale } from './polls/pendo-emoji-scale.js';
 
 // Configuration API
 export { configurePendoComponents } from './configure.js';
+
+// Registration (deferred — consumers call this when ready)
+export { registerGuideComponents } from './register.js';
 
 // Import styles (will be extracted by build)
 import './styles/defaults.css';
