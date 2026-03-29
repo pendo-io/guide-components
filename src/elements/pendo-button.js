@@ -138,6 +138,4 @@ class PendoButton extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-button', PendoButton);
-
 export { PendoButton };

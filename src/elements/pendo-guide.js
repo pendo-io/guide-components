@@ -118,6 +118,4 @@ class PendoGuide extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-guide', PendoGuide);
-
 export { PendoGuide };

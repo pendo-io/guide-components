@@ -137,4 +137,3 @@ export class PendoOpenText extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-open-text', PendoOpenText);
