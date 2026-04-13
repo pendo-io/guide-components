@@ -19,8 +19,8 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "serve": "npx serve -l 3001",
-    "harness": "npm run build && npx serve -l 3001",
+    "serve": "npx serve -l 8082",
+    "harness": "npm run build && npx serve -l 8082",
     "test": "vitest",
     "test:a11y": "vitest run --grep a11y"
   },

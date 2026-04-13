@@ -472,6 +472,7 @@
         <button class="demo-btn" onclick="showGuide('nps-survey')">Show NPS Survey</button>
         <button class="demo-btn" onclick="showGuide('feedback')">Show Feedback Poll</button>
         <button class="demo-btn" onclick="showGuide('banner')">Show Banner</button>
+        <button class="demo-btn" onclick="showGuide('yes-no-poll')">Show Yes/No Poll</button>
     </div>
 
     <!-- Load guide-components -->
@@ -483,6 +484,9 @@
     <script src="/demo/mock-guides.js"></script>
 
     <script>
+        // Register guide-components custom elements
+        PendoGuideComponents.registerGuideComponents();
+
         // Initialize mock pendo
         window.pendo = new MockPendo({
             visitor: { id: 'demo-visitor-123' },
