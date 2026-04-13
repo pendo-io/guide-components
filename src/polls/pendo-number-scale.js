@@ -125,4 +125,3 @@ export class PendoNumberScale extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-number-scale', PendoNumberScale);

@@ -664,6 +664,77 @@ select.pendo-input__field {
 }
 
 /* =============================================================================
+   pendo-yes-no
+   ============================================================================= */
+
+.pendo-yes-no__options {
+    display: flex;
+    gap: 8px;
+}
+
+.pendo-yes-no__option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: var(--pendo-spacing-xs) var(--pendo-spacing-sm);
+    border: 1px solid var(--pendo-border);
+    border-radius: calc(var(--pendo-radius) / 2);
+    background: var(--pendo-bg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pendo-yes-no__option:hover {
+    border-color: var(--pendo-primary);
+}
+
+.pendo-yes-no__option--selected {
+    background: var(--pendo-primary);
+    border-color: var(--pendo-primary);
+    color: #ffffff;
+}
+
+.pendo-yes-no__option:focus-within {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+}
+
+.pendo-yes-no__option-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+/* Thumbs mode */
+
+.pendo-yes-no--thumbs .pendo-yes-no__option {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.pendo-yes-no--thumbs .pendo-yes-no__options {
+    gap: 12px;
+    justify-content: center;
+}
+
+.pendo-yes-no__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: currentColor;
+}
+
+.pendo-yes-no__icon--down {
+    transform: scaleY(-1);
+}
+
+.pendo-yes-no__option--selected .pendo-yes-no__icon {
+    fill: #ffffff;
+}
+
+/* =============================================================================
    pendo-number-scale
    ============================================================================= */
 

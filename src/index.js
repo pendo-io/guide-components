@@ -2,7 +2,7 @@
  * @pendo/guide-components
  *
  * Custom elements for rendering Pendo HTML guides.
- * Import this module to register all pendo-* custom elements.
+ * Call registerGuideComponents() to register all pendo-* custom elements.
  */
 
 // Base class (exported for extension)
@@ -31,9 +31,14 @@ export { PendoNps } from './polls/pendo-nps.js';
 export { PendoNumberScale } from './polls/pendo-number-scale.js';
 export { PendoOpenText } from './polls/pendo-open-text.js';
 export { PendoEmojiScale } from './polls/pendo-emoji-scale.js';
+export { PendoPickList } from './polls/pendo-pick-list.js';
+export { PendoYesNo } from './polls/pendo-yes-no.js';
 
 // Configuration API
 export { configurePendoComponents } from './configure.js';
+
+// Registration (deferred — consumers call this when ready)
+export { registerGuideComponents } from './register.js';
 
 // Import styles (will be extracted by build)
 import './styles/defaults.css';

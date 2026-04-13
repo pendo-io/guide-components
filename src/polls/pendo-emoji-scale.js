@@ -122,4 +122,3 @@ export class PendoEmojiScale extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-emoji-scale', PendoEmojiScale);

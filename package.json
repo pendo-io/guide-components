@@ -19,8 +19,8 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "serve": "npx serve -l 3001",
-    "harness": "npm run build && npx serve -l 3001",
+    "serve": "npx serve -l 8082",
+    "harness": "npm run build && npx serve -l 8082",
     "test": "vitest",
     "test:a11y": "vitest run --grep a11y"
   },
@@ -34,6 +34,7 @@
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.4",
+    "jsdom": "^28.1.0",
     "rollup": "^4.9.0",
     "rollup-plugin-css-only": "^4.5.2",
     "vitest": "^1.0.0"
