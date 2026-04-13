@@ -101,6 +101,4 @@ class PendoVideo extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-video', PendoVideo);
-
 export { PendoVideo };

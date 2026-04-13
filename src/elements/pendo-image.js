@@ -41,6 +41,4 @@ class PendoImage extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-image', PendoImage);
-
 export { PendoImage };

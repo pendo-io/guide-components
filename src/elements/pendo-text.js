@@ -12,6 +12,4 @@ class PendoText extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-text', PendoText);
-
 export { PendoText };

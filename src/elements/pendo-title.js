@@ -21,6 +21,4 @@ class PendoTitle extends PendoBaseElement {
     }
 }
 
-customElements.define('pendo-title', PendoTitle);
-
 export { PendoTitle };

@@ -69,5 +69,3 @@ export class PendoListItem extends PendoBaseElement {
     // Content is processed by parent PendoList
 }
 
-customElements.define('pendo-list', PendoList);
-customElements.define('pendo-list-item', PendoListItem);
