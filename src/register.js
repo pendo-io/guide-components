@@ -14,6 +14,8 @@ import { PendoNps } from './polls/pendo-nps.js';
 import { PendoNumberScale } from './polls/pendo-number-scale.js';
 import { PendoOpenText } from './polls/pendo-open-text.js';
 import { PendoEmojiScale } from './polls/pendo-emoji-scale.js';
+import { PendoPickList } from './polls/pendo-pick-list.js';
+import { PendoYesNo } from './polls/pendo-yes-no.js';
 
 const components = [
     ['pendo-guide', PendoGuide],
@@ -32,7 +34,9 @@ const components = [
     ['pendo-nps', PendoNps],
     ['pendo-number-scale', PendoNumberScale],
     ['pendo-open-text', PendoOpenText],
-    ['pendo-emoji-scale', PendoEmojiScale]
+    ['pendo-emoji-scale', PendoEmojiScale],
+    ['pendo-pick-list', PendoPickList],
+    ['pendo-yes-no', PendoYesNo]
 ];
 
 /**

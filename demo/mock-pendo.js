@@ -479,33 +479,38 @@ class MockPendo {
 
         // Listen for pendo-action events
         container.addEventListener('pendo-action', (e) => {
-            const { action, params } = e.detail;
-            console.log('[MockPendo] Action:', action, params);
+            const { actions } = e.detail;
+            console.log('[MockPendo] Actions:', actions);
 
-            switch (action) {
-                case 'next-step':
-                    step._guide.advanceStep();
-                    break;
+            // Process each action in the array
+            for (const actionObj of actions) {
+                const { action } = actionObj;
 
-                case 'previous-step':
-                    step._guide.previousStep();
-                    break;
+                switch (action) {
+                    case 'next-step':
+                        step._guide.advanceStep();
+                        break;
 
-                case 'dismiss':
-                    step._guide.hide();
-                    break;
+                    case 'previous-step':
+                        step._guide.previousStep();
+                        break;
 
-                case 'link':
-                    if (params?.url) {
-                        window.open(params.url, params.target || '_blank');
-                    }
-                    break;
+                    case 'dismiss':
+                        step._guide.hide();
+                        break;
 
-                case 'launch-guide':
-                    if (params?.guideId) {
-                        pendo.showGuideById(params.guideId);
-                    }
-                    break;
+                    case 'link':
+                        if (actionObj.url) {
+                            window.open(actionObj.url, actionObj.target || '_blank');
+                        }
+                        break;
+
+                    case 'launch-guide':
+                        if (actionObj.guideId) {
+                            pendo.showGuideById(actionObj.guideId);
+                        }
+                        break;
+                }
             }
         });
 

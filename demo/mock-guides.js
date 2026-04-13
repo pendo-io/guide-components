@@ -271,6 +271,29 @@ const mockGuides = [
                         </pendo-guide-content>
                         <pendo-guide-footer>
                             <pendo-button action="previous-step" variant="secondary">Back</pendo-button>
+                            <pendo-button action="next-step" variant="primary">Continue</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            },
+            {
+                id: 'feedback-step-4',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide>
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Tell Us About You</pendo-title>
+                            <pendo-paragraph>What is your primary role?</pendo-paragraph>
+                            <pendo-pick-list poll-id="role-select" display="select"
+                                options='{"pm":"Product Manager","eng":"Engineer","design":"Designer","qa":"QA","other":"Other"}'
+                                placeholder="Choose your role…"></pendo-pick-list>
+                            <pendo-paragraph style="margin-top: 16px;">Which feature do you use most?</pendo-paragraph>
+                            <pendo-pick-list poll-id="feature-pick" display="radio"
+                                options='{"dash":"Dashboard","reports":"Reports","integrations":"Integrations","admin":"Admin Settings"}'></pendo-pick-list>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="previous-step" variant="secondary">Back</pendo-button>
                             <pendo-button action="dismiss" variant="primary">Submit</pendo-button>
                         </pendo-guide-footer>
                     </pendo-guide>
@@ -337,6 +360,74 @@ const mockGuides = [
             },
             paragraph: {
                 fontColor: '#ffffff'
+            }
+        }
+    },
+
+    // Yes/No Poll - PositiveNegative poll type
+    {
+        id: 'yes-no-poll',
+        name: 'Yes/No Poll',
+        steps: [
+            {
+                id: 'yes-no-step-1',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide>
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Quick Question</pendo-title>
+                            <pendo-yes-no
+                                poll-id="feature-useful"
+                                question="Did you find this feature helpful?"
+                                yes-label="Yes, very helpful"
+                                no-label="Not really">
+                            </pendo-yes-no>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="next-step" variant="primary">Next</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            },
+            {
+                id: 'yes-no-step-2',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide>
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Thumbs Up or Down?</pendo-title>
+                            <pendo-yes-no
+                                poll-id="thumbs-rating"
+                                question="Would you recommend this to a colleague?"
+                                display="thumbs">
+                            </pendo-yes-no>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="dismiss" variant="primary">Done</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderRadius: '12px',
+                shadowColor: 'rgba(0, 0, 0, 0.15)',
+                shadowOffsetVertical: '8px',
+                shadowRadius: '24px'
+            },
+            primaryButton: {
+                background: '#4F46E5',
+                fontColor: '#ffffff'
+            },
+            title: {
+                fontColor: '#1f2937'
+            },
+            paragraph: {
+                fontColor: '#6b7280'
             }
         }
     }

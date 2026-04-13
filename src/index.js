@@ -31,6 +31,8 @@ export { PendoNps } from './polls/pendo-nps.js';
 export { PendoNumberScale } from './polls/pendo-number-scale.js';
 export { PendoOpenText } from './polls/pendo-open-text.js';
 export { PendoEmojiScale } from './polls/pendo-emoji-scale.js';
+export { PendoPickList } from './polls/pendo-pick-list.js';
+export { PendoYesNo } from './polls/pendo-yes-no.js';
 
 // Configuration API
 export { configurePendoComponents } from './configure.js';
