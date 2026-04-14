@@ -33,16 +33,20 @@ class PendoButton extends PendoBaseElement {
     }
 
     renderDefault(variant) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = `pendo-button pendo-button--${variant}`;
+        // Style the custom element directly — no inner <button>.
+        // This allows theme CSS targeting pendo-button to work without
+        // conflicting with an inner element's styles.
+        this.classList.add('pendo-button', `pendo-button--${variant}`);
+        this.setAttribute('role', 'button');
+        this.setAttribute('tabindex', '0');
 
-        // Move inner content to button
-        button.innerHTML = this.innerHTML;
-        this.innerHTML = '';
-        this.appendChild(button);
-
-        button.addEventListener('click', () => this.handleClick());
+        this.addEventListener('click', () => this.handleClick());
+        this.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.handleClick();
+            }
+        });
     }
 
     renderCustom(CustomButton, variant) {

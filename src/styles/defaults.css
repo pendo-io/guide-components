@@ -1,9 +1,9 @@
 /**
  * @pendo/guide-components - Default Styles
  *
- * These styles provide sensible defaults while allowing easy customization
- * via CSS custom properties. Components inherit from customer design tokens
- * when available.
+ * Visual defaults use :where() for zero specificity so that theme CSS
+ * (even simple selectors like `pendo-guide pendo-button`) can override them.
+ * Structural properties (display, box-sizing, position) stay unwrapped.
  */
 
 /* =============================================================================
@@ -33,7 +33,6 @@ pendo-guide,
 
 /* =============================================================================
    CSS Reset (Light DOM protection)
-   Prevents external styles from breaking components
    ============================================================================= */
 
 pendo-guide,
@@ -53,10 +52,17 @@ pendo-guide {
    pendo-guide (Container)
    ============================================================================= */
 
+/* Structural — always applied */
 pendo-guide,
 .pendo-guide {
     position: relative;
     display: block;
+    width: 100%;
+}
+
+/* Visual defaults — theme CSS overrides via :where() zero specificity */
+:where(pendo-guide),
+:where(.pendo-guide) {
     background: var(--pendo-bg);
     border-radius: var(--pendo-radius);
     box-shadow: var(--pendo-shadow);
@@ -64,7 +70,6 @@ pendo-guide,
     font-family: var(--pendo-font);
     color: var(--pendo-text);
     max-width: 400px;
-    width: 100%;
 }
 
 /* Semantic layout elements */
@@ -75,17 +80,22 @@ pendo-guide-content {
 pendo-guide-footer {
     display: flex;
     gap: var(--pendo-spacing-xs);
-    margin-top: var(--pendo-spacing);
     justify-content: flex-end;
 }
 
-/* Layout variants (applied by pendo-client) */
+:where(pendo-guide-footer) {
+    margin-top: var(--pendo-spacing);
+}
+
+/* =============================================================================
+   Layout variants (applied by pendo-client)
+   ============================================================================= */
+
 .pendo-guide--lightbox {
     /* Lightbox is centered via container positioning */
 }
 
 .pendo-guide--tooltip {
-    /* Container handles absolute positioning; this is relative for caret */
     position: relative;
     min-width: 280px;
     width: max-content;
@@ -132,7 +142,6 @@ pendo-guide-footer {
     width: 100%;
     border-radius: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    /* Horizontal layout for banner */
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -155,7 +164,6 @@ pendo-guide-footer {
     margin-left: var(--pendo-spacing-xs);
 }
 
-/* Slideout layout */
 .pendo-guide--slideout {
     max-width: 360px;
     max-height: 80vh;
@@ -181,9 +189,15 @@ pendo-guide-footer {
    pendo-title
    ============================================================================= */
 
+/* Structural */
 pendo-title,
 .pendo-guide__title {
     display: block;
+}
+
+/* Visual defaults */
+:where(pendo-title),
+:where(.pendo-guide__title) {
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--pendo-text);
@@ -195,121 +209,149 @@ pendo-title,
    pendo-text
    ============================================================================= */
 
+/* Structural */
 pendo-text,
 .pendo-guide__text {
     display: block;
+}
+
+/* Visual defaults */
+:where(pendo-text),
+:where(.pendo-guide__text) {
     font-size: 0.9375rem;
     color: var(--pendo-text);
     margin: 0 0 var(--pendo-spacing) 0;
     line-height: 1.6;
 }
 
-pendo-text:last-child {
+:where(pendo-text:last-child) {
     margin-bottom: 0;
 }
 
 /* =============================================================================
    pendo-button
+   The custom element IS the button (no inner <button> element).
+   Classes (.pendo-button, .pendo-button--primary, etc.) are added by JS
+   for backward compat with existing themes that target those classes.
    ============================================================================= */
 
+/* Structural — always applied */
 pendo-button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 pendo-button + pendo-button {
     margin-left: var(--pendo-spacing-xs);
 }
 
-.pendo-button {
-    all: unset;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+/* Visual defaults — :where() for zero specificity */
+:where(pendo-button),
+:where(.pendo-button) {
     padding: var(--pendo-spacing-sm) var(--pendo-spacing);
     border-radius: var(--pendo-radius);
     font-family: var(--pendo-font);
     font-size: 0.9375rem;
     font-weight: 500;
-    cursor: pointer;
+    border: none;
     transition: background-color 0.15s ease, opacity 0.15s ease;
-    text-decoration: none;
-    white-space: nowrap;
 }
 
-.pendo-button:hover {
-    opacity: 0.9;
-}
-
-.pendo-button--primary {
+/* Primary variant (default) */
+:where(pendo-button:not([variant])),
+:where(pendo-button[variant="primary"]),
+:where(.pendo-button--primary) {
     background: var(--pendo-primary);
     color: var(--pendo-primary-text, #ffffff);
 }
 
-.pendo-button--primary:hover {
+:where(pendo-button:not([variant]):hover),
+:where(pendo-button[variant="primary"]:hover),
+:where(.pendo-button--primary:hover) {
     background: var(--pendo-primary-hover);
-    opacity: 1;
 }
 
-.pendo-button--secondary {
+/* Secondary variant */
+:where(pendo-button[variant="secondary"]),
+:where(.pendo-button--secondary) {
     background: transparent;
     border: 1px solid var(--pendo-border);
     color: var(--pendo-text);
 }
 
-.pendo-button--secondary:hover {
+:where(pendo-button[variant="secondary"]:hover),
+:where(.pendo-button--secondary:hover) {
     background: rgba(0, 0, 0, 0.05);
-    opacity: 1;
 }
 
-/* Button container for multiple buttons */
-pendo-guide > pendo-button:last-child,
-pendo-guide > :last-child pendo-button {
+/* Link variant */
+:where(pendo-button[variant="link"]) {
+    background: transparent;
+    border: none;
+    color: var(--pendo-text-muted);
+    padding: var(--pendo-spacing-sm) var(--pendo-spacing-xs);
+}
+
+/* Button container spacing */
+:where(pendo-guide > pendo-button:last-child),
+:where(pendo-guide > :last-child pendo-button) {
     margin-top: var(--pendo-spacing-sm);
 }
 
 /* =============================================================================
    pendo-close-button
+   The custom element IS the button (no inner <button> element).
    ============================================================================= */
 
+/* Structural */
 pendo-close-button {
     position: absolute;
-    top: var(--pendo-spacing-sm);
-    right: var(--pendo-spacing-sm);
-    z-index: 1;
-}
-
-.pendo-close-button {
-    all: unset;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Visual defaults */
+:where(pendo-close-button),
+:where(.pendo-close-button) {
+    top: var(--pendo-spacing-sm);
+    right: var(--pendo-spacing-sm);
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    cursor: pointer;
+    border: none;
+    background: transparent;
     color: var(--pendo-text-muted);
     font-size: 1.25rem;
     line-height: 1;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.pendo-close-button:hover {
+:where(pendo-close-button:hover),
+:where(.pendo-close-button:hover) {
     background: rgba(0, 0, 0, 0.08);
     color: var(--pendo-text);
-}
-
-.pendo-close-button:focus-visible {
-    outline: 2px solid var(--pendo-focus);
-    outline-offset: 2px;
 }
 
 /* =============================================================================
    pendo-image
    ============================================================================= */
 
+/* Structural */
 pendo-image,
 .pendo-guide__image-container {
     display: block;
+}
+
+/* Visual defaults */
+:where(pendo-image),
+:where(.pendo-guide__image-container) {
     margin: var(--pendo-spacing-sm) 0;
 }
 
@@ -338,22 +380,34 @@ pendo-image,
    pendo-divider
    ============================================================================= */
 
+/* Structural */
 pendo-divider,
 .pendo-guide__divider {
     display: block;
+    border: none;
+}
+
+/* Visual defaults */
+:where(pendo-divider),
+:where(.pendo-guide__divider) {
     height: 1px;
     background: var(--pendo-border);
     margin: var(--pendo-spacing) 0;
-    border: none;
 }
 
 /* =============================================================================
    pendo-video
    ============================================================================= */
 
+/* Structural */
 pendo-video,
 .pendo-guide__video-container {
     display: block;
+}
+
+/* Visual defaults */
+:where(pendo-video),
+:where(.pendo-guide__video-container) {
     margin: var(--pendo-spacing-sm) 0;
 }
 
@@ -370,11 +424,13 @@ pendo-video,
    pendo-link
    ============================================================================= */
 
+/* Structural */
 pendo-link {
     display: inline;
 }
 
-.pendo-link {
+/* Visual defaults */
+:where(.pendo-link) {
     color: var(--pendo-primary);
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -383,23 +439,23 @@ pendo-link {
     transition: color 0.15s ease;
 }
 
-.pendo-link:hover {
+:where(.pendo-link:hover) {
     color: var(--pendo-primary-hover);
-}
-
-.pendo-link:focus-visible {
-    outline: 2px solid var(--pendo-focus);
-    outline-offset: 2px;
-    border-radius: 2px;
 }
 
 /* =============================================================================
    pendo-list
    ============================================================================= */
 
+/* Structural */
 pendo-list,
 .pendo-list {
     display: block;
+}
+
+/* Visual defaults */
+:where(pendo-list),
+:where(.pendo-list) {
     margin: var(--pendo-spacing-sm) 0;
 }
 
@@ -845,9 +901,22 @@ select.pendo-input__field {
    ============================================================================= */
 
 /* Visible focus indicators */
-.pendo-button:focus-visible {
+:where(pendo-button:focus-visible),
+:where(.pendo-button:focus-visible) {
     outline: 2px solid var(--pendo-focus);
     outline-offset: 2px;
+}
+
+:where(.pendo-close-button:focus-visible),
+:where(pendo-close-button:focus-visible) {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+}
+
+:where(.pendo-link:focus-visible) {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 pendo-guide:focus {
@@ -890,7 +959,7 @@ pendo-guide:focus {
         --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     }
 
-    pendo-guide:not([data-theme="light"]) .pendo-close-button:hover {
+    pendo-guide:not([data-theme="light"]) pendo-close-button:hover {
         background: rgba(255, 255, 255, 0.1);
     }
 }

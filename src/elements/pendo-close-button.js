@@ -18,21 +18,22 @@ class PendoCloseButton extends PendoBaseElement {
     }
 
     render() {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'pendo-close-button';
-        button.setAttribute('aria-label', 'Close');
+        // Style the custom element directly — no inner <button>
+        this.classList.add('pendo-close-button');
+        this.setAttribute('role', 'button');
+        this.setAttribute('tabindex', '0');
+        this.setAttribute('aria-label', 'Close');
+        this.textContent = '\u00D7'; // × character
 
-        const icon = document.createElement('span');
-        icon.setAttribute('aria-hidden', 'true');
-        icon.textContent = '\u00D7'; // × character
-
-        button.appendChild(icon);
-        this.appendChild(button);
-
-        button.addEventListener('click', (e) => {
+        this.addEventListener('click', (e) => {
             e.preventDefault();
             this.emitAction('dismiss');
+        });
+        this.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.emitAction('dismiss');
+            }
         });
     }
 }
