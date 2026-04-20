@@ -106,41 +106,46 @@ pendo-guide-footer {
     min-width: 280px;
     width: max-content;
     max-width: 360px;
+    /* Stacking context so the caret's z-index: -1 stays scoped to the
+       tooltip (otherwise it escapes to the document root and can render
+       behind ancestor backgrounds). */
+    isolation: isolate;
 }
 
+/* Caret is a rotated square that inherits the tooltip's background, so it
+   visually matches whatever color the theme painted on pendo-guide —
+   even when the theme sets `background` directly instead of --pendo-bg. */
 .pendo-guide--tooltip::before {
     content: '';
     position: absolute;
-    border: 8px solid transparent;
-    z-index: 1;
+    width: 14px;
+    height: 14px;
+    background: inherit;
+    z-index: -1;
 }
 
 .pendo-guide--tooltip-bottom::before {
-    top: -16px;
+    top: -7px;
     left: 50%;
-    transform: translateX(-50%);
-    border-bottom-color: var(--pendo-bg);
+    transform: translateX(-50%) rotate(45deg);
 }
 
 .pendo-guide--tooltip-top::before {
-    bottom: -16px;
+    bottom: -7px;
     left: 50%;
-    transform: translateX(-50%);
-    border-top-color: var(--pendo-bg);
+    transform: translateX(-50%) rotate(45deg);
 }
 
 .pendo-guide--tooltip-left::before {
-    right: -16px;
+    right: -7px;
     top: 50%;
-    transform: translateY(-50%);
-    border-left-color: var(--pendo-bg);
+    transform: translateY(-50%) rotate(45deg);
 }
 
 .pendo-guide--tooltip-right::before {
-    left: -16px;
+    left: -7px;
     top: 50%;
-    transform: translateY(-50%);
-    border-right-color: var(--pendo-bg);
+    transform: translateY(-50%) rotate(45deg);
 }
 
 .pendo-guide--banner {
