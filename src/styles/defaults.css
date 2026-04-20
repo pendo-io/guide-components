@@ -20,7 +20,13 @@ pendo-guide,
     --pendo-radius: var(--brand-radius, 8px);
     --pendo-bg: var(--brand-surface, #ffffff);
     --pendo-text: var(--brand-text, #1a1a1a);
-    --pendo-text-muted: var(--brand-text-muted, #666666);
+    /* Muted text derives from --pendo-text so dark themes that only set a text
+       color get a sensible faded variant automatically, instead of a hardcoded
+       #666 that's unreadable on dark backgrounds. */
+    --pendo-text-muted: var(
+        --brand-text-muted,
+        color-mix(in oklab, var(--pendo-text) 65%, transparent)
+    );
 
     /* Component-specific */
     --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
@@ -675,6 +681,7 @@ select.pendo-input__field {
     margin-bottom: 8px;
 }
 
+/* Structural */
 .pendo-nps__score {
     display: flex;
     align-items: center;
@@ -682,11 +689,16 @@ select.pendo-input__field {
     flex: 1;
     min-width: 24px;
     height: 32px;
-    border: 1px solid var(--pendo-border);
     border-radius: 4px;
-    background: var(--pendo-bg);
     cursor: pointer;
     transition: all 0.15s ease;
+}
+
+/* Visual — currentColor-derived so buttons read on any theme */
+:where(.pendo-nps__score) {
+    color: inherit;
+    background: color-mix(in oklab, currentColor 4%, transparent);
+    border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
 }
 
 .pendo-nps__score:hover {
@@ -714,9 +726,13 @@ select.pendo-input__field {
     justify-content: space-between;
 }
 
-.pendo-nps__label {
+/* Labels inherit the guide's cascaded text color so dark themes stay
+   readable without requiring theme CSS to set --pendo-text-muted. opacity
+   provides the "muted" effect without depending on a separate token. */
+:where(.pendo-nps__label) {
     font-size: 0.75rem;
-    color: var(--pendo-text-muted);
+    color: inherit;
+    opacity: 0.7;
 }
 
 /* =============================================================================
@@ -732,6 +748,7 @@ select.pendo-input__field {
     gap: 4px;
 }
 
+/* Structural */
 .pendo-number-scale__item {
     display: flex;
     align-items: center;
@@ -739,11 +756,16 @@ select.pendo-input__field {
     min-width: 36px;
     height: 36px;
     padding: 0 8px;
-    border: 1px solid var(--pendo-border);
     border-radius: 4px;
-    background: var(--pendo-bg);
     cursor: pointer;
     transition: all 0.15s ease;
+}
+
+/* Visual — currentColor-derived so buttons read on any theme */
+:where(.pendo-number-scale__item) {
+    color: inherit;
+    background: color-mix(in oklab, currentColor 4%, transparent);
+    border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
 }
 
 .pendo-number-scale__item:hover {
@@ -772,9 +794,10 @@ select.pendo-input__field {
     margin-top: 6px;
 }
 
-.pendo-number-scale__label {
+:where(.pendo-number-scale__label) {
     font-size: 0.75rem;
-    color: var(--pendo-text-muted);
+    color: inherit;
+    opacity: 0.7;
 }
 
 /* =============================================================================
@@ -787,18 +810,26 @@ select.pendo-input__field {
     gap: 0.375em;
 }
 
+/* Structural */
 .pendo-open-text__input {
     width: 100%;
     padding: 0.625em 0.75em;
     font-family: var(--pendo-font);
     font-size: 0.9375rem;
-    color: var(--pendo-text);
-    background: var(--pendo-bg);
-    border: 1px solid var(--pendo-border);
-    border-radius: calc(var(--pendo-radius) / 2);
     resize: vertical;
     min-height: 4em;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Visual defaults — derive from currentColor so the input reads correctly on
+   any theme (light-mode: dark text on faint dark tint; dark-mode: light text
+   on faint light tint) without requiring the theme to set --pendo-bg or
+   --pendo-text. :where() keeps specificity at zero so theme CSS wins. */
+:where(.pendo-open-text__input) {
+    color: inherit;
+    background: color-mix(in oklab, currentColor 6%, transparent);
+    border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
+    border-radius: calc(var(--pendo-radius) / 2);
 }
 
 .pendo-open-text__input::placeholder {
