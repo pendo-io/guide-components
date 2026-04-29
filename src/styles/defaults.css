@@ -106,6 +106,17 @@ pendo-guide-footer {
     border-bottom-color: var(--pendo-bg);
 }
 
+.pendo-guide--tooltip-top.hbias-right::before,
+.pendo-guide--tooltip-bottom.hbias-right::before {
+    left: 18px;
+}
+
+.pendo-guide--tooltip-top.hbias-left::before,
+.pendo-guide--tooltip-bottom.hbias-left::before {
+    left: auto;
+    right: 18px;
+}
+
 .pendo-guide--tooltip-top::before {
     bottom: -16px;
     left: 50%;
