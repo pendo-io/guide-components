@@ -114,7 +114,7 @@ pendo-guide-footer {
 .pendo-guide--tooltip-top.hbias-left::before,
 .pendo-guide--tooltip-bottom.hbias-left::before {
     left: auto;
-    right: 18px;
+    right: 2px;
 }
 
 .pendo-guide--tooltip-top::before {
