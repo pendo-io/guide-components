@@ -1,10 +1,16 @@
 /**
  * @pendo/guide-components - Default Styles
  *
- * These styles provide sensible defaults while allowing easy customization
- * via CSS custom properties. Components inherit from customer design tokens
- * when available.
+ * Library defaults live in @layer pendo.components. Customer themes should use
+ * @layer pendo.theme (declared after components in the layer stack) or unlayered
+ * rules for one-off overrides — unlayered styles always beat layered styles.
+ *
+ * Components inherit from customer design tokens when available via CSS variables.
  */
+
+@layer pendo.components, pendo.theme;
+
+@layer pendo.components {
 
 /* =============================================================================
    CSS Custom Properties (Theming)
@@ -914,3 +920,5 @@ pendo-guide:focus {
     --pendo-border: var(--brand-border-dark, #333333);
     --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
+
+} /* @layer pendo.components */
