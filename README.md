@@ -141,6 +141,50 @@ configurePendoComponents({
 
 Custom components receive props and can be built with React, Vue, or any framework.
 
+## Theming & CSS Layers
+
+Default component styles ship in `@layer pendo.components`. Override them in `@layer pendo.theme` or with **unlayered** rules.
+
+Layer order is declared when you import the stylesheet:
+
+```css
+@layer pendo.components, pendo.theme;
+```
+
+(`pendo-guide-components.css` includes this declaration.)
+
+| Approach | Priority | When to use |
+|----------|----------|-------------|
+| Unlayered CSS | Highest | Agent-injected snippets, inline `<style>`, or overrides that must win over everything |
+| `@layer pendo.theme` | Above `pendo.components` | Customer / app theme files loaded after the library |
+| `@layer pendo.components` | Lowest (library) | Built-in defaults — do not edit in apps |
+
+**Unlayered styles beat layered styles.** Prefer `@layer pendo.theme` for maintainable themes; use unlayered rules only when you need to override another layered stylesheet on the page.
+
+### Theme via custom properties
+
+```css
+@layer pendo.theme {
+  pendo-guide,
+  .pendo-guide {
+    --pendo-primary: #2563eb;
+    --pendo-primary-hover: #1d4ed8;
+    --pendo-font: "Inter", system-ui, sans-serif;
+    --pendo-radius: 12px;
+  }
+}
+```
+
+### Unlayered override (wins over layers)
+
+```css
+pendo-guide[data-guide-id="onboarding"] {
+  --pendo-primary: #7c3aed;
+}
+```
+
+Brand tokens (`--brand-primary`, etc.) are referenced inside `pendo.components` and can be set on `:root` or a host element without a layer.
+
 ## Development
 
 ### Prerequisites
