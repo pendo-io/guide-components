@@ -35,6 +35,8 @@ pendo-guide,
     --pendo-spacing-xs: 8px;
     --pendo-focus: var(--brand-focus, #005fcc);
     --pendo-border: var(--brand-border, #e0e0e0);
+    --pendo-progress-dot-inactive: var(--pendo-text-muted, var(--pendo-border));
+    --pendo-close-button-size: 28px;
 }
 
 /* =============================================================================
@@ -300,8 +302,8 @@ pendo-close-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: var(--pendo-close-button-size);
+    height: var(--pendo-close-button-size);
     border-radius: 50%;
     cursor: pointer;
     color: var(--pendo-text-muted);
@@ -829,6 +831,11 @@ select.pendo-input__field {
     border-bottom: 1px solid var(--pendo-border);
 }
 
+/* Close button is absolute top-right; keep progress dots out from under it */
+pendo-guide:has(> pendo-close-button) .pendo-guide__progress {
+    padding-right: calc(var(--pendo-close-button-size) + var(--pendo-spacing-sm));
+}
+
 .pendo-guide__progress-text {
     font-size: 0.8125rem;
     color: var(--pendo-text-muted);
@@ -843,7 +850,7 @@ select.pendo-input__field {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--pendo-border);
+    background: var(--pendo-progress-dot-inactive, var(--pendo-border));
     transition: background-color 0.2s ease;
 }
 
