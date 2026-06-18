@@ -1,16 +1,15 @@
 /**
  * @pendo/guide-components - Default Styles
  *
- * Library defaults live in @layer pendo.components. Customer themes should use
- * @layer pendo.theme (declared after components in the layer stack) or unlayered
- * rules for one-off overrides — unlayered styles always beat layered styles.
+ * Library defaults are emitted UNLAYERED and rely on selector specificity (with
+ * source order breaking ties) rather than CSS cascade layers. For normal
+ * declarations, cascade layers always lose to unlayered styles — so a layered
+ * library was overridden by a host app's unlayered reset (e.g. `* { padding: 0 }`)
+ * regardless of selector specificity. Customer themes should likewise be
+ * unlayered and loaded after this stylesheet so equal-specificity rules win.
  *
  * Components inherit from customer design tokens when available via CSS variables.
  */
-
-@layer pendo.components, pendo.theme;
-
-@layer pendo.components {
 
 /* =============================================================================
    CSS Custom Properties (Theming)
@@ -927,5 +926,3 @@ pendo-guide:focus {
     --pendo-border: var(--brand-border-dark, #333333);
     --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
-
-} /* @layer pendo.components */
