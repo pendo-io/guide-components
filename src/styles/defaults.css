@@ -899,30 +899,4 @@ pendo-guide:focus {
     border: 0;
 }
 
-/* =============================================================================
-   Dark Mode Support (via prefers-color-scheme or .dark class)
-   ============================================================================= */
-
-@media (prefers-color-scheme: dark) {
-    pendo-guide:not([data-theme="light"]),
-    .pendo-guide:not([data-theme="light"]) {
-        --pendo-bg: var(--brand-surface-dark, #1a1a1a);
-        --pendo-text: var(--brand-text-dark, #f0f0f0);
-        --pendo-text-muted: var(--brand-text-muted-dark, #999999);
-        --pendo-border: var(--brand-border-dark, #333333);
-        --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-    }
-
-    pendo-guide:not([data-theme="light"]) .pendo-close-button:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-}
-
-[data-theme="dark"] pendo-guide,
-.dark pendo-guide {
-    --pendo-bg: var(--brand-surface-dark, #1a1a1a);
-    --pendo-text: var(--brand-text-dark, #f0f0f0);
-    --pendo-text-muted: var(--brand-text-muted-dark, #999999);
-    --pendo-border: var(--brand-border-dark, #333333);
-    --pendo-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-}
+/* Dark mode is owned per-guide by the theme CSS, not the library — no dark override here. */
