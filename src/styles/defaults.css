@@ -36,6 +36,8 @@ pendo-guide,
     --pendo-border: var(--brand-border, #e0e0e0);
     --pendo-progress-dot-inactive: var(--pendo-text-muted, var(--pendo-border));
     --pendo-close-button-size: 28px;
+    /* Proportional to the button so a resized close button keeps its icon centred. */
+    --pendo-close-button-icon-size: calc(var(--pendo-close-button-size) * 0.57);
 }
 
 /* =============================================================================
@@ -306,8 +308,6 @@ pendo-close-button {
     border-radius: 50%;
     cursor: pointer;
     color: var(--pendo-text-muted);
-    font-size: 1.25rem;
-    line-height: 1;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
@@ -319,6 +319,16 @@ pendo-close-button {
 .pendo-close-button:focus-visible {
     outline: 2px solid var(--pendo-focus);
     outline-offset: 2px;
+}
+
+.pendo-close-button__icon {
+    width: var(--pendo-close-button-icon-size);
+    height: var(--pendo-close-button-icon-size);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* =============================================================================
