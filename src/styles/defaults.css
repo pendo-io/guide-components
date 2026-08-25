@@ -99,20 +99,83 @@ pendo-guide-footer {
     min-width: 280px;
     width: max-content;
     max-width: 360px;
+
+    /* How far the caret protrudes from the card. Its base is twice this. */
+    --pendo-caret-size: 8px;
 }
 
+/**
+ * The caret is a square rotated 45deg, half of it hanging off the card and half lapping back over
+ * the card's border.
+ *
+ * `border: inherit` is what makes the caret share the card's border: it takes the card's own border
+ * width, style and colour, so the outline continues down the caret's two outer sides and vanishes
+ * entirely when the card has no border (`border-style: none` computes every width to 0). Each
+ * direction below drops the border from the caret's two *inner* sides, and the inner half's
+ * background paints over the card's border where the caret meets it — without that the card's border
+ * would draw a line straight across the caret's base.
+ *
+ * Size and placement both work off the *content* box, i.e. the caret as it would look with no
+ * border; the inherited border then mitres a matching outline around it. A square of side L spans
+ * L * sqrt(2) once rotated, so a content box of sqrt(2) * --pendo-caret-size draws a caret
+ * --pendo-caret-size tall and twice that wide — the same caret as before it had a border at all.
+ *
+ * The two side vertices of that content diamond have to land exactly *on* the card's padding-box
+ * edge. Any further out and the border's mitre around them hangs down inside the card as a pair of
+ * nubs, which is what makes the two borders look like they don't meet. So the placement pins the
+ * diamond's far vertex --pendo-caret-size inside the card (the `calc(100% - ...)` anchors, which sit
+ * the box's inner edge there) and the 20.710678% — that is 100 * (1/sqrt(2) - 1/2) — walks it back
+ * out by the difference between half the box's side and half its diagonal. Both terms are in units
+ * of the box, so the whole caret grows with the border width the way a mitred corner does; the tip
+ * lands (sqrt(2) - 1) border-widths past the gap the card was positioned with, well under a pixel
+ * at ordinary border widths.
+ */
 .pendo-guide--tooltip::before {
     content: '';
     position: absolute;
-    border: 8px solid transparent;
+    box-sizing: content-box;
+    width: calc(var(--pendo-caret-size) * 1.41421356);
+    height: calc(var(--pendo-caret-size) * 1.41421356);
+    background: var(--pendo-bg);
+    border: inherit;
+    border-radius: 0;
     z-index: 1;
 }
 
+/* Card below the target: caret on the card's top edge, pointing up. */
 .pendo-guide--tooltip-bottom::before {
-    top: -16px;
+    bottom: calc(100% - var(--pendo-caret-size));
     left: 50%;
-    transform: translateX(-50%);
-    border-bottom-color: var(--pendo-bg);
+    transform: translate(-50%, -20.710678%) rotate(45deg);
+    border-right-width: 0;
+    border-bottom-width: 0;
+}
+
+/* Card above the target: caret on the bottom edge, pointing down. */
+.pendo-guide--tooltip-top::before {
+    top: calc(100% - var(--pendo-caret-size));
+    left: 50%;
+    transform: translate(-50%, 20.710678%) rotate(45deg);
+    border-top-width: 0;
+    border-left-width: 0;
+}
+
+/* Card left of the target: caret on the right edge, pointing right. */
+.pendo-guide--tooltip-left::before {
+    left: calc(100% - var(--pendo-caret-size));
+    top: 50%;
+    transform: translate(20.710678%, -50%) rotate(45deg);
+    border-bottom-width: 0;
+    border-left-width: 0;
+}
+
+/* Card right of the target: caret on the left edge, pointing left. */
+.pendo-guide--tooltip-right::before {
+    right: calc(100% - var(--pendo-caret-size));
+    top: 50%;
+    transform: translate(-20.710678%, -50%) rotate(45deg);
+    border-top-width: 0;
+    border-right-width: 0;
 }
 
 .pendo-guide--tooltip-top.hbias-right::before,
@@ -124,27 +187,6 @@ pendo-guide-footer {
 .pendo-guide--tooltip-bottom.hbias-left::before {
     left: auto;
     right: 2px;
-}
-
-.pendo-guide--tooltip-top::before {
-    bottom: -16px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-top-color: var(--pendo-bg);
-}
-
-.pendo-guide--tooltip-left::before {
-    right: -16px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-left-color: var(--pendo-bg);
-}
-
-.pendo-guide--tooltip-right::before {
-    left: -16px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-right-color: var(--pendo-bg);
 }
 
 .pendo-guide--banner {
