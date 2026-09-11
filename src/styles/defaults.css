@@ -272,6 +272,18 @@ pendo-text:last-child {
 
 /* =============================================================================
    pendo-button
+
+   The `--pendo-button-*` custom properties below are the component's public
+   theming API, not decoration: `.pendo-button` is the real control (the host
+   `pendo-button` element only wraps it), so a theme rule on the authored tag
+   offers an inherited value that can never beat these declarations. Setting the
+   variable is the only way in.
+
+   Every fallback is the value this sheet hard-coded before the variable existed,
+   so a theme that sets none of them renders exactly as it did. The names and
+   fallbacks are mirrored in `theme-tokens.js`, which ships as
+   `dist/theme-tokens.json` for consumers to assert against, and
+   `test/theme-tokens.test.js` fails if the two drift.
    ============================================================================= */
 
 pendo-button {
@@ -287,11 +299,17 @@ pendo-button + pendo-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--pendo-spacing-sm) var(--pendo-spacing);
-    border-radius: var(--pendo-radius);
+    /* Split x/y rather than one shorthand so a consumer's Padding control can stay an x/y pair. */
+    padding: var(--pendo-button-padding-y, var(--pendo-spacing-sm)) var(--pendo-button-padding-x, var(--pendo-spacing));
+    /* Its own token rather than `--pendo-radius`: that one is also the guide container's radius, so
+       sharing it would round the modal to match its buttons. */
+    border-radius: var(--pendo-button-radius, var(--pendo-radius));
+    /* `all: unset` above already computes box-shadow to `none`, so this adds a destination for a
+       theme's elevation without changing what an unset button renders. */
+    box-shadow: var(--pendo-button-shadow, none);
     font-family: var(--pendo-font);
-    font-size: 0.9375rem;
-    font-weight: 500;
+    font-size: var(--pendo-button-font-size, 0.9375rem);
+    font-weight: var(--pendo-button-font-weight, 500);
     cursor: pointer;
     transition: background-color 0.15s ease, opacity 0.15s ease;
     text-decoration: none;
@@ -302,8 +320,16 @@ pendo-button + pendo-button {
     opacity: 0.9;
 }
 
+/**
+ * `--pendo-button-bg` overrides the fill for resting primary buttons only; `:hover` below still
+ * reads `--pendo-primary-hover`, so a theme that sets a fill keeps the hover feedback.
+ *
+ * `border` has no vendored value at all (`all: unset` computes it away), which is why a theme that
+ * wants a bordered primary button needs a token rather than a rule on the host.
+ */
 .pendo-button--primary {
-    background: var(--pendo-primary);
+    background: var(--pendo-button-bg, var(--pendo-primary));
+    border: var(--pendo-button-border, none);
     color: var(--pendo-primary-text, #ffffff);
 }
 
@@ -312,10 +338,14 @@ pendo-button + pendo-button {
     opacity: 1;
 }
 
+/**
+ * The token sits in the shorthand's colour slot, not in place of the whole `border`, so a theme
+ * choosing a secondary border colour cannot silently drop the 1px solid along with it.
+ */
 .pendo-button--secondary {
-    background: transparent;
-    border: 1px solid var(--pendo-border);
-    color: var(--pendo-text);
+    background: var(--pendo-button-secondary-bg, transparent);
+    border: 1px solid var(--pendo-button-secondary-border, var(--pendo-border));
+    color: var(--pendo-button-secondary-text, var(--pendo-text));
 }
 
 .pendo-button--secondary:hover {
@@ -445,7 +475,9 @@ pendo-link {
 }
 
 .pendo-link {
-    color: var(--pendo-primary);
+    /* Same reason as the buttons: `.pendo-link` is the real anchor inside the `pendo-link` host and
+       declares its own colour, so an inherited value from a theme rule on the tag never applies. */
+    color: var(--pendo-link-color, var(--pendo-primary));
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;

@@ -172,6 +172,47 @@ pendo-guide,
 }
 ```
 
+### Theme buttons and links
+
+`pendo-button` and `pendo-link` are wrappers: the element that actually paints is
+a `button.pendo-button` / `a.pendo-link` inside, and it declares its own padding,
+radius, typography and colour. A rule on the authored tag therefore offers an
+inherited value that can never beat the inner element's own declaration — so
+these are set through custom properties rather than rules:
+
+| Property | Applies to | Default |
+|----------|------------|---------|
+| `--pendo-button-padding-y` / `--pendo-button-padding-x` | all buttons | `--pendo-spacing-sm` / `--pendo-spacing` |
+| `--pendo-button-radius` | all buttons | `--pendo-radius` |
+| `--pendo-button-shadow` | all buttons | `none` |
+| `--pendo-button-font-size` / `--pendo-button-font-weight` | all buttons | `0.9375rem` / `500` |
+| `--pendo-button-bg` / `--pendo-button-border` | `variant="primary"` | `--pendo-primary` / `none` |
+| `--pendo-button-secondary-bg` / `--pendo-button-secondary-border` / `--pendo-button-secondary-text` | `variant="secondary"` | `transparent` / `--pendo-border` / `--pendo-text` |
+| `--pendo-link-color` | links | `--pendo-primary` |
+
+Every default is the value the stylesheet hard-coded before the property
+existed, so setting none of them renders exactly as an unthemed guide does.
+Hover fills are not tokenised: a primary button that sets `--pendo-button-bg`
+still hovers to `--pendo-primary-hover`.
+
+### The contract as data
+
+The full list — names, defaults, and the rule each one lands in — ships with the
+package so a consumer that writes these properties can assert its own spellings
+against the component instead of restating them:
+
+```javascript
+import contract from '@pendo/guide-components/theme-tokens' with { type: 'json' };
+
+// contract.tokens: [{ name, default, selector, property }, ...]
+// `property: null` means the token is defined on `selector`; otherwise it is read
+// as the `var()` fallback of `selector`'s `property` declaration.
+```
+
+An unrecognised custom property is never read, so a one-sided rename is silent:
+the control keeps accepting values and the guide keeps rendering the default.
+Checking against this artifact turns that into a failing test.
+
 ### Scoped override (higher specificity)
 
 ```css
@@ -232,7 +273,8 @@ src/
 │   ├── pendo-open-text.js
 │   └── pendo-emoji-scale.js
 └── styles/
-    └── defaults.css      # Default component styles
+    ├── defaults.css      # Default component styles
+    └── theme-tokens.js   # The themeable custom properties, as data
 ```
 
 ### Build Outputs
@@ -242,6 +284,7 @@ The build produces:
 - `dist/pendo-guide-components.esm.js` - ES module for bundlers
 - `dist/pendo-guide-components.js` - IIFE for script tags
 - `dist/pendo-guide-components.css` - Component styles
+- `dist/theme-tokens.json` - The themeable custom properties and their defaults
 
 ## License
 

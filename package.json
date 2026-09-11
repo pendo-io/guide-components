@@ -1,6 +1,6 @@
 {
   "name": "@pendo/guide-components",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Custom elements for rendering Pendo HTML guides",
   "main": "dist/pendo-guide-components.js",
   "module": "dist/pendo-guide-components.esm.js",
@@ -11,6 +11,7 @@
       "require": "./dist/pendo-guide-components.js"
     },
     "./styles": "./dist/pendo-guide-components.css",
+    "./theme-tokens": "./dist/theme-tokens.json",
     "./dist/*": "./dist/*"
   },
   "files": [
