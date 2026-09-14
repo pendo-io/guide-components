@@ -286,8 +286,65 @@ pendo-text:last-child {
    `test/theme-tokens.test.js` fails if the two drift.
    ============================================================================= */
 
+/* The host wraps the control, so it must not paint.
+ *
+ * A theme written for Pendo's classic tag-based rendering styles the authored
+ * `pendo-button` tag, because there that tag *was* the button. Here it is a
+ * wrapper around the real `button.pendo-button`, so the same rule draws a second
+ * box around the control instead. The paint cannot reach the control either:
+ * `background`, `border` and `padding` do not inherit, and `all: unset` plus the
+ * declarations below outrank an inherited value for the properties that do. So
+ * the rule is pure decoy — it can only ever double the box.
+ *
+ * `!important` because a theme cannot be out-specified. Novus scopes theme rules
+ * as `pendo-guide[data-pendo-theme-id="..."] pendo-button` and leaves them
+ * unlayered deliberately, so they beat this sheet on specificity and, at equal
+ * specificity, on source order (see the header comment). An `!important`
+ * declaration is the only one that wins regardless — and it is already what a
+ * consumer resorts to: Novus's preview zeroes this same host padding with it.
+ *
+ * Listed positively, as the variants this sheet actually paints. Anything else —
+ * `variant="link"`, and equally a `variant="tertiary"` a consumer only warns
+ * about — matches no `.pendo-button--*` rule, so its inner node keeps the
+ * transparent background `all: unset` gives it and the host's box is the only
+ * paint surface that button has. Novus's properties panel writes a plain
+ * `background-color` there for exactly those variants (`buttonVariantOf` buckets
+ * every unrecognised value with `link`), so resetting them would make that
+ * control accept a colour and change nothing — the defect this contract exists to
+ * prevent. A `:not([variant="link"])` would have caught the unknown values too,
+ * which is why the list is positive rather than an exclusion.
+ *
+ * `[variant=""]` is listed for the same reason `:not([variant])` is: the element
+ * resolves its variant as `getAttribute("variant") || "primary"`, so an empty
+ * attribute paints as primary. Without it the inner node would be painted while
+ * the host stayed paintable, which is the doubled box surviving in one spot.
+ *
+ * Padding is not scoped, because the inner control declares its own for every
+ * variant, so host padding always doubles.
+ *
+ * `margin` is deliberately absent: the host is where a button's margin belongs,
+ * and both `pendo-button + pendo-button` below and Novus's Margin control write
+ * it there.
+ *
+ * `box-shadow` and `outline` are absent too, for a different reason. Neither
+ * draws the second *box* this rule exists to remove, and once the host carries
+ * no padding both hug the control closely enough to read as its own. Resetting
+ * them would kill an author's inline `style` with nowhere to put the intent:
+ * `border` has `--pendo-button-border` to land in and `background` has
+ * `--pendo-button-bg`, but there is no outline token, and a theme's host
+ * `box-shadow` is hoisted by the consumer's formatter already.
+ */
 pendo-button {
     display: inline-block;
+    padding: 0 !important;
+}
+
+pendo-button:not([variant]),
+pendo-button[variant=""],
+pendo-button[variant="primary"],
+pendo-button[variant="secondary"] {
+    background: none !important;
+    border: 0 !important;
 }
 
 pendo-button + pendo-button {

@@ -153,6 +153,10 @@ Override the defaults with **unlayered** rules, loaded *after* the library
 stylesheet. Resolution is by ordinary specificity, with source order breaking
 ties — so an equal-specificity theme rule wins as long as it loads last.
 
+One exception, as of 0.4.0: the `pendo-button` **host** is reset with
+`!important`, so a rule painting it is annihilated rather than outranked. See
+[Theme buttons and links](#theme-buttons-and-links).
+
 > **Migrating from `@layer pendo.theme`:** earlier versions shipped defaults in
 > `@layer pendo.components` and recommended themes in `@layer pendo.theme`. The
 > library no longer declares any layers. Move theme rules **out** of
@@ -179,6 +183,22 @@ a `button.pendo-button` / `a.pendo-link` inside, and it declares its own padding
 radius, typography and colour. A rule on the authored tag therefore offers an
 inherited value that can never beat the inner element's own declaration — so
 these are set through custom properties rather than rules:
+
+> **The button host does not paint, as of 0.4.0.** `padding` is zeroed on every
+> `pendo-button`, and `background` and `border` on the variants this sheet paints
+> (absent, empty, `primary`, `secondary`) — all with `!important`, because a theme
+> rule is both more specific and loaded later, so nothing short of that reaches it.
+> A rule on the authored tag cannot restore them; use the properties below.
+>
+> `variant="link"`, and any variant this sheet does not recognise, are **exempt**:
+> no rule paints their inner node, so the host's own box is the only paint surface
+> they have. Consumers rely on that — Novus's properties panel writes a plain
+> `background-color` on the host for exactly those variants.
+>
+> This drops a legacy theme's host paint rather than relocating it, which is the
+> point: it ends the doubled button for every stored theme with no rewrite. A theme
+> that painted the tag for size loses that intent and renders at the defaults
+> below until it sets the properties instead.
 
 | Property | Applies to | Default |
 |----------|------------|---------|
