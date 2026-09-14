@@ -37,25 +37,58 @@ export class PendoOpenText extends PendoBaseElement {
         this.render();
     }
 
+    /**
+     * Built via DOM property/attribute assignment rather than an `innerHTML` template string.
+     * `question`/`placeholder` are author-controlled text — property/attribute assignment never
+     * re-parses a value as markup, so a value containing `"` (or any character) can't break out
+     * of an attribute the way string interpolation could. Mirrors PendoInput's pattern.
+     */
     render() {
-        const questionId = this.generateId();
-        const textareaId = this.generateId();
+        this.replaceChildren();
 
-        this.innerHTML = `
-            <div class="pendo-open-text__wrapper">
-                ${this.question ? `<label id="${questionId}" for="${textareaId}" class="pendo-poll__question">${this.escapeHtml(this.question)}</label>` : ''}
-                <textarea
-                    id="${textareaId}"
-                    class="pendo-open-text__input"
-                    placeholder="${this.escapeHtml(this.placeholder)}"
-                    rows="${this.rows}"
-                    ${this.maxlength ? `maxlength="${this.maxlength}"` : ''}
-                    ${this.required ? 'required' : ''}
-                    aria-labelledby="${this.question ? questionId : ''}"
-                ></textarea>
-                ${this.maxlength ? `<div class="pendo-open-text__counter"><span class="pendo-open-text__count">0</span>/${this.maxlength}</div>` : ''}
-            </div>
-        `;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pendo-open-text__wrapper';
+
+        const textareaId = this.generateId();
+        let questionId;
+
+        if (this.question) {
+            questionId = this.generateId();
+            const label = document.createElement('label');
+            label.id = questionId;
+            label.setAttribute('for', textareaId);
+            label.className = 'pendo-poll__question';
+            label.textContent = this.question;
+            wrapper.appendChild(label);
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.id = textareaId;
+        textarea.className = 'pendo-open-text__input';
+        textarea.placeholder = this.placeholder;
+        textarea.rows = this.rows;
+        // setAttribute (not the `.maxLength` IDL property) to preserve the original's raw
+        // pass-through semantics for a non-numeric value, matching prior template behavior.
+        if (this.maxlength) {
+            textarea.setAttribute('maxlength', this.maxlength);
+        }
+        textarea.required = this.required;
+        if (questionId) {
+            textarea.setAttribute('aria-labelledby', questionId);
+        }
+        wrapper.appendChild(textarea);
+
+        if (this.maxlength) {
+            const counterWrapper = document.createElement('div');
+            counterWrapper.className = 'pendo-open-text__counter';
+            const count = document.createElement('span');
+            count.className = 'pendo-open-text__count';
+            count.textContent = '0';
+            counterWrapper.append(count, `/${this.maxlength}`);
+            wrapper.appendChild(counterWrapper);
+        }
+
+        this.appendChild(wrapper);
 
         this.setupEventListeners();
     }
@@ -136,4 +169,3 @@ export class PendoOpenText extends PendoBaseElement {
         textarea?.focus();
     }
 }
-
