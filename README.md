@@ -80,6 +80,67 @@ import '@pendo/guide-components/styles';
 | `<pendo-emoji-scale>` | Emoji-based rating |
 | `<pendo-open-text>` | Free-form text response |
 
+## Card height
+
+A card has no height cap by default and grows with its content. Cap one by
+setting an inline `max-height` on the guide root — the same way an inline
+`max-width` overrides the width default:
+
+```html
+<pendo-guide style="max-height: 420px">…</pendo-guide>
+```
+
+What scrolls depends on whether the card uses a `<pendo-guide-content>` region:
+
+| Markup | Behaviour |
+|--------|-----------|
+| Cap **and** a `pendo-guide-content` | The region scrolls; the step progress and footer stay put, and a `<pendo-title>` heading the region is pinned to the top of it |
+| Cap, no content region | The whole card scrolls, title and footer included |
+| No cap | Unchanged — the card grows, nothing scrolls |
+| Tooltip or banner | Not capped at all — `max-height` is forced off |
+
+The pinned title matters because guides put their title *inside* the content
+region rather than beside it:
+
+```html
+<pendo-guide style="max-height: 420px">
+  <pendo-guide-content>
+    <pendo-title>Help</pendo-title>
+    <!-- …scrolls under the title… -->
+  </pendo-guide-content>
+  <pendo-guide-footer>…</pendo-guide-footer>
+</pendo-guide>
+```
+
+Only the content region shrinks. A card's padding, its step progress and its
+footer keep their size, so a cap they alone exceed — a large authored padding, a
+bigger type scale, an extra button — leaves them past the card's edge. The card
+is `overflow-y: auto` rather than `hidden` so the reader can still scroll to
+them; an ordinary capped card never reaches that point and shows no scrollbar.
+
+A tooltip and a banner cannot be height-capped, and their cap is forced off with
+`!important` rather than simply ignored. A tooltip's caret is a `::before` outside
+the card, which any scrolling or clipping container removes, and a banner is a
+full-bleed bar with no height to cap. Excluding them from the scrolling rules
+alone would have left the cap applying with `overflow: visible`, painting the body
+outside the card — measured at 282px of text on the page background.
+
+Only a title that is the region's first child is pinned. It inherits the card's
+whole background rather than reading `--pendo-bg`, so a theme that paints the card
+with a literal `background` is followed correctly — including a gradient, which
+leaves `background-color` transparent and would otherwise let the body scroll
+through the heading.
+
+A `.pendo-guide--slideout` is capped at `80vh` by its own rule and follows the
+same table, so giving a slideout a content region is now what keeps its header
+and footer fixed.
+
+Only a capped card switches to flex layout, and only when it has a content
+region. That restriction is deliberate: flex stops adjacent margins collapsing,
+which grows a card holding an image, a divider or a list by 12–24px. A card with
+a content region measures the same either way, because its children collapse
+inside the region, which stays `display: block`.
+
 ## Button Actions
 
 The `<pendo-button>` component supports the following actions:
@@ -153,9 +214,11 @@ Override the defaults with **unlayered** rules, loaded *after* the library
 stylesheet. Resolution is by ordinary specificity, with source order breaking
 ties — so an equal-specificity theme rule wins as long as it loads last.
 
-One exception, as of 0.4.0: the `pendo-button` **host** is reset with
-`!important`, so a rule painting it is annihilated rather than outranked. See
-[Theme buttons and links](#theme-buttons-and-links).
+Two exceptions. As of 0.4.0 the `pendo-button` **host** is reset with
+`!important`, so a rule painting it is annihilated rather than outranked — see
+[Theme buttons and links](#theme-buttons-and-links). As of 0.5.0 a tooltip and a
+banner are forced to `max-height: none` the same way, so neither can be
+height-capped — see [Card height](#card-height).
 
 > **Migrating from `@layer pendo.theme`:** earlier versions shipped defaults in
 > `@layer pendo.components` and recommended themes in `@layer pendo.theme`. The
