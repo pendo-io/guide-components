@@ -88,6 +88,171 @@ pendo-guide-footer {
     justify-content: flex-end;
 }
 
+/* =============================================================================
+   Height cap and the scrolling content region
+
+   Reads against the layout variants defined further down under "Layout variants":
+   `.pendo-guide--slideout` carries `max-height: 80vh` and `overflow-y: auto`, and
+   `.pendo-guide--banner` carries `flex-direction: row`. These rules sit here, beside
+   the container they modify, and win on specificity rather than source order.
+   ============================================================================= */
+
+/**
+ * A card is capped per guide by an inline `max-height`, the same way an inline
+ * `max-width` overrides the width defaults above. A slideout is the one standing
+ * exception, capped at 80vh by its own layout rule.
+ *
+ * The switch to flex is deliberately narrowed to a capped card that *has* a
+ * `pendo-guide-content`, because flex layout stops adjacent margins collapsing:
+ * measured, a card holding an image, a divider or a list grows 12-24px the moment
+ * it becomes a flex column. A card with a content region measures identically
+ * either way — its children collapse inside the region, which stays block — so
+ * narrowing the switch buys the fixed header and footer at no cost to anything
+ * else.
+ *
+ * A banner is excluded throughout. It is a full-bleed horizontal bar — its own rule
+ * sets `flex-direction: row`, which these selectors out-specify — and it has no
+ * height to cap for the same reason it has no width to cap.
+ *
+ * A tooltip is excluded too, for a sharper reason: its caret is a `::before` that
+ * sits *outside* the card's box. Capping the card makes it a scroll container, and
+ * a container clips in both axes — `overflow-x: visible` computes to `auto` as soon
+ * as `overflow-y` is not visible — so the caret vanishes and the tooltip loses the
+ * pointer tying it to its target. A tooltip is already size-constrained, so there
+ * is nothing here worth that.
+ *
+ * Matched on the style attribute rather than a class set in `connectedCallback`
+ * because the cap is live-edited in an authoring panel, and a class set at connect
+ * time would need a MutationObserver to keep up with it.
+ */
+pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content),
+.pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content),
+.pendo-guide--slideout:has(> pendo-guide-content) {
+    display: flex;
+    flex-direction: column;
+    /* `auto`, not `hidden`. The region below absorbs the slack, so in an ordinary
+       capped card nothing reaches the card's own edge and no scrollbar appears — it
+       measures the same either way. What differs is the case the region cannot
+       absorb: the card's padding, the step progress and the footer do not shrink,
+       so a large authored padding, a bigger type scale or a third button can leave
+       them alone exceeding the cap. `hidden` clipped those controls out of reach,
+       since a hidden box scrolls only under script and offers the reader nothing.
+       `auto` degrades that to a card the reader can scroll, and covers every source
+       of the overflow rather than the one a control's bounds can see. */
+    overflow-y: auto;
+}
+
+/**
+ * `min-height: 0` is load-bearing: a flex item's automatic minimum size is its
+ * content, so without it the region refuses to shrink, the card grows past its cap
+ * and nothing ever scrolls.
+ */
+pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content) > pendo-guide-content,
+.pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content) > pendo-guide-content,
+.pendo-guide--slideout:has(> pendo-guide-content) > pendo-guide-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    /* Carries the card's paint inwards so the sticky title below has something opaque to inherit.
+       The whole background rather than its colour: a theme painting the card with a gradient leaves
+       `background-color` transparent, so inheriting only the colour would inherit nothing. */
+    background: inherit;
+}
+
+/**
+ * A title heading the scroll region stays put while its siblings scroll under it.
+ *
+ * Needed because the title is *inside* the region in every guide this renders:
+ * the step builder and all of the authoring examples emit
+ * `<pendo-guide-content><pendo-title>…`. Without this the title is just the first
+ * thing to scroll away, leaving a capped card with no heading at all.
+ *
+ * `background: inherit` rather than `var(--pendo-bg)`: a themed card is painted by
+ * a literal `background` in the theme stylesheet, which never touches that token,
+ * so reading the token would paint the default behind the title on every themed
+ * guide. Inheriting chains region -> card and lands on whichever one painted.
+ *
+ * The shorthand, not `background-color`. A theme painting the card with a gradient
+ * leaves `background-color` transparent — the colour is in `background-image` — so
+ * inheriting only the colour inherited nothing and the scrolled body showed through
+ * the heading. Themes Novus generates always paint a flat colour, for which the two
+ * are identical; this covers an imported stylesheet that does not. The cost is that
+ * a gradient is re-painted from the title's own box, so it can seam against the
+ * card — visible, but not text over text.
+ *
+ * The bottom margin becomes padding for the same reason the background exists: a
+ * margin is transparent, so scrolled text would show through the gap beneath the
+ * title rather than passing behind it.
+ *
+ * Deliberately no `z-index`. Positioning alone already paints the title above its
+ * non-positioned siblings, which is all it needs; an explicit `z-index: 1` instead
+ * tied it with `pendo-close-button`, and equal levels paint in tree order. The
+ * close element is emitted *before* the content region, so the title's opaque
+ * background covered it and swallowed its clicks — measured, a 16x16px overlap
+ * with the dismiss control no longer hit-testable. A progress row keeps the two
+ * apart, which is exactly what `hideStepProgress` removes, so the menus this cap
+ * exists for are the shape that hits it.
+ */
+pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content) > pendo-guide-content > pendo-title:first-child,
+.pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content) > pendo-guide-content > pendo-title:first-child,
+.pendo-guide--slideout:has(> pendo-guide-content) > pendo-guide-content > pendo-title:first-child {
+    position: sticky;
+    top: 0;
+    background: inherit;
+    margin-bottom: 0;
+    padding-bottom: var(--pendo-spacing-sm);
+}
+
+/**
+ * `pendo-guide-content` is optional, and most authored guides omit it and hang
+ * their content straight off the root. With no region to scroll the card scrolls
+ * as a whole, taking its title and footer with it — worse than a fixed header, but
+ * it is what a slideout has always done, and far better than running off the
+ * viewport.
+ *
+ * A slideout is absent here: its own rule already carries `overflow-y: auto`, so
+ * it keeps scrolling even where `:has()` is unsupported and neither branch matches.
+ */
+pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):not(:has(> pendo-guide-content)),
+.pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):not(:has(> pendo-guide-content)) {
+    overflow-y: auto;
+}
+
+/**
+ * A cap on a layout excluded above is neutralised rather than left half-applied.
+ *
+ * `max-height` is an ordinary property: excluding these layouts from the scrolling
+ * rules stops them scrolling, it does not stop them being capped. A capped tooltip
+ * therefore kept its cap, kept `overflow: visible`, and painted its body outside
+ * the card — measured at 282px of text on the page background, which is worse than
+ * either scrolling or clipping.
+ *
+ * `!important` because the cap arrives as an inline style, which nothing else in an
+ * author stylesheet can outrank. This is what lets the authoring guidance say a cap
+ * on these layouts does nothing and be true by construction, rather than asking a
+ * model to remember not to write one.
+ */
+.pendo-guide--tooltip,
+.pendo-guide--banner {
+    max-height: none !important;
+}
+
+/**
+ * Where `:has()` is unsupported both branches above are dropped whole — an invalid selector
+ * invalidates the rule, and `:not(:has(…))` is no more parseable than `:has(…)` — which would leave
+ * a capped card with a cap and no scroll, spilling its content outside the painted card. Falling
+ * back to scrolling the whole card loses the fixed header and keeps everything inside the card.
+ *
+ * An engine too old for `@supports selector()` drops this too and spills, which is the floor we
+ * accept rather than chase.
+ */
+@supports not selector(:has(*)) {
+    pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip),
+    .pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip) {
+        overflow-y: auto;
+    }
+}
+
 /* Layout variants (applied by pendo-client) */
 .pendo-guide--lightbox {
     /* Lightbox is centered via container positioning */
