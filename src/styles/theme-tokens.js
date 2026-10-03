@@ -64,6 +64,17 @@ export const themeTokens = [
     { name: '--pendo-button-secondary-border', default: 'var(--pendo-border)', selector: '.pendo-button--secondary', property: 'border' },
     { name: '--pendo-button-secondary-text', default: 'var(--pendo-text)', selector: '.pendo-button--secondary', property: 'color' },
 
+    // ---- Action rows -------------------------------------------------------
+    // `.pendo-action-row` is the real control inside the `pendo-action-row` host, so a theme rule on
+    // the authored tag cannot win; setting the token is the supported route.
+    { name: '--pendo-action-row-padding-y', default: 'var(--pendo-spacing-xs)', selector: '.pendo-action-row', property: 'padding' },
+    { name: '--pendo-action-row-padding-x', default: 'var(--pendo-spacing-sm)', selector: '.pendo-action-row', property: 'padding' },
+    { name: '--pendo-action-row-radius', default: 'var(--pendo-radius)', selector: '.pendo-action-row', property: 'border-radius' },
+    { name: '--pendo-action-row-text', default: 'var(--pendo-text)', selector: '.pendo-action-row', property: 'color' },
+    { name: '--pendo-action-row-hover-bg', default: 'rgba(0, 0, 0, 0.05)', selector: '.pendo-action-row:hover', property: 'background' },
+    { name: '--pendo-action-row-description-text', default: 'var(--pendo-text-muted)', selector: '.pendo-action-row__description', property: 'color' },
+    { name: '--pendo-action-row-divider', default: 'var(--pendo-border)', selector: 'pendo-action-row + pendo-action-row > .pendo-action-row', property: 'border-top' },
+
     // ---- Links -------------------------------------------------------------
     { name: '--pendo-link-color', default: 'var(--pendo-primary)', selector: '.pendo-link', property: 'color' }
 ];

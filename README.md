@@ -69,6 +69,7 @@ import '@pendo/guide-components/styles';
 | `<pendo-list>` | List container |
 | `<pendo-list-item>` | List item |
 | `<pendo-input>` | Text input field |
+| `<pendo-action-row>` | Compact menu entry that performs an action |
 
 ### Poll Elements
 
@@ -140,6 +141,58 @@ region. That restriction is deliberate: flex stops adjacent margins collapsing,
 which grows a card holding an image, a divider or a list by 12–24px. A card with
 a content region measures the same either way, because its children collapse
 inside the region, which stays `display: block`.
+
+## Menu rows
+
+`<pendo-action-row>` is a compact menu entry for a guide that offers several
+choices — open this guide, go to this section, follow this link. A
+`pendo-button` is sized as a call to action, and a `pendo-list-item` is prose
+that re-renders its items and discards their attributes, so neither fits.
+
+```html
+<pendo-guide-content>
+  <pendo-title>How can we help?</pendo-title>
+  <pendo-action-row action="launch-guide:GUIDE_ID" description="A two-minute overview">
+    Take the welcome tour
+  </pendo-action-row>
+  <pendo-action-row action="go-to-step:2">Billing and plans</pendo-action-row>
+  <pendo-action-row action="link:https://example.com/docs">Documentation</pendo-action-row>
+</pendo-guide-content>
+```
+
+| Attribute | |
+|-----------|---|
+| `action` | What a click does. The same grammar as `pendo-button`, and the same `pendo-action` event, so the client needs no new handling. A row with no `action` dismisses, as a button does. |
+| `description` | Optional second line under the label. Plain text — it is never parsed as markup. |
+| `trailing` | Optional override for the trailing glyph: `chevron`, `external` or `none`. |
+| `target` | Where a `link:` action opens. Defaults to a new tab. |
+
+The label is the element's content, so inline formatting works.
+
+**The trailing glyph reflects the action.** A chevron for `go-to-step` and
+`launch-guide` (they open something), an external-link glyph for `link`, and
+nothing for the rest. In a compound action list the first action that opens
+something decides. An author never has to choose one; `trailing` is only an
+escape hatch.
+
+**`description`, `action` and `trailing` can change after the row is built.** The
+description line and the glyph follow the attribute; the label is never rebuilt.
+An authoring surface edits these on the live element, and rebuilding the row for
+each change would discard the label being typed into.
+
+**Gates stay on the row.** Every attribute on the authored element stays on it,
+including `data-pendo-requires-guide` and `data-pendo-requires-any`, so the
+client can filter a row out before it renders. This is the difference from a
+`pendo-list-item`, which loses them. Dividers are drawn between rows rather than
+around them, so removing a gated row never leaves a stray rule at either end.
+
+Put rows inside a `<pendo-guide-content>` so a [height-capped card](#card-height)
+scrolls them while the title and footer stay put. A row's focus ring is drawn
+inside it for the same reason: an outline outside the row would be clipped by the
+scrolling region.
+
+Not yet handled: the chevron does not flip in right-to-left layouts, in common
+with the rest of the HTML guide components.
 
 ## Button Actions
 
@@ -278,6 +331,23 @@ existed, so setting none of them renders exactly as an unthemed guide does.
 Hover fills are not tokenised: a primary button that sets `--pendo-button-bg`
 still hovers to `--pendo-primary-hover`.
 
+### Theme action rows
+
+`pendo-action-row` is a wrapper in the same way: the element that paints is a
+`button.pendo-action-row` inside it, and the host does not paint — `padding`,
+`background` and `border` are zeroed on it with `!important`, so a legacy theme's
+rule on the authored tag cannot draw a second box around the control. Use the
+properties instead:
+
+| Property | Applies to | Default |
+|----------|------------|---------|
+| `--pendo-action-row-padding-y` / `--pendo-action-row-padding-x` | each row | `--pendo-spacing-xs` / `--pendo-spacing-sm` |
+| `--pendo-action-row-radius` | each row | `--pendo-radius` |
+| `--pendo-action-row-text` | the label | `--pendo-text` |
+| `--pendo-action-row-description-text` | the second line | `--pendo-text-muted` |
+| `--pendo-action-row-hover-bg` | a hovered row | `rgba(0, 0, 0, 0.05)` |
+| `--pendo-action-row-divider` | the rule between rows | `--pendo-border` |
+
 ### The contract as data
 
 The full list — names, defaults, and the rule each one lands in — ships with the
@@ -337,12 +407,14 @@ npm install
 src/
 ├── index.js              # Main entry point
 ├── base-element.js       # Base class for all components
+├── actions.js            # The `action` attribute grammar, shared by button and action row
 ├── configure.js          # Configuration API
 ├── elements/             # Core component definitions
 │   ├── pendo-guide.js
 │   ├── pendo-title.js
 │   ├── pendo-text.js
 │   ├── pendo-button.js
+│   ├── pendo-action-row.js
 │   ├── pendo-image.js
 │   ├── pendo-divider.js
 │   ├── pendo-video.js

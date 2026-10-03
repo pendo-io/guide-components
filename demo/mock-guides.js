@@ -339,6 +339,54 @@ const mockGuides = [
                 fontColor: '#ffffff'
             }
         }
+    },
+
+    // Help menu - a stack of compact action rows in a height-capped card
+    {
+        id: 'help-menu',
+        name: 'Help Menu',
+        steps: [
+            {
+                id: 'help-menu-step-1',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide style="max-height: 420px">
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>How can we help?</pendo-title>
+                            <pendo-action-row action="launch-guide:welcome" description="A two-minute overview">Take the welcome tour</pendo-action-row>
+                            <pendo-action-row action="launch-guide:feature-tour" description="Projects, tasks and teams">Feature tour</pendo-action-row>
+                            <pendo-action-row action="go-to-step:2">Billing and plans</pendo-action-row>
+                            <pendo-action-row action="link:https://example.com/docs" description="Opens in a new tab">Read the documentation</pendo-action-row>
+                            <pendo-action-row action="link:https://example.com/status">Service status</pendo-action-row>
+                            <pendo-action-row action="dismiss" trailing="none">No thanks</pendo-action-row>
+                        </pendo-guide-content>
+                    </pendo-guide>
+                `
+            },
+            {
+                id: 'help-menu-step-2',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide style="max-height: 420px">
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Billing and plans</pendo-title>
+                            <pendo-action-row action="go-to-step:1" trailing="none">&larr; Back</pendo-action-row>
+                            <pendo-action-row action="link:https://example.com/plans">Compare plans</pendo-action-row>
+                            <pendo-action-row action="link:https://example.com/invoices">Download invoices</pendo-action-row>
+                        </pendo-guide-content>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderColor: '#e5e7eb',
+                borderRadius: '12px'
+            }
+        }
     }
 ];
 

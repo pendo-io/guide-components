@@ -2,6 +2,7 @@ import { PendoGuide } from './elements/pendo-guide.js';
 import { PendoTitle } from './elements/pendo-title.js';
 import { PendoText } from './elements/pendo-text.js';
 import { PendoButton } from './elements/pendo-button.js';
+import { PendoActionRow } from './elements/pendo-action-row.js';
 import { PendoCloseButton } from './elements/pendo-close-button.js';
 import { PendoImage } from './elements/pendo-image.js';
 import { PendoDivider } from './elements/pendo-divider.js';
@@ -20,6 +21,7 @@ const components = [
     ['pendo-title', PendoTitle],
     ['pendo-text', PendoText],
     ['pendo-button', PendoButton],
+    ['pendo-action-row', PendoActionRow],
     ['pendo-close-button', PendoCloseButton],
     ['pendo-image', PendoImage],
     ['pendo-divider', PendoDivider],
