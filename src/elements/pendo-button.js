@@ -1,4 +1,5 @@
 import { PendoBaseElement } from '../base-element.js';
+import { parseActionAttribute } from '../actions.js';
 
 /**
  * <pendo-button> - Action button for guides.
@@ -66,61 +67,13 @@ class PendoButton extends PendoBaseElement {
 
     /**
      * Parse the action attribute into an array of action objects.
-     * Supports multiple formats for backward compatibility and composability.
+     * The grammar is shared with `pendo-action-row`; see `actions.js`.
      *
      * @param {string} attr - The action attribute value
      * @returns {Array} Array of action objects
      */
     parseAction(attr) {
-        if (!attr) return [];
-
-        const trimmed = attr.trim();
-
-        // Array of actions: [{"action":"submit-poll"},{"action":"dismiss"}]
-        if (trimmed.startsWith('[')) {
-            try {
-                return JSON.parse(trimmed);
-            } catch (e) {
-                return [];
-            }
-        }
-
-        // Single action object: {"action":"go-to-step","stepId":"abc"}
-        if (trimmed.startsWith('{')) {
-            try {
-                return [JSON.parse(trimmed)];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        // String with colon param: "action:param"
-        const colonIndex = trimmed.indexOf(':');
-        if (colonIndex !== -1) {
-            const actionType = trimmed.substring(0, colonIndex);
-            const param = trimmed.substring(colonIndex + 1);
-
-            // Map known parameterized actions to proper object format
-            switch (actionType) {
-                case 'link':
-                    return [{
-                        action: 'link',
-                        url: param,
-                        target: this.getAttribute('target') || '_blank'
-                    }];
-                case 'launch-guide':
-                    return [{ action: 'launch-guide', guideId: param }];
-                case 'go-to-step':
-                    return [{ action: 'go-to-step', stepId: param }];
-                case 'snooze':
-                    return [{ action: 'snooze', duration: parseInt(param, 10) || null }];
-                default:
-                    return [{ action: actionType, param }];
-            }
-        }
-
-        // Simple string action: "dismiss", "next-step", etc.
-        return [{ action: trimmed }];
+        return parseActionAttribute(attr, this.getAttribute('target') || '_blank');
     }
 
     /**
