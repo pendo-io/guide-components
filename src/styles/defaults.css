@@ -689,6 +689,86 @@ pendo-video,
 }
 
 /* =============================================================================
+   pendo-action-row
+
+   A compact menu entry. `.pendo-action-row` is the real control (a button), and the
+   host `pendo-action-row` only wraps it, so a theme rule on the authored tag offers
+   a value that can never beat these declarations. The `--pendo-action-row-*`
+   properties are the public theming API, mirrored in `theme-tokens.js`.
+   ============================================================================= */
+
+/* The host wraps the control, so it must not paint. The same decoy-box reasoning as
+ * `pendo-button` above: a theme written for tag-based rendering styles the authored
+ * tag, which here would draw a second box around the real control. `!important`
+ * because Novus scopes theme rules unlayered and they beat this sheet on specificity.
+ * `margin` is left alone; it is where a row's spacing belongs.
+ */
+pendo-action-row {
+    display: block;
+    padding: 0 !important;
+    background: none !important;
+    border: 0 !important;
+}
+
+.pendo-action-row {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: var(--pendo-spacing-sm);
+    width: 100%;
+    padding: var(--pendo-action-row-padding-y, var(--pendo-spacing-xs)) var(--pendo-action-row-padding-x, var(--pendo-spacing-sm));
+    border-radius: var(--pendo-action-row-radius, var(--pendo-radius));
+    color: var(--pendo-action-row-text, var(--pendo-text));
+    font-family: var(--pendo-font);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.pendo-action-row:hover {
+    background: var(--pendo-action-row-hover-bg, rgba(0, 0, 0, 0.05));
+}
+
+/* A divider between rows, not around them. Drawn on the row that follows another, so removing a
+ * gated row never leaves a stray rule at either end of the menu. A border rather than a shadow so
+ * it survives forced-colors mode.
+ */
+pendo-action-row + pendo-action-row > .pendo-action-row {
+    border-top: 1px solid var(--pendo-action-row-divider, var(--pendo-border));
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.pendo-action-row__text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pendo-action-row__label {
+    font-weight: 500;
+    overflow-wrap: break-word;
+}
+
+.pendo-action-row__description {
+    font-size: 0.8125rem;
+    color: var(--pendo-action-row-description-text, var(--pendo-text-muted));
+    overflow-wrap: break-word;
+}
+
+.pendo-action-row__trailing {
+    display: inline-flex;
+    flex: 0 0 auto;
+    color: var(--pendo-text-muted);
+    font-size: 1rem;
+}
+
+/* =============================================================================
    pendo-link
    ============================================================================= */
 
@@ -1177,6 +1257,13 @@ pendo-guide:has(> pendo-close-button) .pendo-guide__progress {
 .pendo-button:focus-visible {
     outline: 2px solid var(--pendo-focus);
     outline-offset: 2px;
+}
+
+/* Inset, unlike the button's: rows sit flush against each other inside a scrolling content region,
+   and an outline drawn outside the row would be clipped by it. */
+.pendo-action-row:focus-visible {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: -2px;
 }
 
 pendo-guide:focus {

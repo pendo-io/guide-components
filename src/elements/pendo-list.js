@@ -30,7 +30,10 @@ export class PendoList extends PendoBaseElement {
         const listEl = document.createElement(isNumbered ? 'ol' : 'ul');
         listEl.className = 'pendo-list__items';
 
-        // Process children
+        // Each item is rebuilt as an <li> that copies only the item's innerHTML (and `checked`), so
+        // any other attribute on the authored <pendo-list-item> is discarded: a gate
+        // (`data-pendo-requires-*`) or an `action` on one silently does nothing. A menu entry that
+        // needs either is a <pendo-action-row>, which keeps its attributes on the host.
         const items = this.querySelectorAll('pendo-list-item');
         items.forEach((item, index) => {
             const li = document.createElement('li');
