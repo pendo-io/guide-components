@@ -87,8 +87,8 @@ export class PendoNumberScale extends PendoBaseElement {
         items.forEach((item) => {
             const value = parseInt(item.dataset.value, 10);
 
-            item.addEventListener('click', () => this.selectValue(value));
-
+            // `change` alone: a label click also fires one, so a `click` listener reported each
+            // selection more than once. See `pendo-nps`.
             const input = item.querySelector('input');
             input.addEventListener('change', () => this.selectValue(value));
         });

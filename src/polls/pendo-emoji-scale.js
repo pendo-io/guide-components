@@ -86,8 +86,8 @@ export class PendoEmojiScale extends PendoBaseElement {
         options.forEach((option) => {
             const value = parseInt(option.dataset.value, 10);
 
-            option.addEventListener('click', () => this.selectEmoji(value));
-
+            // `change` alone: a label click also fires one, so a `click` listener reported each
+            // selection more than once. See `pendo-nps`.
             const input = option.querySelector('input');
             input.addEventListener('change', () => this.selectEmoji(value));
         });

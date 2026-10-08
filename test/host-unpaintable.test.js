@@ -140,3 +140,40 @@ describe('the pendo-button host is unpaintable', () => {
         expect(rule[1]).toContain('border: 0 !important;');
     });
 });
+
+/** The theme CSS Novus generates styles the authored open-text tag as if it were the field. */
+const LEGACY_OPEN_TEXT_THEME_CSS = `
+pendo-guide[data-pendo-theme-id="t1"] pendo-open-text {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    padding: 10px 14px;
+    margin-top: 6px;
+}
+`;
+
+describe('the pendo-open-text host is unpaintable', () => {
+    beforeEach(() => {
+        document.head.innerHTML = `<style>${defaults}</style><style>${LEGACY_OPEN_TEXT_THEME_CSS}</style>`;
+        document.body.innerHTML =
+            '<pendo-guide data-pendo-theme-id="t1"><pendo-open-text question="Why?"></pendo-open-text></pendo-guide>';
+    });
+
+    it("drops a theme's host paint, which drew a second box around the question and the field", () => {
+        const style = getComputedStyle(document.querySelector('pendo-open-text'));
+
+        expect(style.padding).toBe('0px');
+        expect(style.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    });
+
+    it('leaves the host its margin', () => {
+        expect(getComputedStyle(document.querySelector('pendo-open-text')).marginTop).toBe('6px');
+    });
+
+    // Text, not computed style: jsdom resolves the `border` shorthand from the losing rule (see above).
+    it('declares the border reset alongside the rest', () => {
+        const rule = defaults.replace(/\/\*[\s\S]*?\*\//g, '').match(/(?:^|\})\s*pendo-open-text\s*\{([^}]*)\}/);
+
+        expect(rule, 'no host reset rule for `pendo-open-text` in defaults.css').not.toBeNull();
+        expect(rule[1]).toContain('border: 0 !important;');
+    });
+});

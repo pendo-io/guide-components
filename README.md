@@ -81,6 +81,35 @@ import '@pendo/guide-components/styles';
 | `<pendo-emoji-scale>` | Emoji-based rating |
 | `<pendo-open-text>` | Free-form text response |
 
+### Reveal on answer
+
+Add `data-pendo-reveal="answered"` to any element to keep it hidden until another poll in the guide
+has an answer: a picked score or rating, or text in an open-text poll. Use it for a follow-up
+question, or a Submit button that has nothing to send yet. A revealed poll never counts as the
+answer it waits for, and a guide with no other poll keeps everything visible.
+
+### NPS survey
+
+To collect NPS the way a classic Pendo NPS guide does, put the score, its follow-up reason and a
+`submit-poll` button in one step:
+
+```html
+<pendo-guide>
+  <pendo-nps question="How likely are you to recommend us to a friend?"></pendo-nps>
+  <pendo-open-text nps-reason data-pendo-reveal="answered" question="What is the main reason for your score?"></pendo-open-text>
+  <pendo-button action="submit-poll" data-pendo-reveal="answered">Submit</pendo-button>
+</pendo-guide>
+```
+
+- `nps-reason` marks the text as the score's reason. Pendo records it as the score's `NPSReason`
+  follow-up, as it does for a classic NPS survey. A step needs exactly one `pendo-nps` and one
+  `nps-reason`; otherwise the text is a standalone `FreeForm` poll.
+- `data-pendo-reveal="answered"` asks for the reason, and offers Submit, only once a score is
+  picked, like a classic NPS survey.
+- `submit-poll` sends the score and the reason together and moves to the next step, so a
+  thank-you step can follow. Without a `submit-poll` button the client submits each score as it is
+  picked.
+
 ## Card height
 
 A card has no height cap by default and grows with its content. Cap one by
@@ -234,7 +263,7 @@ Emitted when a user submits a poll response.
 ```javascript
 document.addEventListener('pendo-response', (e) => {
   const { pollId, value, type } = e.detail;
-  // type: 'starRating', 'nps', 'freeForm', etc.
+  // type: 'NumberScale', 'NPSRating', 'NPSReason', 'FreeForm'
 });
 ```
 

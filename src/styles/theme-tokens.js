@@ -75,6 +75,15 @@ export const themeTokens = [
     { name: '--pendo-action-row-description-text', default: 'var(--pendo-text-muted)', selector: '.pendo-action-row__description', property: 'color' },
     { name: '--pendo-action-row-divider', default: 'var(--pendo-border)', selector: 'pendo-action-row + pendo-action-row > .pendo-action-row', property: 'border-top' },
 
+    // ---- NPS ---------------------------------------------------------------
+    { name: '--pendo-nps-score-bg', default: 'var(--pendo-bg)', selector: '.pendo-nps__score', property: 'background' },
+    { name: '--pendo-nps-score-border', default: '1px solid var(--pendo-border)', selector: '.pendo-nps__score', property: 'border' },
+    { name: '--pendo-nps-score-radius', default: '4px', selector: '.pendo-nps__score', property: 'border-radius' },
+    // The selected fill also colours the selected border, so a themed score never wears a
+    // primary-coloured outline around a differently coloured fill.
+    { name: '--pendo-nps-selected-bg', default: 'var(--pendo-primary)', selector: '.pendo-nps__score--selected', property: 'background' },
+    { name: '--pendo-nps-selected-text', default: '#ffffff', selector: '.pendo-nps__score--selected', property: 'color' },
+
     // ---- Links -------------------------------------------------------------
     { name: '--pendo-link-color', default: 'var(--pendo-primary)', selector: '.pendo-link', property: 'color' }
 ];
