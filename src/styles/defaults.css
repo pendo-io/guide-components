@@ -975,6 +975,25 @@ select.pendo-input__field {
 }
 
 /* =============================================================================
+   Reveal on answer
+   ============================================================================= */
+
+/* `data-pendo-reveal="answered"` keeps any element hidden until another poll in the guide has an
+ * answer: a follow-up question, or a Submit that has nothing to send yet. A classic Pendo NPS survey
+ * asks for its reason this way, and nothing here is specific to NPS.
+ *
+ * "Another poll" is one without the attribute, so a revealed follow-up never counts as the answer it
+ * waits for, and a guide with no such poll keeps everything visible rather than hiding it for good.
+ * Polls are matched by tag so the element is hidden before the components upgrade. An answer is the
+ * live state, a checked radio or an open text holding text, rather than an attribute the component
+ * writes, which an editor serializing the live DOM would save as a pre-filled answer. Without
+ * `:has()` support the whole rule is dropped and everything stays visible.
+ */
+:is(pendo-guide, .pendo-guide):has(:is(pendo-star-rating, pendo-nps, pendo-number-scale, pendo-emoji-scale, pendo-open-text):not([data-pendo-reveal])):not(:has(:is(pendo-star-rating, pendo-nps, pendo-number-scale, pendo-emoji-scale, pendo-open-text):not([data-pendo-reveal]) :is(input:checked, .pendo-open-text__wrapper--answered))) [data-pendo-reveal="answered"] {
+    display: none;
+}
+
+/* =============================================================================
    pendo-star-rating
    ============================================================================= */
 
@@ -1019,7 +1038,7 @@ select.pendo-input__field {
 
 .pendo-nps__scale {
     display: flex;
-    gap: 2px;
+    gap: 4px;
     margin-bottom: 8px;
 }
 
@@ -1030,9 +1049,9 @@ select.pendo-input__field {
     flex: 1;
     min-width: 24px;
     height: 32px;
-    border: 1px solid var(--pendo-border);
-    border-radius: 4px;
-    background: var(--pendo-bg);
+    border: var(--pendo-nps-score-border, 1px solid var(--pendo-border));
+    border-radius: var(--pendo-nps-score-radius, 4px);
+    background: var(--pendo-nps-score-bg, var(--pendo-bg));
     cursor: pointer;
     transition: all 0.15s ease;
 }
@@ -1042,14 +1061,22 @@ select.pendo-input__field {
 }
 
 .pendo-nps__score--selected {
-    background: var(--pendo-primary);
-    border-color: var(--pendo-primary);
-    color: #ffffff;
+    background: var(--pendo-nps-selected-bg, var(--pendo-primary));
+    border-color: var(--pendo-nps-selected-bg, var(--pendo-primary));
+    color: var(--pendo-nps-selected-text, #ffffff);
 }
 
+/* The ring sits against the border, so its 2px fit inside the 4px between scores instead of
+ * running into the neighbours. */
 .pendo-nps__score:focus-within {
     outline: 2px solid var(--pendo-focus);
-    outline-offset: 2px;
+    outline-offset: 0;
+}
+
+/* Clicking a score focuses its hidden radio, which would draw the keyboard ring for a mouse pick.
+ * Without `:has()` this rule is dropped and every focus keeps the ring, which is the safe side. */
+.pendo-nps__score:focus-within:not(:has(input:focus-visible)) {
+    outline: none;
 }
 
 .pendo-nps__score-value {
@@ -1128,6 +1155,17 @@ select.pendo-input__field {
 /* =============================================================================
    pendo-open-text
    ============================================================================= */
+
+/* The host wraps the question and the textarea, so it must not paint. A theme written for tag-based
+ * rendering styles the authored tag as if it were the field, which draws a second box around the
+ * label and the real one. The same reasoning as the `pendo-button` host above, `!important` for the
+ * same reason. `margin` is left alone; it is where a poll's spacing belongs.
+ */
+pendo-open-text {
+    padding: 0 !important;
+    background: none !important;
+    border: 0 !important;
+}
 
 .pendo-open-text__wrapper {
     display: flex;

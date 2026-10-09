@@ -13,9 +13,12 @@ import { PendoBaseElement } from '../base-element.js';
  * - maxlength: Maximum character length
  * - required: Whether input is required
  * - submit-on-blur: Auto-submit when focus leaves (default: false)
+ * - nps-reason: Marks this as the reason for the step's `<pendo-nps>` score. Pendo records it as the
+ *   score's `NPSReason` follow-up. To ask for it only once a score is picked, add
+ *   `data-pendo-reveal="answered"` (see `defaults.css`).
  *
  * Events:
- * - pendo-response: Fired when user submits text { pollId, value, type: 'FreeForm' }
+ * - pendo-response: Fired when user submits text { pollId, value, type: 'FreeForm' | 'NPSReason' }
  *
  * Example:
  *   <pendo-open-text question="Any additional feedback?" placeholder="Type here..."></pendo-open-text>
@@ -29,6 +32,7 @@ export class PendoOpenText extends PendoBaseElement {
         this.maxlength = this.getAttribute('maxlength');
         this.required = this.hasAttribute('required');
         this.submitOnBlur = this.hasAttribute('submit-on-blur');
+        this.npsReason = this.hasAttribute('nps-reason');
 
         this._value = '';
         this._submitted = false;
@@ -67,6 +71,7 @@ export class PendoOpenText extends PendoBaseElement {
         // Track input
         textarea.addEventListener('input', () => {
             this._value = textarea.value;
+            this.markAnswered();
             if (counter) {
                 counter.textContent = textarea.value.length;
             }
@@ -90,6 +95,16 @@ export class PendoOpenText extends PendoBaseElement {
         });
     }
 
+    /**
+     * Mark the wrapper while the text has content, which is what `data-pendo-reveal="answered"`
+     * reads. On the rendered wrapper rather than the host, so an editor saving the live DOM can't
+     * store it: the wrapper is rebuilt on every render.
+     */
+    markAnswered() {
+        this.querySelector('.pendo-open-text__wrapper')
+            ?.classList.toggle('pendo-open-text__wrapper--answered', this._value.trim() !== '');
+    }
+
     submit() {
         if (this.required && !this._value.trim()) {
             return false;
@@ -98,7 +113,7 @@ export class PendoOpenText extends PendoBaseElement {
         this._submitted = true;
 
         // Emit response event
-        this.emitResponse(this.pollId, this._value, 'FreeForm');
+        this.emitResponse(this.pollId, this._value, this.npsReason ? 'NPSReason' : 'FreeForm');
 
         return true;
     }
@@ -119,6 +134,7 @@ export class PendoOpenText extends PendoBaseElement {
         if (textarea) {
             textarea.value = value;
         }
+        this.markAnswered();
     }
 
     /**

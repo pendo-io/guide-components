@@ -71,14 +71,12 @@ export class PendoStarRating extends PendoBaseElement {
         stars.forEach((star, index) => {
             const value = index + 1;
 
-            // Click handler
-            star.addEventListener('click', () => this.selectRating(value));
-
             // Hover effects
             star.addEventListener('mouseenter', () => this.highlightStars(value));
             star.addEventListener('mouseleave', () => this.highlightStars(this.value));
 
-            // Keyboard handler
+            // `change` covers pointer and keyboard alike: a label click also fires one, so a
+            // `click` listener reported each selection more than once. See `pendo-nps`.
             const input = star.querySelector('input');
             input.addEventListener('change', () => this.selectRating(value));
         });
