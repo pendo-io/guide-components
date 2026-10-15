@@ -9,6 +9,7 @@ import { PendoButton } from '../src/elements/pendo-button.js';
 import { PendoActionRow } from '../src/elements/pendo-action-row.js';
 import { parseActionAttribute } from '../src/actions.js';
 import { registerGuideComponents } from '../src/register.js';
+import { ruleBody } from './css-source.js';
 
 registerGuideComponents();
 
@@ -298,6 +299,32 @@ describe('pendo-action-row', () => {
 
         expect(copy.querySelectorAll('button')).toHaveLength(1);
         expect(clickAndCollect(copy)).toEqual({ actions: [{ action: 'go-to-step', stepId: '2' }] });
+    });
+
+    // Read from source: jsdom computes no layout and no pseudo-element styles, and everything here
+    // is geometry.
+    describe('the divider between rows', () => {
+        const LINE = 'pendo-action-row + pendo-action-row::before';
+
+        it("is inset to the text edge by the row's own horizontal padding", () => {
+            expect(ruleBody(LINE)).toContain('margin: 0 var(--pendo-action-row-padding-x, var(--pendo-spacing-sm));');
+        });
+
+        // In flow, so the line's own 1px separates the rows and each row's padding is the whole
+        // distance from it to the text.
+        it("sits in flow between the rows, with the content region's gap handed back", () => {
+            expect(ruleBody(LINE)).toContain('display: block;');
+            expect(ruleBody(LINE)).not.toContain('position');
+            expect(ruleBody('.pendo-guide.pendo-guide pendo-guide-content > pendo-action-row + pendo-action-row')).toContain(
+                'margin-top: calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs)));'
+            );
+        });
+
+        // The sticky title in a capped card paints above the rows scrolling under it only because
+        // they are not positioned; a positioned row comes later in tree order and paints over it.
+        it('leaves the row unpositioned, so a sticky title stays on top of it', () => {
+            expect(ruleBody('.pendo-action-row')).not.toContain('position');
+        });
     });
 
     // The same decoy-box problem `pendo-button` had (INT-672): a theme written for tag-based

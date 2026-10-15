@@ -252,7 +252,7 @@ describe('NPS focus ring', () => {
 describe('reveal on answer', () => {
     const rule = defaults
         .replace(/\/\*[\s\S]*?\*\//g, '')
-        .match(/([^{}]*data-pendo-reveal="answered"[^{}]*)\{\s*display:\s*none;\s*\}/);
+        .match(/([^{}]*data-pendo-reveal="answered"[^{}]*)\{\s*display:\s*none\s*!important;\s*\}/);
     const hidden = () => [...document.querySelectorAll(rule[1].trim())].map((el) => el.localName);
 
     const SURVEY = `
@@ -266,7 +266,7 @@ describe('reveal on answer', () => {
         document.body.innerHTML = '';
     });
 
-    it('is a single display: none rule', () => {
+    it('is a single display: none !important rule', () => {
         expect(rule).not.toBeNull();
     });
 

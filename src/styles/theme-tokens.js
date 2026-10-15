@@ -64,6 +64,12 @@ export const themeTokens = [
     { name: '--pendo-button-secondary-border', default: 'var(--pendo-border)', selector: '.pendo-button--secondary', property: 'border' },
     { name: '--pendo-button-secondary-text', default: 'var(--pendo-text)', selector: '.pendo-button--secondary', property: 'color' },
 
+    // ---- Content rhythm ----------------------------------------------------
+    // The content region holds its layout with `!important`, so these are the supported way to space
+    // it: a theme's own `gap` on the region has no effect.
+    { name: '--pendo-content-gap', default: 'var(--pendo-spacing-xs)', selector: 'pendo-guide-content', property: 'gap' },
+    { name: '--pendo-divider-spacing', default: 'var(--pendo-spacing-xs)', selector: '.pendo-guide.pendo-guide pendo-guide-content > .pendo-guide__divider', property: 'margin-block' },
+
     // ---- Action rows -------------------------------------------------------
     // `.pendo-action-row` is the real control inside the `pendo-action-row` host, so a theme rule on
     // the authored tag cannot win; setting the token is the supported route.
@@ -73,7 +79,7 @@ export const themeTokens = [
     { name: '--pendo-action-row-text', default: 'var(--pendo-text)', selector: '.pendo-action-row', property: 'color' },
     { name: '--pendo-action-row-hover-bg', default: 'rgba(0, 0, 0, 0.05)', selector: '.pendo-action-row:hover', property: 'background' },
     { name: '--pendo-action-row-description-text', default: 'var(--pendo-text-muted)', selector: '.pendo-action-row__description', property: 'color' },
-    { name: '--pendo-action-row-divider', default: 'var(--pendo-border)', selector: 'pendo-action-row + pendo-action-row > .pendo-action-row', property: 'border-top' },
+    { name: '--pendo-action-row-divider', default: 'var(--pendo-border)', selector: 'pendo-action-row + pendo-action-row::before', property: 'border-top' },
 
     // ---- NPS ---------------------------------------------------------------
     { name: '--pendo-nps-score-bg', default: 'var(--pendo-bg)', selector: '.pendo-nps__score', property: 'background' },

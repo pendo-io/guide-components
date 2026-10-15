@@ -377,6 +377,28 @@ properties instead:
 | `--pendo-action-row-hover-bg` | a hovered row | `rgba(0, 0, 0, 0.05)` |
 | `--pendo-action-row-divider` | the rule between rows | `--pendo-border` |
 
+The rule between rows is inset to the text edge and centred between the two
+rows' text. Space rows with the padding properties, not with `margin` on
+`pendo-action-row`.
+
+### Theme content spacing
+
+`pendo-guide-content` is a flex column that the component lays out itself, with
+`display`, `flex-direction` and `gap` held `!important`. Inside it, one gap
+spaces every block, and the elements' own vertical margins are dropped. That
+way a divider sits as far from a row as from text, which needs the component to
+know the gap. A theme's own `gap` on the region has no effect; set the
+properties instead:
+
+| Property | Applies to | Default |
+|----------|------------|---------|
+| `--pendo-content-gap` | between blocks in the content region | `--pendo-spacing-xs` |
+| `--pendo-divider-spacing` | added on each side of a `pendo-divider` | `--pendo-spacing-xs` |
+
+Next to an action row, a divider gives back the row's vertical padding, so it
+sits the same distance from a row's text as from any other. An author's inline
+margin still applies.
+
 ### The contract as data
 
 The full list — names, defaults, and the rule each one lands in — ships with the

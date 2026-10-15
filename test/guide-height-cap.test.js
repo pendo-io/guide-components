@@ -91,10 +91,12 @@ describe('height cap', () => {
         expect(declarations).not.toMatch(/z-index/);
         expect(getComputedStyle(title).zIndex).not.toBe('1');
         expect(declarationsFor('\npendo-close-button {')).toMatch(/z-index:\s*1/);
-        // Margin becomes padding: a margin is transparent, so scrolled text would show through the
-        // gap under the title instead of passing behind it.
-        expect(declarations).toMatch(/margin-bottom:\s*0/);
-        expect(declarations).toMatch(/padding-bottom:\s*var\(/);
+        // The region's gap becomes padding: a gap is transparent, so scrolled text would show
+        // through it instead of passing behind the title. The negative margin takes the gap back
+        // out, so the title sits as far from the content as it does uncapped.
+        const gap = 'var(--pendo-content-gap, var(--pendo-spacing-xs))';
+        expect(declarations).toContain(`padding-bottom: ${gap};`);
+        expect(declarations).toContain(`margin-bottom: calc(-1 * ${gap});`);
     });
 
     /**
