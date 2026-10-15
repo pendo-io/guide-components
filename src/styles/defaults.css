@@ -77,8 +77,14 @@ pendo-guide,
 }
 
 /* Semantic layout elements */
+
+/* `!important`: dividers and action rows read `--pendo-content-gap` to stay centred (see "Content
+ * rhythm"), and Novus scopes theme rules unlayered, so a theme's own `gap` or `display` would win.
+ */
 pendo-guide-content {
-    display: block;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--pendo-content-gap, var(--pendo-spacing-xs)) !important;
 }
 
 pendo-guide-footer {
@@ -106,9 +112,8 @@ pendo-guide-footer {
  * `pendo-guide-content`, because flex layout stops adjacent margins collapsing:
  * measured, a card holding an image, a divider or a list grows 12-24px the moment
  * it becomes a flex column. A card with a content region measures identically
- * either way — its children collapse inside the region, which stays block — so
- * narrowing the switch buys the fixed header and footer at no cost to anything
- * else.
+ * either way — the region spaces its own children — so narrowing the switch buys
+ * the fixed header and footer at no cost to anything else.
  *
  * A banner is excluded throughout. It is a full-bleed horizontal bar — its own rule
  * sets `flex-direction: row`, which these selectors out-specify — and it has no
@@ -180,9 +185,10 @@ pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--too
  * a gradient is re-painted from the title's own box, so it can seam against the
  * card — visible, but not text over text.
  *
- * The bottom margin becomes padding for the same reason the background exists: a
- * margin is transparent, so scrolled text would show through the gap beneath the
- * title rather than passing behind it.
+ * The region's gap below the title becomes padding for the same reason the
+ * background exists: a gap is transparent, so scrolled text would show through it
+ * rather than passing behind the title. The matching negative margin takes the gap
+ * back out, so a capped title sits as far from the content as an uncapped one.
  *
  * Deliberately no `z-index`. Positioning alone already paints the title above its
  * non-positioned siblings, which is all it needs; an explicit `z-index: 1` instead
@@ -195,12 +201,12 @@ pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--too
  */
 pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content) > pendo-guide-content > pendo-title:first-child,
 .pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--tooltip):has(> pendo-guide-content) > pendo-guide-content > pendo-title:first-child,
-.pendo-guide--slideout:has(> pendo-guide-content) > pendo-guide-content > pendo-title:first-child {
+.pendo-guide.pendo-guide--slideout:has(> pendo-guide-content) > pendo-guide-content > pendo-title:first-child {
     position: sticky;
     top: 0;
     background: inherit;
-    margin-bottom: 0;
-    padding-bottom: var(--pendo-spacing-sm);
+    margin-bottom: calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs)));
+    padding-bottom: var(--pendo-content-gap, var(--pendo-spacing-xs));
 }
 
 /**
@@ -366,6 +372,13 @@ pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--too
     justify-content: space-between;
     gap: var(--pendo-spacing);
     padding: var(--pendo-spacing-sm) var(--pendo-spacing);
+}
+
+/* A bar keeps its title and text together, as its own zero margins on them do below. Declared on
+ * the region, which a theme's token on the guide root only reaches by inheritance.
+ */
+.pendo-guide--banner > pendo-guide-content {
+    --pendo-content-gap: 0px !important;
 }
 
 .pendo-guide--banner pendo-title {
@@ -701,7 +714,7 @@ pendo-video,
  * `pendo-button` above: a theme written for tag-based rendering styles the authored
  * tag, which here would draw a second box around the real control. `!important`
  * because Novus scopes theme rules unlayered and they beat this sheet on specificity.
- * `margin` is left alone; it is where a row's spacing belongs.
+ * `margin` is left alone; inside `pendo-guide-content` the region's gap spaces rows instead.
  */
 pendo-action-row {
     display: block;
@@ -732,14 +745,15 @@ pendo-action-row {
     background: var(--pendo-action-row-hover-bg, rgba(0, 0, 0, 0.05));
 }
 
-/* A divider between rows, not around them. Drawn on the row that follows another, so removing a
- * gated row never leaves a stray rule at either end of the menu. A border rather than a shadow so
- * it survives forced-colors mode.
+/* A divider between rows, not around them: drawn on the row that follows another, so removing a
+ * gated row never strands a rule at either end. Unpositioned, so a sticky title still paints over
+ * rows scrolled beneath it; a border so it survives forced-colors mode.
  */
-pendo-action-row + pendo-action-row > .pendo-action-row {
+pendo-action-row + pendo-action-row::before {
+    content: '';
+    display: block;
+    margin: 0 var(--pendo-action-row-padding-x, var(--pendo-spacing-sm));
     border-top: 1px solid var(--pendo-action-row-divider, var(--pendo-border));
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
 }
 
 .pendo-action-row__text {
@@ -987,10 +1001,11 @@ select.pendo-input__field {
  * Polls are matched by tag so the element is hidden before the components upgrade. An answer is the
  * live state, a checked radio or an open text holding text, rather than an attribute the component
  * writes, which an editor serializing the live DOM would save as a pre-filled answer. Without
- * `:has()` support the whole rule is dropped and everything stays visible.
+ * `:has()` support the whole rule is dropped and everything stays visible. `!important` because
+ * `pendo-guide-content` holds its own `display` that way, and a revealed region must still hide.
  */
 :is(pendo-guide, .pendo-guide):has(:is(pendo-star-rating, pendo-nps, pendo-number-scale, pendo-emoji-scale, pendo-open-text):not([data-pendo-reveal])):not(:has(:is(pendo-star-rating, pendo-nps, pendo-number-scale, pendo-emoji-scale, pendo-open-text):not([data-pendo-reveal]) :is(input:checked, .pendo-open-text__wrapper--answered))) [data-pendo-reveal="answered"] {
-    display: none;
+    display: none !important;
 }
 
 /* =============================================================================
@@ -1159,7 +1174,7 @@ select.pendo-input__field {
 /* The host wraps the question and the textarea, so it must not paint. A theme written for tag-based
  * rendering styles the authored tag as if it were the field, which draws a second box around the
  * label and the real one. The same reasoning as the `pendo-button` host above, `!important` for the
- * same reason. `margin` is left alone; it is where a poll's spacing belongs.
+ * same reason. `margin` is left alone; inside `pendo-guide-content` the region's gap spaces polls instead.
  */
 pendo-open-text {
     padding: 0 !important;
@@ -1285,6 +1300,67 @@ pendo-guide:has(> pendo-close-button) .pendo-guide__progress {
 .pendo-guide__progress-dot--current {
     background: var(--pendo-primary);
     opacity: 1;
+}
+
+/* =============================================================================
+   Content rhythm
+
+   Inside `pendo-guide-content` the region's gap is the only space between blocks,
+   so the elements' own vertical margins, which assume block flow and collapse, are
+   dropped there. The doubled guide class lifts these rules to (0,3,1), above every
+   element rule Novus has generated, a dark palette's `.dark pendo-guide[…] pendo-text`
+   at (0,2,2) included, whose margin would otherwise add to the gap. Themes tune the
+   spacing through the properties; an author's inline margin still wins.
+   ============================================================================= */
+
+.pendo-guide.pendo-guide pendo-guide-content > :is(.pendo-guide__title, .pendo-guide__text, .pendo-guide__image-container, .pendo-guide__video-container, .pendo-list, .pendo-input, .pendo-poll, pendo-button, pendo-link) {
+    margin-block: 0;
+}
+
+/* A section break: the gap plus `--pendo-divider-spacing` on each side. */
+.pendo-guide.pendo-guide pendo-guide-content > .pendo-guide__divider {
+    margin-block: var(--pendo-divider-spacing, var(--pendo-spacing-xs));
+}
+
+/* A capped region scrolls rather than squeezing its children: an empty one, such as a divider,
+ * would otherwise shrink to nothing as the content outgrows the cap.
+ */
+.pendo-guide.pendo-guide pendo-guide-content > * {
+    flex-shrink: 0;
+}
+
+/* Buttons and links stack in the column, so the side-by-side spacing between neighbours would only
+ * indent the second.
+ */
+.pendo-guide.pendo-guide pendo-guide-content > :is(pendo-button, pendo-link) {
+    margin-inline: 0;
+}
+
+/* A row pads its own text, so beside a divider the row takes the divider's spacing on that side and
+ * gives its padding back, reading its own padding, which an author may set on one row only. The
+ * break then sits as far from a row's text as from any other; it never overlaps the row.
+ */
+.pendo-guide.pendo-guide pendo-guide-content > pendo-action-row + .pendo-guide__divider {
+    margin-top: 0;
+}
+
+.pendo-guide.pendo-guide pendo-guide-content > .pendo-guide__divider:has(+ pendo-action-row) {
+    margin-bottom: 0;
+}
+
+.pendo-guide.pendo-guide pendo-guide-content > .pendo-guide__divider + pendo-action-row {
+    margin-top: max(calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs))), var(--pendo-divider-spacing, var(--pendo-spacing-xs)) - var(--pendo-action-row-padding-y, var(--pendo-spacing-xs)));
+}
+
+.pendo-guide.pendo-guide pendo-guide-content > pendo-action-row:has(+ .pendo-guide__divider) {
+    margin-bottom: max(calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs))), var(--pendo-divider-spacing, var(--pendo-spacing-xs)) - var(--pendo-action-row-padding-y, var(--pendo-spacing-xs)));
+}
+
+/* Rows are one group: the line between two rows replaces the gap, so each row's padding is the
+ * whole distance from it to the text.
+ */
+.pendo-guide.pendo-guide pendo-guide-content > pendo-action-row + pendo-action-row {
+    margin-top: calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs)));
 }
 
 /* =============================================================================
