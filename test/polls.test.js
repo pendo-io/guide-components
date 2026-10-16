@@ -347,7 +347,7 @@ describe('reveal by score', () => {
     const BANDS = ['detractor', 'passive', 'promoter'];
     const css = defaults.replace(/\/\*[\s\S]*?\*\//g, '');
     const rules = BANDS.map((band) =>
-        css.match(new RegExp(`([^{}]*data-pendo-reveal="${band}"[^{}]*)\\{\\s*display:\\s*none;\\s*\\}`))
+        css.match(new RegExp(`([^{}]*data-pendo-reveal="${band}"[^{}]*)\\{\\s*display:\\s*none\\s*!important;\\s*\\}`))
     );
     const hidden = () =>
         BANDS.filter((band, i) => [...document.querySelectorAll(rules[i][1].trim())].length > 0);
@@ -364,7 +364,7 @@ describe('reveal by score', () => {
         document.body.innerHTML = '';
     });
 
-    it('is a single display: none rule per band', () => {
+    it('is a single display: none !important rule per band, so a revealed content region still hides', () => {
         expect(rules.every(Boolean)).toBe(true);
     });
 
@@ -436,7 +436,7 @@ describe('reveal by score', () => {
 
 /** As `reveal on answer`: the reveal rules, matched against the live DOM, are what they hide. */
 describe('pendo-open-text band questions', () => {
-    const revealRules = [...defaults.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{\s*display:\s*none;\s*\}/g)]
+    const revealRules = [...defaults.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{\s*display:\s*none(?:\s*!important)?;\s*\}/g)]
         .map((match) => match[1].trim())
         .filter((selector) => /data-pendo-reveal|until-scored/.test(selector));
     const isHidden = (el) => revealRules.some((selector) => el.matches(selector));

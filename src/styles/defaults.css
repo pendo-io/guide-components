@@ -1013,18 +1013,19 @@ select.pendo-input__field {
  * or button, such as a review-site link for promoters. Picking another score swaps what shows.
  *
  * Same contract as `answered`: the score is the checked radio, a `<pendo-nps>` that is itself
- * revealed is not the one waited on, and a guide with no such `<pendo-nps>` keeps everything visible.
+ * revealed is not the one waited on, a guide with no such `<pendo-nps>` keeps everything visible, and
+ * `!important` so a revealed `pendo-guide-content` still hides.
  */
 :is(pendo-guide, .pendo-guide):has(pendo-nps:not([data-pendo-reveal])):not(:has(pendo-nps:not([data-pendo-reveal]) input:is([value="0"], [value="1"], [value="2"], [value="3"], [value="4"], [value="5"], [value="6"]):checked)) [data-pendo-reveal="detractor"] {
-    display: none;
+    display: none !important;
 }
 
 :is(pendo-guide, .pendo-guide):has(pendo-nps:not([data-pendo-reveal])):not(:has(pendo-nps:not([data-pendo-reveal]) input:is([value="7"], [value="8"]):checked)) [data-pendo-reveal="passive"] {
-    display: none;
+    display: none !important;
 }
 
 :is(pendo-guide, .pendo-guide):has(pendo-nps:not([data-pendo-reveal])):not(:has(pendo-nps:not([data-pendo-reveal]) input:is([value="9"], [value="10"]):checked)) [data-pendo-reveal="promoter"] {
-    display: none;
+    display: none !important;
 }
 
 /* An open text with band questions (`detractor-question` and so on) renders a span per band under
