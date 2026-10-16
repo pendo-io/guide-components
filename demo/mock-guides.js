@@ -387,6 +387,46 @@ const mockGuides = [
                 borderRadius: '12px'
             }
         }
+    },
+
+    // Trial Banner - Embedded in the page rather than floating above it
+    {
+        id: 'trial-banner',
+        name: 'Trial Banner (embedded)',
+        steps: [
+            {
+                id: 'trial-banner-step-1',
+                layoutType: 'embedded',
+                // Prepended into the dashboard's own content column, so it reflows the page the way
+                // an announcement bar does instead of covering it.
+                embedSelector: '.content',
+                embedMethod: 'prepend',
+                htmlContent: `
+                    <pendo-guide>
+                        <pendo-guide-content>
+                            <pendo-title>Your trial ends in 9 days</pendo-title>
+                            <pendo-text>
+                                Add a payment method to keep your projects running. Nothing is
+                                charged until the trial is over.
+                            </pendo-text>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="link:https://example.com/billing">Add a card</pendo-button>
+                            <pendo-button action="dismiss" variant="secondary">Remind me later</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderColor: '#e5e7eb',
+                borderRadius: '12px',
+                // An embed ships flush, so the gap to the dashboard below it is the theme's to set.
+                margin: '0 0 24px'
+            }
+        }
     }
 ];
 

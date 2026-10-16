@@ -44,6 +44,13 @@ export const themeTokens = [
     // Defined on the tooltip variant rather than the root: it is the tooltip's own geometry, and
     // `.pendo-guide--tooltip::before` reads it relative to that card.
     { name: '--pendo-caret-size', default: '8px', selector: '.pendo-guide--tooltip', property: null },
+    // Read by the embedded variant rather than defined on the root, because it exists to *remove*
+    // the card's shadow: an embed is page content and defaults to flat. A theme can put one back
+    // without disturbing `--pendo-shadow`, which every floating layout still reads.
+    { name: '--pendo-embedded-shadow', default: 'none', selector: '.pendo-guide--embedded', property: 'box-shadow' },
+    // Only the embedded variant can take one: every other layout is positioned by the renderer, so
+    // a margin would fight it. Flush by default — the host may already space its own children.
+    { name: '--pendo-embedded-margin', default: '0', selector: '.pendo-guide--embedded', property: 'margin' },
 
     // ---- Buttons -----------------------------------------------------------
     // The inner `.pendo-button` declares these properties for itself, so a theme rule on the
