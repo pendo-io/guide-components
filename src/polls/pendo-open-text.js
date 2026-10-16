@@ -16,6 +16,9 @@ import { PendoBaseElement } from '../base-element.js';
  * - nps-reason: Marks this as the reason for the step's `<pendo-nps>` score. Pendo records it as the
  *   score's `NPSReason` follow-up. To ask for it only once a score is picked, add
  *   `data-pendo-reveal="answered"` (see `defaults.css`).
+ * - detractor-question / passive-question / promoter-question: The question to ask once the step's
+ *   `<pendo-nps>` score is in that band (0-6, 7-8, 9-10). `question` is asked before a score is
+ *   picked, and for a band without its own.
  *
  * Events:
  * - pendo-response: Fired when user submits text { pollId, value, type: 'FreeForm' | 'NPSReason' }
@@ -33,6 +36,16 @@ export class PendoOpenText extends PendoBaseElement {
         this.required = this.hasAttribute('required');
         this.submitOnBlur = this.hasAttribute('submit-on-blur');
         this.npsReason = this.hasAttribute('nps-reason');
+        // Each attribute is read by its literal name: Novus finds the attributes its editor must
+        // keep by scanning this bundle for `getAttribute('…')`.
+        const bandQuestions = [
+            ['detractor', this.getAttribute('detractor-question')],
+            ['passive', this.getAttribute('passive-question')],
+            ['promoter', this.getAttribute('promoter-question')],
+        ];
+        this.bandQuestions = bandQuestions.some(([, text]) => text !== null)
+            ? bandQuestions.map(([band, text]) => [band, text || this.question])
+            : [];
 
         this._value = '';
         this._submitted = false;
@@ -44,10 +57,11 @@ export class PendoOpenText extends PendoBaseElement {
     render() {
         const questionId = this.generateId();
         const textareaId = this.generateId();
+        const hasQuestion = Boolean(this.question) || this.bandQuestions.some(([, text]) => text);
 
         this.innerHTML = `
             <div class="pendo-open-text__wrapper">
-                ${this.question ? `<label id="${questionId}" for="${textareaId}" class="pendo-poll__question">${this.escapeHtml(this.question)}</label>` : ''}
+                ${hasQuestion ? `<label id="${questionId}" for="${textareaId}" class="pendo-poll__question">${this.renderQuestion()}</label>` : ''}
                 <textarea
                     id="${textareaId}"
                     class="pendo-open-text__input"
@@ -55,13 +69,31 @@ export class PendoOpenText extends PendoBaseElement {
                     rows="${this.rows}"
                     ${this.maxlength ? `maxlength="${this.maxlength}"` : ''}
                     ${this.required ? 'required' : ''}
-                    aria-labelledby="${this.question ? questionId : ''}"
+                    aria-labelledby="${hasQuestion ? questionId : ''}"
                 ></textarea>
                 ${this.maxlength ? `<div class="pendo-open-text__counter"><span class="pendo-open-text__count">0</span>/${this.maxlength}</div>` : ''}
             </div>
         `;
 
         this.setupEventListeners();
+    }
+
+    /**
+     * The label's text. With band questions it holds one span per band, which the score-band
+     * reveal rules show and hide, plus `question` for until a score is picked (see `defaults.css`).
+     * Hidden spans are left out of the textarea's accessible name, so it reads what is on screen.
+     */
+    renderQuestion() {
+        if (this.bandQuestions.length === 0) return this.escapeHtml(this.question);
+
+        const untilScored = this.question
+            ? `<span class="pendo-open-text__question--until-scored">${this.escapeHtml(this.question)}</span>`
+            : '';
+        const bands = this.bandQuestions
+            .filter(([, text]) => text)
+            .map(([band, text]) => `<span data-pendo-reveal="${band}">${this.escapeHtml(text)}</span>`)
+            .join('');
+        return untilScored + bands;
     }
 
     setupEventListeners() {
