@@ -30,8 +30,9 @@ function parseScore(raw) {
  * - pendo-response: Fired once per selection { pollId, value, type: 'NPSRating' }
  *
  * Pair it with a `<pendo-open-text nps-reason>` for the reason. Add `data-pendo-reveal="answered"` to
- * the reason and the guide's `submit-poll` button to show them only once a score is picked; see
- * `defaults.css`.
+ * the reason and the guide's `submit-poll` button to show them only once a score is picked, or
+ * `data-pendo-reveal="detractor"`, `"passive"` or `"promoter"` to show an element only for scores in
+ * that band; see `defaults.css`.
  *
  * Example:
  *   <pendo-nps question="How likely are you to recommend us to a friend?"></pendo-nps>

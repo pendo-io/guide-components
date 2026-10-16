@@ -341,3 +341,176 @@ describe('reveal on answer', () => {
         expect(hidden()).toEqual([]);
     });
 });
+
+/** As `reveal on answer`: each band's selector, matched against the live DOM, is what it hides. */
+describe('reveal by score', () => {
+    const BANDS = ['detractor', 'passive', 'promoter'];
+    const css = defaults.replace(/\/\*[\s\S]*?\*\//g, '');
+    const rules = BANDS.map((band) =>
+        css.match(new RegExp(`([^{}]*data-pendo-reveal="${band}"[^{}]*)\\{\\s*display:\\s*none\\s*!important;\\s*\\}`))
+    );
+    const hidden = () =>
+        BANDS.filter((band, i) => [...document.querySelectorAll(rules[i][1].trim())].length > 0);
+
+    const SURVEY = `
+        <pendo-nps poll-id="p1"></pendo-nps>
+        <p data-pendo-reveal="detractor">What went wrong?</p>
+        <p data-pendo-reveal="passive">What would make it a 10?</p>
+        <p data-pendo-reveal="promoter">What do you like most?</p>
+        <pendo-button action="link:https://example.com/reviews" data-pendo-reveal="promoter">Review us</pendo-button>
+    `;
+
+    beforeEach(() => {
+        document.body.innerHTML = '';
+    });
+
+    it('is a single display: none !important rule per band, so a revealed content region still hides', () => {
+        expect(rules.every(Boolean)).toBe(true);
+    });
+
+    it('hides every band until a score is picked', () => {
+        mount(SURVEY, 'pendo-nps');
+
+        expect(hidden()).toEqual(BANDS);
+    });
+
+    it.each([
+        [0, 'detractor'],
+        [6, 'detractor'],
+        [7, 'passive'],
+        [8, 'passive'],
+        [9, 'promoter'],
+        [10, 'promoter'],
+    ])('shows only the band a score of %i is in', (score, band) => {
+        const nps = mount(SURVEY, 'pendo-nps');
+
+        npsScore(nps, score).click();
+
+        expect(hidden()).toEqual(BANDS.filter((other) => other !== band));
+    });
+
+    it('swaps the band when the score changes', () => {
+        const nps = mount(SURVEY, 'pendo-nps');
+
+        npsScore(nps, 10).click();
+        npsScore(nps, 2).click();
+
+        expect(hidden()).toEqual(['passive', 'promoter']);
+    });
+
+    it('shows the pre-selected score band straight away', () => {
+        mount(SURVEY.replace('poll-id="p1"', 'poll-id="p1" value="9"'), 'pendo-nps');
+
+        expect(hidden()).toEqual(['detractor', 'passive']);
+    });
+
+    it('waits on the NPS score, not another poll', () => {
+        const rating = mount(`
+            <pendo-star-rating poll-id="p0"></pendo-star-rating>
+            ${SURVEY}
+        `, 'pendo-star-rating');
+
+        rating.querySelectorAll('.pendo-star-rating__star')[4].click();
+
+        expect(hidden()).toEqual(BANDS);
+    });
+
+    it('never hides anything when there is no NPS score to wait for', () => {
+        mount(`
+            <pendo-star-rating poll-id="p0"></pendo-star-rating>
+            ${SURVEY.replace('<pendo-nps poll-id="p1"></pendo-nps>', '')}
+        `, 'pendo-star-rating');
+
+        expect(hidden()).toEqual([]);
+    });
+
+    it('does not wait on an NPS score that is itself revealed', () => {
+        mount(`
+            <pendo-star-rating poll-id="p0"></pendo-star-rating>
+            ${SURVEY.replace('poll-id="p1"', 'poll-id="p1" data-pendo-reveal="answered"')}
+        `, 'pendo-star-rating');
+
+        expect(hidden()).toEqual([]);
+    });
+});
+
+/** As `reveal on answer`: the reveal rules, matched against the live DOM, are what they hide. */
+describe('pendo-open-text band questions', () => {
+    const revealRules = [...defaults.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{\s*display:\s*none(?:\s*!important)?;\s*\}/g)]
+        .map((match) => match[1].trim())
+        .filter((selector) => /data-pendo-reveal|until-scored/.test(selector));
+    const isHidden = (el) => revealRules.some((selector) => el.matches(selector));
+    /** The label text a sighted visitor sees, which is also the textarea's accessible name. */
+    const shownQuestion = (openText) =>
+        [...openText.querySelector('label').childNodes]
+            .filter((node) => node.nodeType === Node.TEXT_NODE || !isHidden(node))
+            .map((node) => node.textContent)
+            .join('');
+
+    const SURVEY = `
+        <pendo-nps poll-id="p1"></pendo-nps>
+        <pendo-open-text poll-id="p2" nps-reason question="Why that score?"
+            detractor-question="What went wrong?" promoter-question="What do you like most?"></pendo-open-text>
+    `;
+
+    beforeEach(() => {
+        document.body.innerHTML = '';
+    });
+
+    it('asks the plain question until a score is picked', () => {
+        mount(SURVEY, 'pendo-nps');
+
+        expect(shownQuestion(document.querySelector('pendo-open-text'))).toBe('Why that score?');
+    });
+
+    it.each([
+        [3, 'What went wrong?'],
+        [10, 'What do you like most?'],
+        [8, 'Why that score?'],
+    ])('asks the question for the band a score of %i is in, falling back to the plain one', (score, question) => {
+        const nps = mount(SURVEY, 'pendo-nps');
+
+        npsScore(nps, score).click();
+
+        expect(shownQuestion(document.querySelector('pendo-open-text'))).toBe(question);
+    });
+
+    it('labels the textarea with the question it shows', () => {
+        mount(SURVEY, 'pendo-nps');
+        const openText = document.querySelector('pendo-open-text');
+        const label = openText.querySelector('label');
+
+        expect(openText.querySelector('textarea').getAttribute('aria-labelledby')).toBe(label.id);
+        expect(label.getAttribute('for')).toBe(openText.querySelector('textarea').id);
+    });
+
+    it('labels the textarea with only band questions when there is no plain one', () => {
+        const nps = mount(`
+            <pendo-nps poll-id="p1"></pendo-nps>
+            <pendo-open-text poll-id="p2" promoter-question="What do you like most?"></pendo-open-text>
+        `, 'pendo-nps');
+        const openText = document.querySelector('pendo-open-text');
+
+        expect(shownQuestion(openText)).toBe('');
+        npsScore(nps, 9).click();
+        expect(shownQuestion(openText)).toBe('What do you like most?');
+        expect(openText.querySelector('textarea').getAttribute('aria-labelledby')).toBe(openText.querySelector('label').id);
+    });
+
+    it('escapes band questions', () => {
+        mount(`
+            <pendo-nps poll-id="p1"></pendo-nps>
+            <pendo-open-text poll-id="p2" detractor-question="<img src=x onerror=alert(1)>"></pendo-open-text>
+        `, 'pendo-nps');
+
+        expect(document.querySelector('pendo-open-text img')).toBeNull();
+        expect(document.querySelector('pendo-open-text [data-pendo-reveal="detractor"]').textContent)
+            .toBe('<img src=x onerror=alert(1)>');
+    });
+
+    it('renders a plain question as before when there are no band questions', () => {
+        const openText = mount('<pendo-open-text poll-id="p2" question="Why?"></pendo-open-text>', 'pendo-open-text');
+
+        expect(openText.querySelector('label').innerHTML).toBe('Why?');
+    });
+});
