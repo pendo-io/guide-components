@@ -241,10 +241,43 @@ class MockPendo {
         // Apply layout
         this._applyLayout(container, step);
 
-        // Append to guide container
-        this._getGuideContainer().appendChild(container);
+        // An embed mounts inside the page element it names; every other layout goes in the overlay
+        // container. A named host that is not on the page means the step does not render at all.
+        if (this._isEmbedded(step)) {
+            if (!this._mountEmbed(container, step)) return null;
+        } else {
+            this._getGuideContainer().appendChild(container);
+        }
 
         return container;
+    }
+
+    _isEmbedded(step) {
+        return (step.buildingBlockLayoutType || step.layoutType) === 'embedded';
+    }
+
+    /**
+     * `prepend`, `append` or `replace`, against the element the step names — the three ways an
+     * embedded guide can sit in its host.
+     */
+    _mountEmbed(container, step) {
+        const host = step.embedSelector && document.querySelector(step.embedSelector);
+        if (!host) {
+            console.warn('[MockPendo] No embed host for step:', step.id, step.embedSelector);
+            return false;
+        }
+
+        if (step.embedMethod === 'replace') {
+            host.innerHTML = '';
+        }
+
+        if (step.embedMethod === 'prepend') {
+            host.prepend(container);
+        } else {
+            host.appendChild(container);
+        }
+
+        return true;
     }
 
     /**
@@ -259,6 +292,10 @@ class MockPendo {
         if (container.background) css['--pendo-bg'] = container.background;
         if (container.borderColor) css['--pendo-border'] = container.borderColor;
         if (container.borderRadius) css['--pendo-radius'] = container.borderRadius;
+
+        // Read only by the embedded variant, so setting it on any other layout is inert — which is
+        // how the component treats it too.
+        if (container.margin) css['--pendo-embedded-margin'] = container.margin;
 
         // Shadow
         if (container.shadowColor) {
@@ -308,11 +345,24 @@ class MockPendo {
                 this._applySlideoutLayout(container, guideEl, layoutPosition);
                 break;
 
+            case 'embedded':
+                this._applyEmbeddedLayout(guideEl);
+                break;
+
             case 'lightbox':
             default:
                 this._applyLightboxLayout(container, guideEl);
                 break;
         }
+    }
+
+    /**
+     * An embed flows inside the page, so there is nothing to position it against and nothing to
+     * lift it over: no fixed container, no stacking level, no backdrop. The class goes on before the
+     * append, which embedded mode requires: the component reads the mode on connect.
+     */
+    _applyEmbeddedLayout(guideEl) {
+        guideEl.classList.add('pendo-guide--embedded');
     }
 
     _applyLightboxLayout(container, guideEl) {

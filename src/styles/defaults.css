@@ -417,6 +417,43 @@ pendo-guide[style*="max-height"]:not(.pendo-guide--banner):not(.pendo-guide--too
     border-bottom-left-radius: 0;
 }
 
+/**
+ * Embedded: the card flows inside the host element the renderer mounted it into, as ordinary page
+ * content rather than something floating above the page.
+ *
+ * `position: relative` is what Pendo's other embedded guides are given, so every kind of embed sits
+ * in a host the same way. Re-declared here rather than left to the base rule for the reason the
+ * tooltip re-declares it — it is this layout's own geometry. Carrying no offsets it lays out exactly
+ * as a static card would, and carrying no `z-index` it starts no stacking context, so the embed
+ * stays inside the host's. It also gives an absolutely positioned close button, which an embed may
+ * carry if one is authored, the containing block it needs. No backdrop either way.
+ *
+ * `max-width: none` with `width: 100%` hands the width to the host, which is what lets the SDK
+ * express a full-width embed. A fixed width, or a height of either kind, arrives as an inline style
+ * and outranks every declaration here.
+ *
+ * Only the shadow goes. Background, radius, padding, font and colour stay as the card has them and
+ * stay themeable — an embed is still a card, it just is not floating. A theme that wants the shadow
+ * back sets `--pendo-embedded-shadow`.
+ *
+ * The one layout that can take an outer margin. On every other layout the renderer positions the
+ * card, so a margin there would fight it; an embed is in the host's normal flow, where margin is
+ * just the gap to the content it sits beside. Flush by default, because only the host knows whether
+ * it already provides that gap — a theme opens it with `--pendo-embedded-margin`.
+ *
+ * Note which rules above deliberately do *not* exclude this class: an embed grows with its content
+ * by default, and an inline `max-height` opts it into the same scrolling content region, pinned
+ * title and fixed footer as any other card. Tooltip and banner are excluded there because a caret
+ * cannot survive a clipping container and a bar has no height to cap; neither applies here.
+ */
+.pendo-guide--embedded {
+    position: relative;
+    max-width: none;
+    width: 100%;
+    margin: var(--pendo-embedded-margin, 0);
+    box-shadow: var(--pendo-embedded-shadow, none);
+}
+
 /* =============================================================================
    pendo-title
    ============================================================================= */

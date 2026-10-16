@@ -1,6 +1,14 @@
 import { PendoBaseElement } from '../base-element.js';
 
 /**
+ * The layout class that makes a guide ordinary page content rather than a dialog.
+ *
+ * Named like `pendo-guide--lightbox` and friends, because it comes from the same place: the
+ * renderer picks the layout, not the markup.
+ */
+const EMBEDDED_CLASS = 'pendo-guide--embedded';
+
+/**
  * <pendo-guide> - The main container element for a guide step.
  *
  * Attributes:
@@ -12,19 +20,43 @@ import { PendoBaseElement } from '../base-element.js';
  *   - Escape key to dismiss
  *   - Progress indicator for multi-step guides
  *   - Proper ARIA dialog semantics
+ *   - An embedded mode (`pendo-guide--embedded`) that keeps the progress indicator and drops the
+ *     dialog semantics, the focus trap and the Escape handler
+ *
+ * A renderer choosing embedded mode sets the class before appending the element. The mode is read
+ * once, on connect, because the autofocus a dialog performs cannot be taken back after the fact.
  */
 class PendoGuide extends PendoBaseElement {
     connectedCallback() {
         // Add base class for styling
         this.classList.add('pendo-guide');
 
-        // Multi-step progress indicator
+        // Multi-step progress indicator. An embed is a step sequence like any other, so this runs
+        // for one too.
         const step = parseInt(this.getAttribute('step') || '1', 10);
         const totalSteps = parseInt(this.getAttribute('total-steps') || '1', 10);
         if (totalSteps > 1) {
             this.renderProgress(step, totalSteps);
         }
 
+        if (this.isEmbedded()) return;
+
+        this.enterDialogMode();
+
+        // Page content does not take the reader's focus when it appears, so this is the dialog's
+        // alone.
+        requestAnimationFrame(() => this.focusFirst());
+    }
+
+    disconnectedCallback() {
+        this.removeKeyboardHandlers();
+    }
+
+    isEmbedded() {
+        return this.classList.contains(EMBEDDED_CLASS);
+    }
+
+    enterDialogMode() {
         // Accessibility: dialog role and labeling
         this.setAttribute('role', 'dialog');
         this.setAttribute('aria-modal', 'true');
@@ -38,13 +70,17 @@ class PendoGuide extends PendoBaseElement {
         // Setup keyboard handlers
         this.setupKeyboardHandlers();
         this.setupFocusTrap();
-
-        // Focus the first focusable element after render
-        requestAnimationFrame(() => this.focusFirst());
     }
 
-    disconnectedCallback() {
-        // Cleanup if needed
+    removeKeyboardHandlers() {
+        if (this._keydownHandler) {
+            this.removeEventListener('keydown', this._keydownHandler);
+            this._keydownHandler = null;
+        }
+        if (this._focusTrapHandler) {
+            this.removeEventListener('keydown', this._focusTrapHandler);
+            this._focusTrapHandler = null;
+        }
     }
 
     setupKeyboardHandlers() {
