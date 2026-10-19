@@ -156,6 +156,7 @@ What scrolls depends on whether the card uses a `<pendo-guide-content>` region:
 | Cap, no content region | The whole card scrolls, title and footer included |
 | No cap | Unchanged — the card grows, nothing scrolls |
 | Tooltip or banner | Not capped at all — `max-height` is forced off |
+| Embedded | Follows the rows above — an embed caps and scrolls like any other card |
 
 The pinned title matters because guides put their title *inside* the content
 region rather than beside it:
@@ -198,6 +199,84 @@ region. That restriction is deliberate: flex stops adjacent margins collapsing,
 which grows a card holding an image, a divider or a list by 12–24px. A card with
 a content region measures the same either way, because its children collapse
 inside the region, which stays `display: block`.
+
+## Layout variants
+
+A card's layout is the renderer's choice, not the markup's, and arrives as a class
+on the guide root: `pendo-guide--lightbox`, `--tooltip`, `--banner`, `--slideout`
+or `--embedded`.
+
+### Embedded
+
+An embedded guide is ordinary page content. The renderer mounts it inside an
+element of the host page rather than in an overlay, and `pendo-guide--embedded`
+is what tells the component to stop behaving like a dialog. Unlike the other
+layout classes it has to be on the element before it is appended: the mode is
+read on connect, and a dialog has already moved focus by the time a later class
+could say otherwise.
+
+```html
+<div class="a-region-of-the-host-page">
+  <!-- …page content… -->
+  <pendo-guide class="pendo-guide--embedded">
+    <pendo-guide-content>
+      <pendo-title>Finish setting up billing</pendo-title>
+      <pendo-text>Add a payment method to keep your projects running.</pendo-text>
+    </pendo-guide-content>
+    <pendo-guide-footer>
+      <pendo-button action="link:/billing">Add a card</pendo-button>
+    </pendo-guide-footer>
+  </pendo-guide>
+  <!-- …page content… -->
+</div>
+```
+
+It carries no `role`, no `aria-modal` and no `aria-labelledby`, so a screen reader
+announces its contents as the page content they are. Nothing in it takes focus
+when it appears, Escape does nothing, and Tab walks through its controls and
+straight out the other side into the rest of the page. Only those controls —
+buttons, links, inputs and poll answers — are focusable; the card itself is never
+a tab stop.
+
+Visually it stays a card. Background, radius, padding, type and colour are
+unchanged and just as themeable; only the shadow goes, because a card flowing in
+the page is not floating above it. A theme can put one back:
+
+```css
+.pendo-guide--embedded {
+  --pendo-embedded-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+```
+
+The host owns the width — an embed is `width: 100%` with no `max-width` — and an
+inline `width` or `height` set by the renderer outranks that. Height follows
+[Card height](#card-height) unchanged: an embed grows with its content, and an
+inline `max-height` opts it into the same scrolling content region, pinned title
+and fixed footer as a lightbox. Unlike a tooltip or a banner, its cap is not
+forced off.
+
+The card is `position: relative` with no offsets, matching what Pendo's other
+embedded guides are given, so every kind of embed sits in a host the same way.
+It lays out exactly where the host puts it and starts no stacking context.
+
+An embed is the one layout that can take an outer margin — every other one is
+positioned by the renderer, so a margin there would fight it. It sits flush by
+default, because only the host knows whether it already spaces its own children:
+
+```css
+.pendo-guide--embedded {
+  --pendo-embedded-margin: 16px 0;
+}
+```
+
+An embed is not given a close button by default. One can still be authored, and
+the card is the containing block for it, so it lands in the card's own corner
+rather than somewhere in the host page.
+
+The class has to be in place before the element is appended. A renderer that adds
+it afterwards — the way the other layout classes are applied — gets the embedded
+styling on a card that still traps focus and dismisses on Escape, because the
+mode is read once, on connect.
 
 ## Menu rows
 

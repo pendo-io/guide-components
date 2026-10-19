@@ -414,6 +414,7 @@
                 <button class="example-btn" onclick="loadExample('form')">Form</button>
                 <button class="example-btn" onclick="loadExample('banner')">Banner</button>
                 <button class="example-btn" onclick="loadExample('slideout')">Slideout</button>
+                <button class="example-btn" onclick="loadExample('embedded')">Embedded</button>
                 <button class="example-btn" onclick="loadExample('starRating')">Star Rating</button>
                 <button class="example-btn" onclick="loadExample('nps')">NPS</button>
                 <button class="example-btn" onclick="loadExample('numberScale')">Number Scale</button>
@@ -527,6 +528,32 @@
     <pendo-text>Still stuck? <pendo-link href="https://help.example.com">Visit our help center</pendo-link></pendo-text>
     <pendo-button action="dismiss">Got it</pendo-button>
 </pendo-guide>`,
+
+            embedded: `<!-- Embedded: part of the page, not an overlay -->
+<!-- Note: .pendo-guide--embedded is applied by the pendo-client renderer, before the append -->
+<!-- The dashed box stands in for the host element the guide is mounted into. Where the guide -->
+<!-- sits inside it is the renderer's prepend / append / replace choice; this one is between. -->
+<div style="width: 100%; max-width: 560px; padding: 20px; border: 1px dashed #b9b9b9; border-radius: 8px; font-family: system-ui, sans-serif;">
+    <div style="font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; color: #8a8a8a;">Host element</div>
+    <h3 style="margin: 8px 0 4px; font-size: 1rem; color: #1a1a1a;">Billing</h3>
+    <p style="margin: 0 0 16px; font-size: 0.875rem; color: #666;">Manage your plan and payment method.</p>
+
+    <pendo-guide class="pendo-guide--embedded">
+        <pendo-guide-content>
+            <pendo-title>Your trial ends in 9 days</pendo-title>
+            <pendo-text>Add a payment method to keep your projects running.</pendo-text>
+        </pendo-guide-content>
+        <pendo-guide-footer>
+            <pendo-button action="link:https://example.com/billing">Add a card</pendo-button>
+            <pendo-button action="dismiss" variant="secondary">Remind me later</pendo-button>
+        </pendo-guide-footer>
+    </pendo-guide>
+
+    <p style="margin: 16px 0 0; font-size: 0.875rem; color: #666;">
+        Page content continues below the embed. Tab from the buttons above to check focus leaves the
+        guide, and press Escape to check nothing dismisses.
+    </p>
+</div>`,
 
             starRating: `<pendo-guide>
     <pendo-title>How was your experience?</pendo-title>
