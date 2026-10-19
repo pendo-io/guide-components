@@ -110,6 +110,34 @@ To collect NPS the way a classic Pendo NPS guide does, put the score, its follow
   thank-you step can follow. Without a `submit-poll` button the client submits each score as it is
   picked.
 
+### Reveal by score
+
+To ask for the reason differently by score, give the `nps-reason` box a question per band:
+`detractor-question`, `passive-question` and `promoter-question`, for scores of 0-6, 7-8 and 9-10.
+`question` is asked until a score is picked, and for a band without its own. Picking another score
+swaps the question, and the textarea's accessible name follows what is shown.
+
+Add `data-pendo-reveal="detractor"`, `"passive"` or `"promoter"` to keep any other element hidden
+until the guide's `<pendo-nps>` score is in that band, such as a review-site link only promoters
+see:
+
+```html
+<pendo-guide>
+  <pendo-nps question="How likely are you to recommend us to a friend?"></pendo-nps>
+  <pendo-open-text nps-reason data-pendo-reveal="answered"
+    question="What is the main reason for your score?"
+    detractor-question="Sorry to hear that. What went wrong?"
+    promoter-question="Glad to hear it! What do you like most?"></pendo-open-text>
+  <pendo-button action="submit-poll" data-pendo-reveal="answered">Submit</pendo-button>
+  <pendo-button data-pendo-reveal="promoter" variant="secondary"
+    action='[{"action":"submit-poll"},{"action":"link","url":"https://example.com/reviews"},{"action":"dismiss"}]'>Review us</pendo-button>
+</pendo-guide>
+```
+
+Keep one `nps-reason` box for every band so Pendo pairs each reason with its score. A
+`<pendo-nps>` that is itself revealed is not the score a band waits on, and a guide with no other
+`<pendo-nps>` shows every band at once.
+
 ## Card height
 
 A card has no height cap by default and grows with its content. Cap one by
