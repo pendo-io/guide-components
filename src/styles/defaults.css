@@ -91,7 +91,21 @@ pendo-guide-footer {
     display: flex;
     gap: var(--pendo-spacing-xs);
     margin-top: var(--pendo-spacing);
+    align-items: center;
     justify-content: flex-end;
+}
+
+/* Buttons narrow and wrap their label to fit the card; a row wider than the card would otherwise
+   push the overflow out of the start edge of a flex-end row. */
+pendo-guide-footer > pendo-button {
+    min-width: 0;
+}
+
+pendo-guide-footer button[type="button"] {
+    box-sizing: border-box;
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
 }
 
 /* =============================================================================
