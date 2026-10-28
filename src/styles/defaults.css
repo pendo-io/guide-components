@@ -1090,12 +1090,16 @@ select.pendo-input__field {
    pendo-star-rating
    ============================================================================= */
 
+/* The stars sit 4px apart through their padding rather than a gap, so the focus ring below has
+ * room inside each star. */
 .pendo-star-rating__stars {
     display: flex;
-    gap: 4px;
 }
 
 .pendo-star-rating__star {
+    display: flex;
+    padding: 2px;
+    border-radius: 4px;
     cursor: pointer;
     transition: transform 0.1s ease;
 }
@@ -1119,10 +1123,17 @@ select.pendo-input__field {
     stroke: #E09000;
 }
 
-.pendo-star-rating__star:focus-within .pendo-star-rating__icon {
+/* Inset into the star's padding, like `.pendo-action-row`'s: the first star sits flush with the
+ * edge of a scrolling content region, which clips an outline drawn outside it. */
+.pendo-star-rating__star:focus-within {
     outline: 2px solid var(--pendo-focus);
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline-offset: -2px;
+}
+
+/* Clicking a star focuses its hidden radio, which would draw the keyboard ring for a mouse pick.
+ * Same contract as `pendo-nps`: without `:has()` every focus keeps the ring. */
+.pendo-star-rating__star:focus-within:not(:has(input:focus-visible)) {
+    outline: none;
 }
 
 /* =============================================================================

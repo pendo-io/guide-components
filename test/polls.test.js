@@ -245,6 +245,29 @@ describe('NPS focus ring', () => {
     });
 });
 
+describe('Star focus ring', () => {
+    const css = defaults.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
+    const body = (selector) => {
+        const start = css.indexOf(selector + ' {');
+        expect(start, `no rule for \`${selector}\``).toBeGreaterThan(-1);
+        return css.slice(start + selector.length + 2, css.indexOf('}', start));
+    };
+    const px = (decls, property) => parseFloat(new RegExp(`${property}: (?:solid )?(-?[\\d.]+)px`).exec(decls)?.[1] ?? '0');
+
+    it('stays inside the star, which a scrolling content region would otherwise clip', () => {
+        const ring = body('.pendo-star-rating__star:focus-within');
+        const width = px(ring, 'outline');
+
+        expect(width).toBeGreaterThan(0);
+        expect(px(ring, 'outline-offset')).toBeLessThanOrEqual(-width);
+        expect(px(body('.pendo-star-rating__star'), 'padding')).toBeGreaterThanOrEqual(width);
+    });
+
+    it('is dropped for a pointer pick, which focuses the hidden radio', () => {
+        expect(body('.pendo-star-rating__star:focus-within:not(:has(input:focus-visible))')).toContain('outline: none');
+    });
+});
+
 /**
  * jsdom applies no stylesheet, so this asserts the rule's selector against the live DOM instead:
  * what it matches is exactly what the rule hides.
