@@ -71,6 +71,13 @@ import '@pendo/guide-components/styles';
 | `<pendo-input>` | Text input field |
 | `<pendo-action-row>` | Compact menu entry that performs an action |
 
+### Layout Elements
+
+| Component | Description |
+|-----------|-------------|
+| `<pendo-columns>` | Puts 2 to 4 columns side by side; they stack when the guide is narrow |
+| `<pendo-column>` | One column; `variant="card"` draws it as a card |
+
 ### Poll Elements
 
 | Component | Description |
@@ -330,6 +337,81 @@ scrolling region.
 Not yet handled: the chevron does not flip in right-to-left layouts, in common
 with the rest of the HTML guide components.
 
+## Columns and cards
+
+`<pendo-columns>` puts content side by side: plans to compare, tiles to pick
+from. It holds 2 to 4 `<pendo-column>` elements, and each column holds the usual
+content elements.
+
+```html
+<pendo-guide style="max-width: 600px">
+  <pendo-guide-content>
+    <pendo-title>Pick a plan</pendo-title>
+    <pendo-columns>
+      <pendo-column variant="card">
+        <pendo-title>Growth</pendo-title>
+        <pendo-text>For small teams that ship every week.</pendo-text>
+        <pendo-button action="link:https://example.com/growth">Choose Growth</pendo-button>
+      </pendo-column>
+      <pendo-column variant="card">
+        <pendo-title>Business</pendo-title>
+        <pendo-text>For several teams and their admins.</pendo-text>
+        <pendo-button action="link:https://example.com/business">Choose Business</pendo-button>
+      </pendo-column>
+      <pendo-column variant="card">
+        <pendo-title>Enterprise</pendo-title>
+        <pendo-text>For the whole company, with SSO.</pendo-text>
+        <pendo-button action="link:https://example.com/enterprise">Talk to us</pendo-button>
+      </pendo-column>
+    </pendo-columns>
+  </pendo-guide-content>
+</pendo-guide>
+```
+
+| Attribute | On | |
+|-----------|----|---|
+| `variant="card"` | `pendo-column` | Draws the column as a card: a border, a background, rounded corners and padding. Without it a column has no paint of its own. |
+
+**All side by side, or all stacked.** The columns share one row while each one
+can be at least `--pendo-column-min-width` (120px) wide. When the guide is
+narrower than that, every column moves to its own row, in source order. They
+never wrap part of the way, with two columns over a third. The width that counts
+is the guide's, not the window's, so the same markup stacks in a tooltip and
+stays side by side in a wider lightbox. Measured from the built output with the
+default tokens:
+
+| Guide | 2 columns | 3 columns | 4 columns |
+|-------|-----------|-----------|-----------|
+| Tooltip at its widest (360px) | side by side | stacked | stacked |
+| Tooltip at its narrowest (280px) | stacked | stacked | stacked |
+| Lightbox (400px default) | side by side | stacked | stacked |
+| `max-width: 600px` | side by side | side by side | side by side |
+
+So give a guide with 3 or 4 columns a wider `max-width`, as above. A tooltip
+sizes to its content, between 280px and 360px: two columns sit side by side only
+when the tooltip is at least 300px wide, which other text in it usually makes it.
+A tooltip that holds only short tiles stays at 280px, and its columns stack.
+
+Both size tokens, `--pendo-columns-gap` and `--pendo-column-min-width`, go into
+a `calc()`, so a theme gives them a unit: `0px`, never a bare `0`. A bare `0`
+still draws no gap, but it breaks the stacking rule, and columns can then wrap
+part of the way.
+
+**Each column is a content region of its own.** Its blocks are spaced by
+`--pendo-content-gap`, with their own vertical margins dropped, as in
+`<pendo-guide-content>`. Columns in one row are the same height. A long word
+breaks inside its column, and a button's label wraps to the column's width,
+breaking inside a word when one word alone is too long.
+
+**The markup stays as authored.** Neither element changes the DOM, so a gate on a
+column (`data-pendo-requires-guide`, `data-pendo-requires-any`) works, and the
+layout counts only the columns that are left: two of three left share the row
+as two.
+
+Not yet handled: the buttons at the foot of a row of cards do not line up when
+the cards hold different amounts of text, and a whole card cannot be clickable;
+put a button or an action row in it.
+
 ## Button Actions
 
 The `<pendo-button>` component supports the following actions:
@@ -506,6 +588,25 @@ Next to an action row, a divider gives back the row's vertical padding, so it
 sits the same distance from a row's text as from any other. An author's inline
 margin still applies.
 
+A `pendo-column` follows the same rules, so these properties space a column's
+blocks too.
+
+### Theme columns and cards
+
+`pendo-columns` holds its `display`, `flex-wrap` and `gap` with `!important`, as
+the content region does. A card is the `pendo-column` itself, not a wrapper, so a
+theme rule on the tag does paint it, but the properties are the supported route:
+
+| Property | Applies to | Default |
+|----------|------------|---------|
+| `--pendo-columns-gap` | between columns, and in the width at which they stack (needs a unit) | `--pendo-spacing-sm` |
+| `--pendo-column-min-width` | the narrowest a column gets before the columns stack (needs a unit) | `120px` |
+| `--pendo-column-card-padding` | inside a card | `--pendo-spacing-sm` |
+| `--pendo-column-card-bg` | a card's background | `--pendo-bg` |
+| `--pendo-column-card-border` | a card's border (the whole shorthand) | `1px solid var(--pendo-border)` |
+| `--pendo-column-card-radius` | a card's corners | `--pendo-radius` |
+| `--pendo-column-card-shadow` | a card's shadow | `none` |
+
 ### The contract as data
 
 The full list — names, defaults, and the rule each one lands in — ships with the
@@ -578,6 +679,7 @@ src/
 │   ├── pendo-video.js
 │   ├── pendo-link.js
 │   ├── pendo-list.js
+│   ├── pendo-columns.js
 │   └── pendo-input.js
 ├── polls/                # Poll component definitions
 │   ├── pendo-star-rating.js

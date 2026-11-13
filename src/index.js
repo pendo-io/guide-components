@@ -16,6 +16,9 @@ export { PendoButton } from './elements/pendo-button.js';
 export { PendoActionRow } from './elements/pendo-action-row.js';
 export { PendoCloseButton } from './elements/pendo-close-button.js';
 
+// Layout elements
+export { PendoColumns, PendoColumn } from './elements/pendo-columns.js';
+
 // Media elements
 export { PendoImage } from './elements/pendo-image.js';
 export { PendoDivider } from './elements/pendo-divider.js';
