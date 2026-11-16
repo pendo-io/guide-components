@@ -389,6 +389,51 @@ const mockGuides = [
         }
     },
 
+    // Plan picker - three cards side by side in a guide widened to hold them; they stack when narrow
+    {
+        id: 'plan-picker',
+        name: 'Plan Picker',
+        steps: [
+            {
+                id: 'plan-picker-step-1',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide style="max-width: 600px">
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Pick the plan that fits</pendo-title>
+                            <pendo-text>You can change plans at any time.</pendo-text>
+                            <pendo-columns>
+                                <pendo-column variant="card">
+                                    <pendo-title>Growth</pendo-title>
+                                    <pendo-text>For small teams that ship every week.</pendo-text>
+                                    <pendo-button action="link:https://example.com/plans/growth">Choose Growth</pendo-button>
+                                </pendo-column>
+                                <pendo-column variant="card">
+                                    <pendo-title>Business</pendo-title>
+                                    <pendo-text>For several teams and their admins.</pendo-text>
+                                    <pendo-button action="link:https://example.com/plans/business">Choose Business</pendo-button>
+                                </pendo-column>
+                                <pendo-column variant="card">
+                                    <pendo-title>Enterprise</pendo-title>
+                                    <pendo-text>For the whole company, with SSO.</pendo-text>
+                                    <pendo-button action="link:https://example.com/plans/enterprise" variant="secondary">Talk to us</pendo-button>
+                                </pendo-column>
+                            </pendo-columns>
+                        </pendo-guide-content>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderColor: '#e5e7eb',
+                borderRadius: '12px'
+            }
+        }
+    },
+
     // Trial Banner - Embedded in the page rather than floating above it
     {
         id: 'trial-banner',

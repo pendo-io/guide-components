@@ -9,6 +9,7 @@ import { PendoDivider } from './elements/pendo-divider.js';
 import { PendoVideo } from './elements/pendo-video.js';
 import { PendoLink } from './elements/pendo-link.js';
 import { PendoList, PendoListItem } from './elements/pendo-list.js';
+import { PendoColumns, PendoColumn } from './elements/pendo-columns.js';
 import { PendoInput } from './elements/pendo-input.js';
 import { PendoStarRating } from './polls/pendo-star-rating.js';
 import { PendoNps } from './polls/pendo-nps.js';
@@ -29,6 +30,8 @@ const components = [
     ['pendo-link', PendoLink],
     ['pendo-list', PendoList],
     ['pendo-list-item', PendoListItem],
+    ['pendo-columns', PendoColumns],
+    ['pendo-column', PendoColumn],
     ['pendo-input', PendoInput],
     ['pendo-star-rating', PendoStarRating],
     ['pendo-nps', PendoNps],

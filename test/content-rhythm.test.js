@@ -8,18 +8,45 @@ import { flatDefaults, ruleBody } from './css-source.js';
 registerGuideComponents();
 
 const GUIDE = '.pendo-guide.pendo-guide';
-const RESET = new RegExp(`${GUIDE.replace(/[().]/g, '\\$&')} pendo-guide-content > :is\\(([^)]*)\\) \\{ margin-block: 0; \\}`);
+// A column of a `pendo-columns` is a content region too, so every rhythm rule names both.
+const REGION = ':is(pendo-guide-content, pendo-column)';
+const escape = (selector) => selector.replace(/[().]/g, '\\$&');
+const RESET = new RegExp(`${escape(GUIDE)} ${escape(REGION)} > :is\\(([^)]*)\\) \\{ margin-block: 0; \\}`);
 const RESET_TARGETS = `:is(${RESET.exec(flatDefaults)[1]})`;
-const DIVIDER = `${GUIDE} pendo-guide-content > .pendo-guide__divider`;
-const DIVIDER_AFTER_ROW = `${GUIDE} pendo-guide-content > pendo-action-row + .pendo-guide__divider`;
-const DIVIDER_BEFORE_ROW = `${GUIDE} pendo-guide-content > .pendo-guide__divider:has(+ pendo-action-row)`;
-const ROW_AFTER_DIVIDER = `${GUIDE} pendo-guide-content > .pendo-guide__divider + pendo-action-row`;
-const ROW_BEFORE_DIVIDER = `${GUIDE} pendo-guide-content > pendo-action-row:has(+ .pendo-guide__divider)`;
+const DIVIDER = `${GUIDE} ${REGION} > .pendo-guide__divider`;
+const DIVIDER_AFTER_ROW = `${GUIDE} ${REGION} > pendo-action-row + .pendo-guide__divider`;
+const DIVIDER_BEFORE_ROW = `${GUIDE} ${REGION} > .pendo-guide__divider:has(+ pendo-action-row)`;
+const ROW_AFTER_DIVIDER = `${GUIDE} ${REGION} > .pendo-guide__divider + pendo-action-row`;
+const ROW_BEFORE_DIVIDER = `${GUIDE} ${REGION} > pendo-action-row:has(+ .pendo-guide__divider)`;
 
 function mount(inner) {
     document.body.innerHTML = `<pendo-guide><pendo-guide-content>${inner}</pendo-guide-content></pendo-guide>`;
     return document.querySelector('pendo-guide-content');
 }
+
+/** Mount `inner` in the first of two columns, straight in the guide, with no content region. */
+function mountInColumn(inner) {
+    document.body.innerHTML = `<pendo-guide><pendo-columns><pendo-column>${inner}</pendo-column><pendo-column></pendo-column></pendo-columns></pendo-guide>`;
+    return document.querySelector('pendo-column');
+}
+
+/** Every block a content region holds, as the tag and the markup that mounts one. */
+const BLOCKS = [
+    ['pendo-title', '<pendo-title>T</pendo-title>'],
+    ['pendo-text', '<pendo-text>T</pendo-text>'],
+    ['pendo-image', '<pendo-image src="x.png"></pendo-image>'],
+    ['pendo-video', '<pendo-video src="https://example.com/v.mp4"></pendo-video>'],
+    ['pendo-list', '<pendo-list><li>A</li></pendo-list>'],
+    ['pendo-input', '<pendo-input></pendo-input>'],
+    ['pendo-star-rating', '<pendo-star-rating poll-id="p"></pendo-star-rating>'],
+    ['pendo-nps', '<pendo-nps poll-id="p"></pendo-nps>'],
+    ['pendo-number-scale', '<pendo-number-scale poll-id="p"></pendo-number-scale>'],
+    ['pendo-emoji-scale', '<pendo-emoji-scale poll-id="p"></pendo-emoji-scale>'],
+    ['pendo-open-text', '<pendo-open-text poll-id="p"></pendo-open-text>'],
+    ['pendo-button', '<pendo-button action="dismiss">Go</pendo-button>'],
+    ['pendo-link', '<pendo-link href="https://example.com">Docs</pendo-link>'],
+    ['pendo-columns', '<pendo-columns><pendo-column></pendo-column><pendo-column></pendo-column></pendo-columns>'],
+];
 
 // Selectors and declarations are read rather than computed: jsdom's cascade ignores specificity,
 // and every rule here exists to out-specify an element's own margin.
@@ -34,22 +61,22 @@ describe('content rhythm', () => {
 
     // An element left out of the reset keeps a margin that assumes block flow, and in a flex column
     // that margin adds to the gap instead of collapsing into it.
-    it.each([
-        ['pendo-title', '<pendo-title>T</pendo-title>'],
-        ['pendo-text', '<pendo-text>T</pendo-text>'],
-        ['pendo-image', '<pendo-image src="x.png"></pendo-image>'],
-        ['pendo-video', '<pendo-video src="https://example.com/v.mp4"></pendo-video>'],
-        ['pendo-list', '<pendo-list><li>A</li></pendo-list>'],
-        ['pendo-input', '<pendo-input></pendo-input>'],
-        ['pendo-star-rating', '<pendo-star-rating poll-id="p"></pendo-star-rating>'],
-        ['pendo-nps', '<pendo-nps poll-id="p"></pendo-nps>'],
-        ['pendo-number-scale', '<pendo-number-scale poll-id="p"></pendo-number-scale>'],
-        ['pendo-emoji-scale', '<pendo-emoji-scale poll-id="p"></pendo-emoji-scale>'],
-        ['pendo-open-text', '<pendo-open-text poll-id="p"></pendo-open-text>'],
-        ['pendo-button', '<pendo-button action="dismiss">Go</pendo-button>'],
-        ['pendo-link', '<pendo-link href="https://example.com">Docs</pendo-link>'],
-    ])("drops %s's own vertical margin inside the region", (_tag, html) => {
-        expect(mount(html).firstElementChild.matches(`${GUIDE} pendo-guide-content > ${RESET_TARGETS}`)).toBe(true);
+    it.each(BLOCKS)("drops %s's own vertical margin inside the region", (_tag, html) => {
+        expect(mount(html).firstElementChild.matches(`${GUIDE} ${REGION} > ${RESET_TARGETS}`)).toBe(true);
+    });
+
+    // A column spaces its blocks with the same gap, in a content region or straight in the guide.
+    it.each(BLOCKS)("drops %s's own vertical margin inside a column", (_tag, html) => {
+        expect(mountInColumn(html).firstElementChild.matches(`${GUIDE} ${REGION} > ${RESET_TARGETS}`)).toBe(true);
+    });
+
+    it('spaces dividers and rows inside a column as it does in the region', () => {
+        const column = mountInColumn('<pendo-text>Intro</pendo-text><pendo-divider></pendo-divider><pendo-action-row action="dismiss">Row</pendo-action-row>');
+        const divider = column.querySelector('pendo-divider');
+
+        expect(divider.matches(DIVIDER)).toBe(true);
+        expect(divider.matches(DIVIDER_BEFORE_ROW)).toBe(true);
+        expect(column.querySelector('pendo-action-row').matches(ROW_AFTER_DIVIDER)).toBe(true);
     });
 
     // (0,3,1) against a stored dark palette's (0,2,2) `.dark pendo-guide[data-pendo-theme-id] pendo-text
@@ -84,7 +111,7 @@ describe('content rhythm', () => {
 
     // Stacked in the column, the side-by-side spacing between neighbouring buttons would indent the second.
     it('drops the inline spacing between stacked buttons and links', () => {
-        expect(ruleBody(`${GUIDE} pendo-guide-content > :is(pendo-button, pendo-link)`)).toContain('margin-inline: 0;');
+        expect(ruleBody(`${GUIDE} ${REGION} > :is(pendo-button, pendo-link)`)).toContain('margin-inline: 0;');
     });
 
     // On the region itself, which a theme's token on the guide root only reaches by inheritance.
@@ -101,13 +128,13 @@ describe('content rhythm', () => {
     // An empty child has no content height to hold it open, so a capped region that outgrows its cap
     // would shrink a divider to nothing.
     it('scrolls a capped region rather than shrinking its children', () => {
-        expect(ruleBody(`${GUIDE} pendo-guide-content > *`)).toContain('flex-shrink: 0;');
+        expect(ruleBody(`${GUIDE} ${REGION} > *`)).toContain('flex-shrink: 0;');
     });
 
     it('keeps the elements their own margins outside a content region', () => {
         document.body.innerHTML = '<pendo-guide><pendo-text>T</pendo-text><pendo-divider></pendo-divider></pendo-guide>';
 
-        expect(document.querySelector('pendo-text').matches(`${GUIDE} pendo-guide-content > ${RESET_TARGETS}`)).toBe(false);
+        expect(document.querySelector('pendo-text').matches(`${GUIDE} ${REGION} > ${RESET_TARGETS}`)).toBe(false);
         expect(document.querySelector('pendo-divider').matches(DIVIDER)).toBe(false);
     });
 });

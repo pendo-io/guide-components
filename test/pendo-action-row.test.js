@@ -315,7 +315,7 @@ describe('pendo-action-row', () => {
         it("sits in flow between the rows, with the content region's gap handed back", () => {
             expect(ruleBody(LINE)).toContain('display: block;');
             expect(ruleBody(LINE)).not.toContain('position');
-            expect(ruleBody('.pendo-guide.pendo-guide pendo-guide-content > pendo-action-row + pendo-action-row')).toContain(
+            expect(ruleBody('.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > pendo-action-row + pendo-action-row')).toContain(
                 'margin-top: calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs)));'
             );
         });

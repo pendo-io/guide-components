@@ -75,7 +75,7 @@ export const themeTokens = [
     // The content region holds its layout with `!important`, so these are the supported way to space
     // it: a theme's own `gap` on the region has no effect.
     { name: '--pendo-content-gap', default: 'var(--pendo-spacing-xs)', selector: 'pendo-guide-content', property: 'gap' },
-    { name: '--pendo-divider-spacing', default: 'var(--pendo-spacing-xs)', selector: '.pendo-guide.pendo-guide pendo-guide-content > .pendo-guide__divider', property: 'margin-block' },
+    { name: '--pendo-divider-spacing', default: 'var(--pendo-spacing-xs)', selector: '.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > .pendo-guide__divider', property: 'margin-block' },
 
     // ---- Action rows -------------------------------------------------------
     // `.pendo-action-row` is the real control inside the `pendo-action-row` host, so a theme rule on
@@ -87,6 +87,18 @@ export const themeTokens = [
     { name: '--pendo-action-row-hover-bg', default: 'rgba(0, 0, 0, 0.05)', selector: '.pendo-action-row:hover', property: 'background' },
     { name: '--pendo-action-row-description-text', default: 'var(--pendo-text-muted)', selector: '.pendo-action-row__description', property: 'color' },
     { name: '--pendo-action-row-divider', default: 'var(--pendo-border)', selector: 'pendo-action-row + pendo-action-row::before', property: 'border-top' },
+
+    // ---- Columns and cards -------------------------------------------------
+    // The gap and the minimum width are also read by every column's `flex-basis`, which uses them to
+    // decide when the columns stack; one value per token keeps that decision and the drawn gap equal.
+    // Inside that `calc()` both need a unit: `0px`, never a bare `0`, which invalidates the basis.
+    { name: '--pendo-columns-gap', default: 'var(--pendo-spacing-sm)', selector: 'pendo-columns', property: 'gap' },
+    { name: '--pendo-column-min-width', default: '120px', selector: 'pendo-columns > pendo-column', property: 'flex-basis' },
+    { name: '--pendo-column-card-padding', default: 'var(--pendo-spacing-sm)', selector: 'pendo-column[variant="card"]', property: 'padding' },
+    { name: '--pendo-column-card-bg', default: 'var(--pendo-bg)', selector: 'pendo-column[variant="card"]', property: 'background' },
+    { name: '--pendo-column-card-border', default: '1px solid var(--pendo-border)', selector: 'pendo-column[variant="card"]', property: 'border' },
+    { name: '--pendo-column-card-radius', default: 'var(--pendo-radius)', selector: 'pendo-column[variant="card"]', property: 'border-radius' },
+    { name: '--pendo-column-card-shadow', default: 'none', selector: 'pendo-column[variant="card"]', property: 'box-shadow' },
 
     // ---- NPS ---------------------------------------------------------------
     { name: '--pendo-nps-score-bg', default: 'var(--pendo-bg)', selector: '.pendo-nps__score', property: 'background' },
