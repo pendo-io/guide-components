@@ -100,6 +100,15 @@ export const themeTokens = [
     { name: '--pendo-column-card-radius', default: 'var(--pendo-radius)', selector: 'pendo-column[variant="card"]', property: 'border-radius' },
     { name: '--pendo-column-card-shadow', default: 'none', selector: 'pendo-column[variant="card"]', property: 'box-shadow' },
 
+    // ---- Tables ------------------------------------------------------------
+    // The border is the line between two rows, drawn under each cell; the last row draws none.
+    { name: '--pendo-table-font-size', default: '0.875rem', selector: 'pendo-table', property: 'font-size' },
+    { name: '--pendo-table-cell-padding', default: 'var(--pendo-spacing-xs) var(--pendo-spacing-sm)', selector: 'pendo-table-cell', property: 'padding' },
+    { name: '--pendo-table-border', default: '1px solid var(--pendo-border)', selector: 'pendo-table-cell', property: 'border-bottom' },
+    { name: '--pendo-table-header-bg', default: 'rgba(0, 0, 0, 0.04)', selector: 'pendo-table-row[header] > pendo-table-cell', property: 'background' },
+    { name: '--pendo-table-header-text', default: 'var(--pendo-text)', selector: 'pendo-table-row[header] > pendo-table-cell', property: 'color' },
+    { name: '--pendo-table-header-font-weight', default: '600', selector: 'pendo-table-row[header] > pendo-table-cell', property: 'font-weight' },
+
     // ---- NPS ---------------------------------------------------------------
     { name: '--pendo-nps-score-bg', default: 'var(--pendo-bg)', selector: '.pendo-nps__score', property: 'background' },
     { name: '--pendo-nps-score-border', default: '1px solid var(--pendo-border)', selector: '.pendo-nps__score', property: 'border' },

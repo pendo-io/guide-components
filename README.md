@@ -77,6 +77,9 @@ import '@pendo/guide-components/styles';
 |-----------|-------------|
 | `<pendo-columns>` | Puts 2 to 4 columns side by side; they stack when the guide is narrow |
 | `<pendo-column>` | One column; `variant="card"` draws it as a card |
+| `<pendo-table>` | A table of data that scrolls sideways when it is too wide |
+| `<pendo-table-row>` | One row of a table; `header` makes it the column headings |
+| `<pendo-table-cell>` | One cell: text, inline formatting and an optional `<pendo-link>` |
 
 ### Poll Elements
 
@@ -412,6 +415,85 @@ Not yet handled: the buttons at the foot of a row of cards do not line up when
 the cards hold different amounts of text, and a whole card cannot be clickable;
 put a button or an action row in it.
 
+## Tables
+
+`<pendo-table>` shows data in rows and columns: plans and their limits, status
+values and what to do about each, numbers by segment. It holds
+`<pendo-table-row>` elements, and each row holds `<pendo-table-cell>` elements. A
+cell holds text, with inline formatting and an optional `<pendo-link>`.
+
+```html
+<pendo-table>
+  <pendo-table-row header>
+    <pendo-table-cell>Status</pendo-table-cell>
+    <pendo-table-cell>Meaning</pendo-table-cell>
+    <pendo-table-cell>What to do</pendo-table-cell>
+  </pendo-table-row>
+  <pendo-table-row>
+    <pendo-table-cell><strong>Paused</strong></pendo-table-cell>
+    <pendo-table-cell>An admin stopped the sync.</pendo-table-cell>
+    <pendo-table-cell>Resume it in Settings.</pendo-table-cell>
+  </pendo-table-row>
+  <pendo-table-row>
+    <pendo-table-cell><strong>Failed</strong></pendo-table-cell>
+    <pendo-table-cell>The last three runs failed.</pendo-table-cell>
+    <pendo-table-cell>Read the <pendo-link href="https://example.com/help/sync">sync guide</pendo-link>.</pendo-table-cell>
+  </pendo-table-row>
+</pendo-table>
+```
+
+| Attribute | On | |
+|-----------|----|---|
+| `header` | `pendo-table-row` | The row holds the column headings. Its cells are drawn as headings and read as column headers. |
+
+**It fills the guide, and scrolls when it is too wide.** The columns line up
+across the rows. Each column is never narrower than its longest word, takes the
+width its content needs when there is room, and shares what is left. When even
+the longest words do not fit, the table scrolls sideways inside the guide. It
+never makes the guide wider, and a word never breaks. Measured from the built
+output with the default tokens, for a table of four short columns (`Feature`,
+`Growth`, `Business`, `Enterprise`):
+
+| Guide | Result |
+|-------|--------|
+| Tooltip (sizes to its content, up to 360px) | the tooltip grows to 360px, and the table scrolls by 16px |
+| Lightbox (400px default) | fits, and fills the guide |
+| `max-width: 280px` | scrolls by 96px |
+
+A table of three columns of sentences fits a 360px tooltip, because sentences
+wrap. In a banner, the content region that holds a table takes the room the bar
+has left, so the table scrolls there too and the bar's buttons stay in it.
+
+**A keyboard can scroll it.** While a table overflows, it takes `tabindex="0"`,
+so Tab reaches it and the arrow keys scroll it, with a focus ring drawn inside
+its edge. It drops the attribute again once it fits. A `tabindex` the author
+wrote is left alone.
+
+**A screen reader reads a table.** The elements are not rebuilt into a
+`<table>`. Each one takes the ARIA role of the part it plays: `table`, `row`, and
+`columnheader` for a cell in a `header` row or `cell` for any other. The role
+follows the row: a cell moved to another row, and a row whose `header` is turned
+on or off, take the new role at once.
+
+A row outside a table, or a cell outside a row, takes no role, since ARIA allows
+those parts only inside their own parent.
+
+**The markup stays as authored**, apart from `role`, and `tabindex` while the
+table scrolls. A gate on a row or a cell (`data-pendo-requires-guide`,
+`data-pendo-requires-any`) works, and the layout counts only the cells that are
+left. `hidden` hides a table, a row or a cell.
+
+**Up to 8 columns fill the guide.** The layout is a grid whose rows are subgrids,
+with as many columns as the longest row has cells. A table with more columns, or
+an engine without `subgrid` or `:has()`, gets CSS table display instead: the same
+aligned, scrolling table, as wide as its content rather than as wide as the
+guide. A row holds cells only: anything else in it takes a place of its own.
+
+Not yet handled: a header column (the first cell of each row as a row heading),
+cells that span columns, and cell alignment, such as numbers on the right. A
+table that scrolls has no visible hint that it does, apart from the browser's
+own scroll bar.
+
 ## Button Actions
 
 The `<pendo-button>` component supports the following actions:
@@ -607,6 +689,21 @@ theme rule on the tag does paint it, but the properties are the supported route:
 | `--pendo-column-card-radius` | a card's corners | `--pendo-radius` |
 | `--pendo-column-card-shadow` | a card's shadow | `none` |
 
+### Theme tables
+
+`pendo-table`, `pendo-table-row` and `pendo-table-cell` hold their `display` with
+`!important`, so a theme cannot break the columns' alignment. The rest of a
+table's look is themed through these properties:
+
+| Property | Applies to | Default |
+|----------|------------|---------|
+| `--pendo-table-font-size` | the table's text | `0.875rem` |
+| `--pendo-table-cell-padding` | inside each cell | `var(--pendo-spacing-xs) var(--pendo-spacing-sm)` |
+| `--pendo-table-border` | the line between two rows (the whole shorthand); the last row draws none | `1px solid var(--pendo-border)` |
+| `--pendo-table-header-bg` | the header row's background | `rgba(0, 0, 0, 0.04)` |
+| `--pendo-table-header-text` | the header row's text colour | `--pendo-text` |
+| `--pendo-table-header-font-weight` | the header row's text weight | `600` |
+
 ### The contract as data
 
 The full list — names, defaults, and the rule each one lands in — ships with the
@@ -680,6 +777,7 @@ src/
 │   ├── pendo-link.js
 │   ├── pendo-list.js
 │   ├── pendo-columns.js
+│   ├── pendo-table.js
 │   └── pendo-input.js
 ├── polls/                # Poll component definitions
 │   ├── pendo-star-rating.js

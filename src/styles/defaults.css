@@ -937,6 +937,171 @@ pendo-column[variant="card"] {
 }
 
 /* =============================================================================
+   pendo-table / pendo-table-row / pendo-table-cell
+
+   A table of data: rows of text cells, with an optional `header` row of column
+   headings. The `--pendo-table-*` properties are the public theming API,
+   mirrored in `theme-tokens.js`.
+   ============================================================================= */
+
+/* A scroll container, so a table wider than the guide scrolls sideways inside the guide. It never
+ * widens the guide or runs out of it. `max-width` holds it to the guide where nothing stretches it.
+ *
+ * `!important` on `display` for the reason the columns hold theirs: Novus scopes theme rules
+ * unlayered, so a theme's own `display` on a tag would win, and the rows would stop lining up.
+ *
+ * Spaced like a block of text: outside a content region its own margin is all that separates it
+ * from the next block; inside one, the region's gap does that and "Content rhythm" drops it.
+ *
+ * A word never breaks: a column is at least as wide as its longest word, and a table whose words do
+ * not fit scrolls instead. `normal` is set rather than inherited, because an `anywhere` from around
+ * the table would let every column shrink to one letter, and the table would never scroll.
+ */
+pendo-table {
+    display: block !important;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 0 0 var(--pendo-spacing) 0;
+    font-size: var(--pendo-table-font-size, 0.875rem);
+    line-height: 1.5;
+    overflow-wrap: normal;
+}
+
+pendo-table:last-child {
+    margin-bottom: 0;
+}
+
+/* A banner is a row, and its content region is never narrower than its content's minimum width,
+ * which a scroll container still passes up: a wide table would push the bar wider and its buttons
+ * out of it. A region holding a table takes the room the bar has left instead, and may be narrower
+ * than the table, which then scrolls. Only in a banner: a tooltip sizes to its content, and must
+ * still grow to fit a table up to its own maximum width.
+ */
+.pendo-guide--banner > pendo-guide-content:has(pendo-table) {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* While the table scrolls, the component makes it focusable so a keyboard can scroll it. Inset,
+ * like an action row's ring: the region around the table can scroll too and would clip an outline
+ * drawn outside it.
+ */
+pendo-table:focus-visible {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: -2px;
+}
+
+/* `hidden` hides a table part, as it does any element. The `display` rules here carry
+ * `!important`, which would otherwise outrank the browser's own `[hidden] { display: none }`.
+ */
+:is(pendo-table, pendo-table-row, pendo-table-cell)[hidden] {
+    display: none !important;
+}
+
+/* The layout every engine can draw: CSS table display, which lines the columns up and sizes each
+ * to its content. The rows sit in an anonymous table box inside the scroll container, which is as
+ * wide as its content, up to the guide. The grid below replaces this where it can, so that the
+ * table fills the guide's width.
+ */
+pendo-table-row {
+    display: table-row !important;
+}
+
+pendo-table-cell {
+    display: table-cell !important;
+    padding: var(--pendo-table-cell-padding, var(--pendo-spacing-xs) var(--pendo-spacing-sm));
+    border-bottom: var(--pendo-table-border, 1px solid var(--pendo-border));
+    text-align: start;
+    vertical-align: top;
+}
+
+/* A line between rows, not under the table: the last row draws none. `:last-of-type` counts rows
+ * only, and it follows the rows that are there, so a gated last row hands the end to the row
+ * before it.
+ */
+pendo-table-row:last-of-type > pendo-table-cell {
+    border-bottom: none;
+}
+
+pendo-table-row[header] > pendo-table-cell {
+    background: var(--pendo-table-header-bg, rgba(0, 0, 0, 0.04));
+    color: var(--pendo-table-header-text, var(--pendo-text));
+    font-weight: var(--pendo-table-header-font-weight, 600);
+}
+
+/* The full layout: a grid whose rows are subgrids, so the columns line up across the rows and the
+ * table fills the guide's width. Each column is `auto`: never narrower than its longest word, as
+ * wide as its content when there is room, and sharing what is left over. When even the longest
+ * words do not fit, the grid is wider than the table's box and the table scrolls.
+ *
+ * A grid needs its column count, and the count is the most cells any row has: `:nth-of-type`
+ * counts cells only, and a gated cell that the client removed does not count. Up to 8 columns. A
+ * table with more falls back to the table display above: a row takes only the table's columns, so
+ * a ninth cell would wrap onto a second line inside its row, under the first. A row holds only
+ * cells (the Novus grammar rejects anything else), for the same reason: another child would take
+ * a column of its own.
+ *
+ * Needs both `subgrid` and `:has()`. An engine with only one keeps the table display, which is the
+ * same table, as wide as its content rather than as wide as the guide.
+ */
+@supports (grid-template-columns: subgrid) and selector(:has(*)) {
+    pendo-table {
+        display: grid !important;
+        grid-template-columns: auto;
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(2)) {
+        grid-template-columns: repeat(2, auto);
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(3)) {
+        grid-template-columns: repeat(3, auto);
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(4)) {
+        grid-template-columns: repeat(4, auto);
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(5)) {
+        grid-template-columns: repeat(5, auto);
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(6)) {
+        grid-template-columns: repeat(6, auto);
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(7)) {
+        grid-template-columns: repeat(7, auto);
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(8)) {
+        grid-template-columns: repeat(8, auto);
+    }
+
+    pendo-table-row {
+        display: grid !important;
+        grid-column: 1 / -1;
+        grid-template-columns: subgrid;
+    }
+
+    pendo-table-cell {
+        display: block !important;
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(9)) {
+        display: block !important;
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(9)) > pendo-table-row {
+        display: table-row !important;
+    }
+
+    pendo-table:has(> pendo-table-row > pendo-table-cell:nth-of-type(9)) > pendo-table-row > pendo-table-cell {
+        display: table-cell !important;
+    }
+}
+
+/* =============================================================================
    pendo-link
    ============================================================================= */
 
@@ -1509,7 +1674,7 @@ pendo-guide:has(> pendo-close-button) .pendo-guide__progress {
    keep the specificity they had when they named the region alone.
    ============================================================================= */
 
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > :is(.pendo-guide__title, .pendo-guide__text, .pendo-guide__image-container, .pendo-guide__video-container, .pendo-list, .pendo-input, .pendo-poll, pendo-button, pendo-link, pendo-columns) {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > :is(.pendo-guide__title, .pendo-guide__text, .pendo-guide__image-container, .pendo-guide__video-container, .pendo-list, .pendo-input, .pendo-poll, pendo-button, pendo-link, pendo-columns, pendo-table) {
     margin-block: 0;
 }
 

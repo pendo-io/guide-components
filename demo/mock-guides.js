@@ -434,6 +434,55 @@ const mockGuides = [
         }
     },
 
+    // Status table - a header row of column headings, a link in a cell; scrolls sideways when too wide
+    {
+        id: 'status-table',
+        name: 'Status Table',
+        steps: [
+            {
+                id: 'status-table-step-1',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide>
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>What each status means</pendo-title>
+                            <pendo-table>
+                                <pendo-table-row header>
+                                    <pendo-table-cell>Status</pendo-table-cell>
+                                    <pendo-table-cell>Meaning</pendo-table-cell>
+                                    <pendo-table-cell>What to do</pendo-table-cell>
+                                </pendo-table-row>
+                                <pendo-table-row>
+                                    <pendo-table-cell><strong>Active</strong></pendo-table-cell>
+                                    <pendo-table-cell>The sync runs every hour.</pendo-table-cell>
+                                    <pendo-table-cell>Nothing.</pendo-table-cell>
+                                </pendo-table-row>
+                                <pendo-table-row>
+                                    <pendo-table-cell><strong>Paused</strong></pendo-table-cell>
+                                    <pendo-table-cell>An admin stopped the sync.</pendo-table-cell>
+                                    <pendo-table-cell>Resume it in Settings.</pendo-table-cell>
+                                </pendo-table-row>
+                                <pendo-table-row>
+                                    <pendo-table-cell><strong>Failed</strong></pendo-table-cell>
+                                    <pendo-table-cell>The last three runs failed.</pendo-table-cell>
+                                    <pendo-table-cell>Read the <pendo-link href="https://example.com/help/sync">sync guide</pendo-link>.</pendo-table-cell>
+                                </pendo-table-row>
+                            </pendo-table>
+                        </pendo-guide-content>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderColor: '#e5e7eb',
+                borderRadius: '12px'
+            }
+        }
+    },
+
     // Trial Banner - Embedded in the page rather than floating above it
     {
         id: 'trial-banner',
