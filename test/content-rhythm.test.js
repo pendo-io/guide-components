@@ -46,6 +46,7 @@ const BLOCKS = [
     ['pendo-button', '<pendo-button action="dismiss">Go</pendo-button>'],
     ['pendo-link', '<pendo-link href="https://example.com">Docs</pendo-link>'],
     ['pendo-columns', '<pendo-columns><pendo-column></pendo-column><pendo-column></pendo-column></pendo-columns>'],
+    ['pendo-table', '<pendo-table><pendo-table-row><pendo-table-cell>A</pendo-table-cell></pendo-table-row></pendo-table>'],
 ];
 
 // Selectors and declarations are read rather than computed: jsdom's cascade ignores specificity,
