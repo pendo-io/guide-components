@@ -8,12 +8,33 @@ import { PendoBaseElement } from '../base-element.js';
  */
 const EMBEDDED_CLASS = 'pendo-guide--embedded';
 
+/** The counter a guide shows when it brings no `progress-label` of its own. */
+const DEFAULT_PROGRESS_LABEL = 'Step {current} of {total}';
+
+/**
+ * The step counter's text, from the guide's `progress-label` template.
+ *
+ * A template has to carry both placeholders. One that dropped a number — a translation that lost
+ * `{total}`, say — would announce a counter that no longer says where the reader is, so it gets the
+ * English instead.
+ */
+function progressLabel(template, step, totalSteps) {
+    const usable =
+        typeof template === 'string' && template.includes('{current}') && template.includes('{total}');
+    return (usable ? template : DEFAULT_PROGRESS_LABEL)
+        .replace(/\{current\}/g, String(step))
+        .replace(/\{total\}/g, String(totalSteps));
+}
+
 /**
  * <pendo-guide> - The main container element for a guide step.
  *
  * Attributes:
  *   step - Current step number (1-indexed)
  *   total-steps - Total number of steps in the guide
+ *   progress-label - Optional template for the step counter, such as "Stap {current} van {total}".
+ *     Used for both the visible counter and the progressbar's accessible name. Without one, or
+ *     when it lacks either placeholder, the counter reads "Step {current} of {total}".
  *
  * Features:
  *   - Focus trapping for modal behavior
@@ -134,7 +155,8 @@ class PendoGuide extends PendoBaseElement {
         progress.setAttribute('aria-valuenow', String(step));
         progress.setAttribute('aria-valuemin', '1');
         progress.setAttribute('aria-valuemax', String(totalSteps));
-        progress.setAttribute('aria-label', `Step ${step} of ${totalSteps}`);
+        const label = progressLabel(this.getAttribute('progress-label'), step, totalSteps);
+        progress.setAttribute('aria-label', label);
 
         const dots = Array.from({ length: totalSteps }, (_, i) => {
             const isComplete = i < step;
@@ -145,10 +167,14 @@ class PendoGuide extends PendoBaseElement {
             return `<span class="${classes.join(' ')}" aria-hidden="true"></span>`;
         }).join('');
 
-        progress.innerHTML = `
-            <span class="pendo-guide__progress-text">Step ${step} of ${totalSteps}</span>
-            <div class="pendo-guide__progress-dots">${dots}</div>
-        `;
+        // The label is author (or translator) text, so it goes in as text, never markup.
+        const text = document.createElement('span');
+        text.className = 'pendo-guide__progress-text';
+        text.textContent = label;
+        const dotRow = document.createElement('div');
+        dotRow.className = 'pendo-guide__progress-dots';
+        dotRow.innerHTML = dots;
+        progress.append(text, dotRow);
 
         this.insertBefore(progress, this.firstChild);
     }
