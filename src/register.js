@@ -11,6 +11,7 @@ import { PendoLink } from './elements/pendo-link.js';
 import { PendoList, PendoListItem } from './elements/pendo-list.js';
 import { PendoColumns, PendoColumn } from './elements/pendo-columns.js';
 import { PendoTable, PendoTableRow, PendoTableCell } from './elements/pendo-table.js';
+import { PendoAccordion, PendoAccordionItem } from './elements/pendo-accordion.js';
 import { PendoInput } from './elements/pendo-input.js';
 import { PendoStarRating } from './polls/pendo-star-rating.js';
 import { PendoNps } from './polls/pendo-nps.js';
@@ -36,6 +37,8 @@ const components = [
     ['pendo-table', PendoTable],
     ['pendo-table-row', PendoTableRow],
     ['pendo-table-cell', PendoTableCell],
+    ['pendo-accordion', PendoAccordion],
+    ['pendo-accordion-item', PendoAccordionItem],
     ['pendo-input', PendoInput],
     ['pendo-star-rating', PendoStarRating],
     ['pendo-nps', PendoNps],
