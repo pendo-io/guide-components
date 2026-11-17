@@ -483,6 +483,46 @@ const mockGuides = [
         }
     },
 
+    // FAQ accordion - sections that open and close; the second starts open
+    {
+        id: 'faq-accordion',
+        name: 'FAQ Accordion',
+        steps: [
+            {
+                id: 'faq-accordion-step-1',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide>
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Reports: common questions</pendo-title>
+                            <pendo-accordion>
+                                <pendo-accordion-item label="How do I export a report?">
+                                    <pendo-text>Open the report and choose <strong>Export</strong>. You get a CSV file.</pendo-text>
+                                </pendo-accordion-item>
+                                <pendo-accordion-item label="Who can see my reports?" open>
+                                    <pendo-text>Everyone on your team. Change it in Sharing.</pendo-text>
+                                    <pendo-link href="https://example.com/help/sharing">Read about sharing</pendo-link>
+                                </pendo-accordion-item>
+                                <pendo-accordion-item label="Can I schedule a report?">
+                                    <pendo-text>Yes. Choose <strong>Schedule</strong>, then pick a day and a time.</pendo-text>
+                                    <pendo-button action="dismiss" variant="secondary">Got it</pendo-button>
+                                </pendo-accordion-item>
+                            </pendo-accordion>
+                        </pendo-guide-content>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderColor: '#e5e7eb',
+                borderRadius: '12px'
+            }
+        }
+    },
+
     // Trial Banner - Embedded in the page rather than floating above it
     {
         id: 'trial-banner',

@@ -19,6 +19,7 @@ export { PendoCloseButton } from './elements/pendo-close-button.js';
 // Layout elements
 export { PendoColumns, PendoColumn } from './elements/pendo-columns.js';
 export { PendoTable, PendoTableRow, PendoTableCell } from './elements/pendo-table.js';
+export { PendoAccordion, PendoAccordionItem } from './elements/pendo-accordion.js';
 
 // Media elements
 export { PendoImage } from './elements/pendo-image.js';

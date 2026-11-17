@@ -80,6 +80,8 @@ import '@pendo/guide-components/styles';
 | `<pendo-table>` | A table of data that scrolls sideways when it is too wide |
 | `<pendo-table-row>` | One row of a table; `header` makes it the column headings |
 | `<pendo-table-cell>` | One cell: text, inline formatting and an optional `<pendo-link>` |
+| `<pendo-accordion>` | Sections that open and close, such as an FAQ |
+| `<pendo-accordion-item>` | One section: a `label` row, and a body of content elements; `open` starts it open |
 
 ### Poll Elements
 
@@ -494,6 +496,61 @@ cells that span columns, and cell alignment, such as numbers on the right. A
 table that scrolls has no visible hint that it does, apart from the browser's
 own scroll bar.
 
+## Accordions
+
+`<pendo-accordion>` holds sections that open and close: an FAQ, release notes
+with one section for each feature, a video behind its title. It holds
+`<pendo-accordion-item>` elements. Each item has a label row, from its `label`
+attribute, and a body: the item's children, which are the usual content elements
+(title, text, image, video, button, link, list, table).
+
+```html
+<pendo-accordion>
+  <pendo-accordion-item label="How do I export a report?">
+    <pendo-text>Open the report and choose <strong>Export</strong>.</pendo-text>
+  </pendo-accordion-item>
+  <pendo-accordion-item label="Who can see my reports?" open>
+    <pendo-text>Everyone on your team. Change it in Sharing.</pendo-text>
+  </pendo-accordion-item>
+  <pendo-accordion-item label="Watch the two-minute tour">
+    <pendo-video src="https://example.com/tour.mp4"></pendo-video>
+  </pendo-accordion-item>
+</pendo-accordion>
+```
+
+| Attribute | On | |
+|-----------|----|---|
+| `label` | `pendo-accordion-item` | The text of the label row. Plain text. |
+| `open` | `pendo-accordion-item` | The item starts open. Without it, the item starts closed. |
+
+**A click, Enter or Space opens and closes an item.** Each item opens on its
+own: opening one does not close another. The body is a content region, spaced
+like `pendo-guide-content`. An open item makes the guide taller; a guide with a
+height cap scrolls its content region, not the whole card. Closing an item stops
+a video playing in it: a native video pauses, and a YouTube or Vimeo player
+reloads at its start. A label too long for the row wraps, breaking a long word if
+it must.
+
+**A keyboard and a screen reader can use it.** The label row is a real
+`<button>` with `aria-expanded` and `aria-controls`, inside an element with the
+`heading` role, as the WAI-ARIA accordion pattern has it. A closed body is
+`hidden`, so nothing in it is drawn, reached by Tab or read. The guide's focus
+trap lists the label rows too.
+
+**The markup stays as authored.** The label row and the box of the body are
+built in the item's shadow root, and the children are slotted into the body.
+Nothing is added to the authored markup, and opening an item by hand does not
+change its `open` attribute, so an editor saves what the author wrote. Turning
+`open` on or off on a live item opens or closes it. A gate on an accordion or an
+item (`data-pendo-requires-guide`, `data-pendo-requires-any`) works, and `hidden`
+hides either one. A script can read and set `item.expanded`, or call
+`item.toggle()`.
+
+Opening an item sends no event.
+
+On a renderer without this version, the elements are unknown: every body shows,
+open, and the labels do not show.
+
 ## Button Actions
 
 The `<pendo-button>` component supports the following actions:
@@ -670,8 +727,8 @@ Next to an action row, a divider gives back the row's vertical padding, so it
 sits the same distance from a row's text as from any other. An author's inline
 margin still applies.
 
-A `pendo-column` follows the same rules, so these properties space a column's
-blocks too.
+A `pendo-column` and the body of a `pendo-accordion-item` follow the same rules,
+so these properties space their blocks too.
 
 ### Theme columns and cards
 
@@ -703,6 +760,25 @@ table's look is themed through these properties:
 | `--pendo-table-header-bg` | the header row's background | `rgba(0, 0, 0, 0.04)` |
 | `--pendo-table-header-text` | the header row's text colour | `--pendo-text` |
 | `--pendo-table-header-font-weight` | the header row's text weight | `600` |
+
+### Theme accordions
+
+The label row and the box of an item's body are in the item's shadow root, so a
+theme rule on the authored tags cannot reach them. They are styled through the
+shadow parts `label`, `icon` (also `icon-open` while the item is open) and
+`content`, and themed through these properties:
+
+| Property | Applies to | Default |
+|----------|------------|---------|
+| `--pendo-accordion-border` | the line between two items (the whole shorthand); the first shown item draws none | `1px solid var(--pendo-border)` |
+| `--pendo-accordion-label-padding` | inside the label row | `var(--pendo-spacing-sm) var(--pendo-spacing-xs)` |
+| `--pendo-accordion-label-text` | the label's text colour | `--pendo-text` |
+| `--pendo-accordion-label-font-size` | the label's text size | `0.9375rem` |
+| `--pendo-accordion-label-font-weight` | the label's text weight | `600` |
+| `--pendo-accordion-body-padding` | around an open item's body | `0 var(--pendo-spacing-xs) var(--pendo-spacing-sm)` |
+
+An item's body is a content region, so `--pendo-content-gap` and
+`--pendo-divider-spacing` space its blocks too.
 
 ### The contract as data
 

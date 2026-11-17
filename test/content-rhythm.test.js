@@ -8,8 +8,9 @@ import { flatDefaults, ruleBody } from './css-source.js';
 registerGuideComponents();
 
 const GUIDE = '.pendo-guide.pendo-guide';
-// A column of a `pendo-columns` is a content region too, so every rhythm rule names both.
-const REGION = ':is(pendo-guide-content, pendo-column)';
+// A column of a `pendo-columns`, and the body of a `pendo-accordion-item`, are content regions too, so
+// every rhythm rule names all three.
+const REGION = ':is(pendo-guide-content, pendo-column, pendo-accordion-item)';
 const escape = (selector) => selector.replace(/[().]/g, '\\$&');
 const RESET = new RegExp(`${escape(GUIDE)} ${escape(REGION)} > :is\\(([^)]*)\\) \\{ margin-block: 0; \\}`);
 const RESET_TARGETS = `:is(${RESET.exec(flatDefaults)[1]})`;
@@ -30,6 +31,12 @@ function mountInColumn(inner) {
     return document.querySelector('pendo-column');
 }
 
+/** Mount `inner` in the body of an accordion item, inside the guide's content region. */
+function mountInAccordionItem(inner) {
+    document.body.innerHTML = `<pendo-guide><pendo-guide-content><pendo-accordion><pendo-accordion-item label="Q" open>${inner}</pendo-accordion-item></pendo-accordion></pendo-guide-content></pendo-guide>`;
+    return document.querySelector('pendo-accordion-item');
+}
+
 /** Every block a content region holds, as the tag and the markup that mounts one. */
 const BLOCKS = [
     ['pendo-title', '<pendo-title>T</pendo-title>'],
@@ -47,6 +54,7 @@ const BLOCKS = [
     ['pendo-link', '<pendo-link href="https://example.com">Docs</pendo-link>'],
     ['pendo-columns', '<pendo-columns><pendo-column></pendo-column><pendo-column></pendo-column></pendo-columns>'],
     ['pendo-table', '<pendo-table><pendo-table-row><pendo-table-cell>A</pendo-table-cell></pendo-table-row></pendo-table>'],
+    ['pendo-accordion', '<pendo-accordion><pendo-accordion-item label="Q"><pendo-text>A</pendo-text></pendo-accordion-item></pendo-accordion>'],
 ];
 
 // Selectors and declarations are read rather than computed: jsdom's cascade ignores specificity,
@@ -69,6 +77,20 @@ describe('content rhythm', () => {
     // A column spaces its blocks with the same gap, in a content region or straight in the guide.
     it.each(BLOCKS)("drops %s's own vertical margin inside a column", (_tag, html) => {
         expect(mountInColumn(html).firstElementChild.matches(`${GUIDE} ${REGION} > ${RESET_TARGETS}`)).toBe(true);
+    });
+
+    // An accordion item's body is a content region too: the item's children are slotted into its
+    // `content` part, which is a flex column spaced by the same gap.
+    it.each(BLOCKS)("drops %s's own vertical margin inside an accordion item", (_tag, html) => {
+        expect(mountInAccordionItem(html).firstElementChild.matches(`${GUIDE} ${REGION} > ${RESET_TARGETS}`)).toBe(true);
+    });
+
+    it('lays an accordion item body out as a column spaced by the content gap', () => {
+        const body = ruleBody('pendo-accordion-item::part(content)');
+
+        expect(body).toContain('display: flex;');
+        expect(body).toContain('flex-direction: column;');
+        expect(body).toContain('gap: var(--pendo-content-gap, var(--pendo-spacing-xs));');
     });
 
     it('spaces dividers and rows inside a column as it does in the region', () => {

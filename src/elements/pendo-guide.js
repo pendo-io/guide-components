@@ -8,6 +8,43 @@ import { PendoBaseElement } from '../base-element.js';
  */
 const EMBEDDED_CLASS = 'pendo-guide--embedded';
 
+const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+/**
+ * The focusable elements under `root`, in the order Tab reaches them, including those in an open
+ * shadow root: an accordion item's label row is a button in its own shadow root, and a query of
+ * the light DOM alone would leave it out, so Tab from the last label row would leave the guide.
+ *
+ * An element's shadow content is listed before its own children. That is the order for every
+ * element here that has a shadow root: the accordion item draws its label row above the slot that
+ * shows its children.
+ */
+function focusableIn(root) {
+    const found = [];
+    const walk = (node) => {
+        for (const el of node.children) {
+            if (el.matches(FOCUSABLE)) found.push(el);
+            if (el.shadowRoot) walk(el.shadowRoot);
+            walk(el);
+        }
+    };
+    walk(root);
+    return found;
+}
+
+/**
+ * The focused element, looking inside shadow roots: `activeElement` names the host of a focused
+ * label row, not the row. Starts from the guide's own root, which is a shadow root where an editor
+ * previews the guide inside one.
+ */
+function deepActiveElement(root) {
+    let active = root.activeElement;
+    while (active && active.shadowRoot && active.shadowRoot.activeElement) {
+        active = active.shadowRoot.activeElement;
+    }
+    return active;
+}
+
 /**
  * <pendo-guide> - The main container element for a guide step.
  *
@@ -97,20 +134,18 @@ class PendoGuide extends PendoBaseElement {
         this._focusTrapHandler = (e) => {
             if (e.key !== 'Tab') return;
 
-            const focusableSelector =
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-            const focusable = Array.from(this.querySelectorAll(focusableSelector))
-                .filter(el => !el.disabled && el.offsetParent !== null);
+            const focusable = focusableIn(this).filter(el => !el.disabled && el.offsetParent !== null);
 
             if (focusable.length === 0) return;
 
             const first = focusable[0];
             const last = focusable[focusable.length - 1];
+            const active = deepActiveElement(this.getRootNode());
 
-            if (e.shiftKey && document.activeElement === first) {
+            if (e.shiftKey && active === first) {
                 e.preventDefault();
                 last.focus();
-            } else if (!e.shiftKey && document.activeElement === last) {
+            } else if (!e.shiftKey && active === last) {
                 e.preventDefault();
                 first.focus();
             }
@@ -119,9 +154,7 @@ class PendoGuide extends PendoBaseElement {
     }
 
     focusFirst() {
-        const focusableSelector =
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-        const focusable = this.querySelector(focusableSelector);
+        const focusable = focusableIn(this)[0];
         if (focusable && !focusable.disabled) {
             focusable.focus();
         }
