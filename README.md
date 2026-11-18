@@ -210,6 +210,27 @@ which grows a card holding an image, a divider or a list by 12–24px. A card wi
 a content region measures the same either way, because its children collapse
 inside the region, which stays `display: block`.
 
+## Step counter
+
+A multi-step guide shows a counter, "Step 2 of 3", above its content. The renderer
+asks for it by setting `step` and `total-steps` on the guide root; a guide with one
+step has none.
+
+To show the counter in another language, give the guide a `progress-label` template:
+
+```html
+<pendo-guide lang="nl" progress-label="Stap {current} van {total}">…</pendo-guide>
+```
+
+The template fills both the visible counter and the progress bar's accessible name.
+`{current}` and `{total}` can appear in any order, and more than once. A template
+missing either one is ignored and the counter reads "Step {current} of {total}", the
+same as with no template, so a translation that lost a number never announces a
+counter that no longer says where the reader is. The template is text: markup in it
+shows as written.
+
+An agent with an older guide-components ignores the attribute and shows the English.
+
 ## Layout variants
 
 A card's layout is the renderer's choice, not the markup's, and arrives as a class
