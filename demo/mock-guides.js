@@ -523,6 +523,55 @@ const mockGuides = [
         }
     },
 
+    // Timed tour - each step moves on or closes by itself; the timer pauses while the
+    // pointer is on the card or focus is in it
+    {
+        id: 'timed-tour',
+        name: 'Timed Tour',
+        steps: [
+            {
+                id: 'timed-tour-step-1',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide auto-action="next-step" auto-action-ms="5000">
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Reports refresh every hour</pendo-title>
+                            <pendo-text>This step moves on by itself after 5 seconds. Point at it to stop the clock.</pendo-text>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="next-step">Next</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            },
+            {
+                id: 'timed-tour-step-2',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide auto-action="dismiss" auto-action-ms="8000">
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>That's it</pendo-title>
+                            <pendo-text>This step closes by itself after 8 seconds.</pendo-text>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="previous-step" variant="secondary">Back</pendo-button>
+                            <pendo-button action="dismiss">Done</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderColor: '#e5e7eb',
+                borderRadius: '12px'
+            }
+        }
+    },
+
     // Trial Banner - Embedded in the page rather than floating above it
     {
         id: 'trial-banner',

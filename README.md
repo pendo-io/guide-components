@@ -233,6 +233,45 @@ shows as written.
 
 An agent with an older guide-components ignores the attribute and shows the English.
 
+## A step that moves on or closes by itself
+
+A step can act by itself after a set time. `auto-action` is what it does, and
+`auto-action-ms` is how long it waits, in milliseconds:
+
+```html
+<pendo-guide auto-action="next-step" auto-action-ms="8000">…</pendo-guide>
+<pendo-guide auto-action="dismiss" auto-action-ms="10000">…</pendo-guide>
+```
+
+- `auto-action` is `next-step` or `dismiss`, nothing else: a timer never opens a URL
+  or starts another guide. `next-step` on the last step does what a Next button on
+  the last step does.
+- When the time is up the guide sends the `pendo-action` event a button with that
+  action sends, from the `<pendo-guide>` itself and with `trigger: 'timer'` added
+  (see [pendo-action](#pendo-action)).
+- The timer waits while the visitor is reading, and runs on with the time it had
+  left once they stop (WCAG 2.2.1, Timing Adjustable). It pauses:
+  - while the pointer is on the guide, including a guide that appears under a
+    pointer that has not moved;
+  - while the visitor has moved focus into the guide. The focus a dialog moves to
+    its first control when it opens does not count, or every dialog's timer would
+    start paused; nor does that focus coming back when the visitor returns to the
+    window. It counts once the visitor has focused another control;
+  - for good once the visitor touches the guide with a finger or a pen. A touch
+    screen has no pointer resting on the guide, and a tapped button may not take
+    focus, so a touch is how a visitor says they are reading;
+  - while the page is hidden, as in a background tab.
+- The timer stops when the guide is removed, and sends at most once for one
+  setting. Changing either attribute on a live guide starts it again with the new
+  setting, even after it has sent, and a visitor who is reading keeps it paused;
+  removing `auto-action` stops it.
+- An unknown action, or a time that is not a whole number above zero and at most
+  2147483647 (the longest delay a browser timer holds), gives no timer. The limits
+  an author may choose are the authoring tool's to set.
+
+An agent with an older guide-components ignores both attributes: the step waits for
+a button, as before.
+
 ## Layout variants
 
 A card's layout is the renderer's choice, not the markup's, and arrives as a class
@@ -604,6 +643,11 @@ document.addEventListener('pendo-action', (e) => {
   // params: { url, target, guideId, ... }
 });
 ```
+
+A step's timer ([auto-action](#a-step-that-moves-on-or-closes-by-itself)) sends
+`{ actions: [{ action }], trigger: 'timer' }`, the shape a button sends plus
+`trigger`. A renderer that records clicks leaves it out of them: nobody clicked.
+`AUTO_ACTION_TRIGGER` and `AUTO_ACTIONS` are exported for that check.
 
 ### pendo-response
 

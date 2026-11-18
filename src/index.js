@@ -38,6 +38,9 @@ export { PendoNumberScale } from './polls/pendo-number-scale.js';
 export { PendoOpenText } from './polls/pendo-open-text.js';
 export { PendoEmojiScale } from './polls/pendo-emoji-scale.js';
 
+// A step's timer: what it may do, and how its `pendo-action` event says it came from the timer
+export { AUTO_ACTIONS, AUTO_ACTION_TRIGGER } from './auto-action.js';
+
 // Configuration API
 export { configurePendoComponents } from './configure.js';
 

@@ -1,4 +1,5 @@
 import { PendoBaseElement } from '../base-element.js';
+import { AutoActionTimer, readAutoAction } from '../auto-action.js';
 
 /**
  * The layout class that makes a guide ordinary page content rather than a dialog.
@@ -72,6 +73,9 @@ function deepActiveElement(root) {
  *   progress-label - Optional template for the step counter, such as "Stap {current} van {total}".
  *     Used for both the visible counter and the progressbar's accessible name. Without one, or
  *     when it lacks either placeholder, the counter reads "Step {current} of {total}".
+ *   auto-action - Optional: "next-step" or "dismiss", done by itself after `auto-action-ms`
+ *   auto-action-ms - How long the step waits before its `auto-action`, in milliseconds. The timer
+ *     pauses while the pointer is on the guide or the visitor's focus is in it. See `auto-action.js`.
  *
  * Features:
  *   - Focus trapping for modal behavior
@@ -85,6 +89,10 @@ function deepActiveElement(root) {
  * once, on connect, because the autofocus a dialog performs cannot be taken back after the fact.
  */
 class PendoGuide extends PendoBaseElement {
+    static get observedAttributes() {
+        return ['auto-action', 'auto-action-ms'];
+    }
+
     connectedCallback() {
         // Add base class for styling
         this.classList.add('pendo-guide');
@@ -97,6 +105,10 @@ class PendoGuide extends PendoBaseElement {
             this.renderProgress(step, totalSteps);
         }
 
+        // An embed can move on or close by itself as well.
+        this._watchingAutoAction = true;
+        this.restartAutoAction();
+
         if (this.isEmbedded()) return;
 
         this.enterDialogMode();
@@ -108,6 +120,39 @@ class PendoGuide extends PendoBaseElement {
 
     disconnectedCallback() {
         this.removeKeyboardHandlers();
+        // A step that has gone away must not act later.
+        this._watchingAutoAction = false;
+        this.stopAutoAction();
+    }
+
+    /**
+     * Changing the timer on a live guide starts it again with the new settings, so an editor that
+     * sets them on its preview shows them at once. Before connect the attributes are read there.
+     */
+    attributeChangedCallback(name, oldValue, newValue) {
+        const isTimerAttribute = name === 'auto-action' || name === 'auto-action-ms';
+        if (isTimerAttribute && this._watchingAutoAction && oldValue !== newValue) {
+            this.restartAutoAction();
+        }
+    }
+
+    restartAutoAction() {
+        // What the visitor is doing has not changed with the settings: a visitor reading the step
+        // keeps it paused.
+        const previous = this._autoAction;
+        this.stopAutoAction();
+        const settings = readAutoAction(this);
+        if (settings) {
+            this._autoAction = new AutoActionTimer(this, settings, previous);
+            this._autoAction.start();
+        }
+    }
+
+    stopAutoAction() {
+        if (this._autoAction) {
+            this._autoAction.stop();
+            this._autoAction = null;
+        }
     }
 
     isEmbedded() {
@@ -177,7 +222,12 @@ class PendoGuide extends PendoBaseElement {
     focusFirst() {
         const focusable = focusableIn(this)[0];
         if (focusable && !focusable.disabled) {
-            focusable.focus();
+            // The dialog moves focus in by itself, so this focus does not pause a timer.
+            if (this._autoAction) {
+                this._autoAction.focusWithoutPausing(focusable);
+            } else {
+                focusable.focus();
+            }
         }
     }
 

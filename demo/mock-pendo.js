@@ -529,34 +529,11 @@ class MockPendo {
 
         // Listen for pendo-action events
         container.addEventListener('pendo-action', (e) => {
-            const { action, params } = e.detail;
-            console.log('[MockPendo] Action:', action, params);
-
-            switch (action) {
-                case 'next-step':
-                    step._guide.advanceStep();
-                    break;
-
-                case 'previous-step':
-                    step._guide.previousStep();
-                    break;
-
-                case 'dismiss':
-                    step._guide.hide();
-                    break;
-
-                case 'link':
-                    if (params?.url) {
-                        window.open(params.url, params.target || '_blank');
-                    }
-                    break;
-
-                case 'launch-guide':
-                    if (params?.guideId) {
-                        pendo.showGuideById(params.guideId);
-                    }
-                    break;
-            }
+            // A button sends a list of actions; Escape and the backdrop send one, the old way.
+            const list = e.detail.actions || [{ action: e.detail.action, params: e.detail.params }];
+            list.forEach(({ action, params, ...rest }) => {
+                pendo._runAction(step, action, { ...rest, ...params }, e.detail.trigger);
+            });
         });
 
         // Listen for pendo-response events (polls)
@@ -572,6 +549,40 @@ class MockPendo {
                 type
             });
         });
+    }
+
+    /**
+     * Run one action from a `pendo-action` event. `trigger` is 'timer' when the step's
+     * `auto-action` sent it rather than a visitor.
+     */
+    _runAction(step, action, params, trigger) {
+        console.log('[MockPendo] Action:', action, params, trigger ? `(${trigger})` : '');
+
+        switch (action) {
+            case 'next-step':
+                step._guide.advanceStep();
+                break;
+
+            case 'previous-step':
+                step._guide.previousStep();
+                break;
+
+            case 'dismiss':
+                step._guide.hide();
+                break;
+
+            case 'link':
+                if (params?.url) {
+                    window.open(params.url, params.target || '_blank');
+                }
+                break;
+
+            case 'launch-guide':
+                if (params?.guideId) {
+                    this.showGuideById(params.guideId);
+                }
+                break;
+        }
     }
 
     /**
