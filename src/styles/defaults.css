@@ -1102,6 +1102,108 @@ pendo-table-row[header] > pendo-table-cell {
 }
 
 /* =============================================================================
+   pendo-accordion / pendo-accordion-item
+
+   Sections that open and close. Each item builds its label row and the box of
+   its body in a shadow root, styled here through its parts: `label`, `icon`
+   (also `icon-open` while the item is open) and `content`. The
+   `--pendo-accordion-*` properties are the public theming API, mirrored in
+   `theme-tokens.js`.
+   ============================================================================= */
+
+/* `!important` on `display` for the reason the columns hold theirs: Novus scopes theme rules
+ * unlayered, so a theme's own `display` on a tag would win.
+ *
+ * Spaced like a block of text: outside a content region its own margin is all that separates it
+ * from the next block; inside one, the region's gap does that and "Content rhythm" drops it.
+ */
+pendo-accordion {
+    display: block !important;
+    margin: 0 0 var(--pendo-spacing) 0;
+}
+
+pendo-accordion:last-child {
+    margin-bottom: 0;
+}
+
+pendo-accordion-item {
+    display: block !important;
+}
+
+/* A line between two items, not around the accordion, as a table draws its rows: an item takes one
+ * when a shown item comes before it. A gated item that the client removed takes its line with it,
+ * and a `hidden` first item leaves no line above the item that is now first.
+ */
+pendo-accordion-item:not([hidden]) ~ pendo-accordion-item {
+    border-top: var(--pendo-accordion-border, 1px solid var(--pendo-border));
+}
+
+/* `hidden` hides an accordion or one item, as it does any element. The `display` rules above carry
+ * `!important`, which would otherwise outrank the browser's own `[hidden] { display: none }`.
+ */
+:is(pendo-accordion, pendo-accordion-item)[hidden] {
+    display: none !important;
+}
+
+/* The label row is a real button, so it starts from the browser's button look: no font of the
+ * guide's, a grey fill, a border. Every one of those is set here. The text sits at the start and the
+ * chevron at the end, across the full width, so the whole row is the target.
+ *
+ * The padding has a side as well as a top and bottom, so the inset focus ring has room inside it;
+ * the body pads the same side, so the label and the body line up. `anywhere`, which the label's
+ * text inherits, breaks a word too long for the row, such as a URL or a German compound, rather
+ * than run it out of the guide and push the chevron off the edge.
+ */
+pendo-accordion-item::part(label) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pendo-spacing-xs);
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: var(--pendo-accordion-label-padding, var(--pendo-spacing-sm) var(--pendo-spacing-xs));
+    border: none;
+    background: none;
+    color: var(--pendo-accordion-label-text, var(--pendo-text));
+    font-family: inherit;
+    font-size: var(--pendo-accordion-label-font-size, 0.9375rem);
+    font-weight: var(--pendo-accordion-label-font-weight, 600);
+    line-height: 1.4;
+    text-align: start;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+
+pendo-accordion-item::part(icon) {
+    display: inline-flex;
+    flex: 0 0 auto;
+    color: var(--pendo-text-muted);
+    font-size: 1rem;
+}
+
+/* The chevron points down while closed and up while open. */
+pendo-accordion-item::part(icon-open) {
+    transform: rotate(180deg);
+}
+
+/* The body is a content region of its own, as a column is: its blocks are spaced by the same gap
+ * as `pendo-guide-content`, and the rules under "Content rhythm" apply in it too. The children are
+ * slotted into this box, so it lays them out even though they are the item's own children.
+ *
+ * This is the inner of two boxes. The outer one carries `hidden` while the item is closed, and a
+ * `display` set here on it would outrank the browser's `[hidden] { display: none }`.
+ */
+pendo-accordion-item::part(content) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pendo-content-gap, var(--pendo-spacing-xs));
+    padding: var(--pendo-accordion-body-padding, 0 var(--pendo-spacing-xs) var(--pendo-spacing-sm));
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+/* =============================================================================
    pendo-link
    ============================================================================= */
 
@@ -1669,31 +1771,32 @@ pendo-guide:has(> pendo-close-button) .pendo-guide__progress {
    at (0,2,2) included, whose margin would otherwise add to the gap. Themes tune the
    spacing through the properties; an author's inline margin still wins.
 
-   A `pendo-column` is a content region too, so every rule here names both. `:is()`
-   takes its most specific argument, and both are one type selector, so the rules
-   keep the specificity they had when they named the region alone.
+   A `pendo-column` and the body of a `pendo-accordion-item` are content regions
+   too, so every rule here names all three. `:is()` takes its most specific
+   argument, and each is one type selector, so the rules keep the specificity they
+   had when they named the region alone.
    ============================================================================= */
 
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > :is(.pendo-guide__title, .pendo-guide__text, .pendo-guide__image-container, .pendo-guide__video-container, .pendo-list, .pendo-input, .pendo-poll, pendo-button, pendo-link, pendo-columns, pendo-table) {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > :is(.pendo-guide__title, .pendo-guide__text, .pendo-guide__image-container, .pendo-guide__video-container, .pendo-list, .pendo-input, .pendo-poll, pendo-button, pendo-link, pendo-columns, pendo-table, pendo-accordion) {
     margin-block: 0;
 }
 
 /* A section break: the gap plus `--pendo-divider-spacing` on each side. */
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > .pendo-guide__divider {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > .pendo-guide__divider {
     margin-block: var(--pendo-divider-spacing, var(--pendo-spacing-xs));
 }
 
 /* A capped region scrolls rather than squeezing its children: an empty one, such as a divider,
  * would otherwise shrink to nothing as the content outgrows the cap.
  */
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > * {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > * {
     flex-shrink: 0;
 }
 
 /* Buttons and links stack in the column, so the side-by-side spacing between neighbours would only
  * indent the second.
  */
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > :is(pendo-button, pendo-link) {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > :is(pendo-button, pendo-link) {
     margin-inline: 0;
 }
 
@@ -1701,26 +1804,26 @@ pendo-guide:has(> pendo-close-button) .pendo-guide__progress {
  * gives its padding back, reading its own padding, which an author may set on one row only. The
  * break then sits as far from a row's text as from any other; it never overlaps the row.
  */
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > pendo-action-row + .pendo-guide__divider {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > pendo-action-row + .pendo-guide__divider {
     margin-top: 0;
 }
 
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > .pendo-guide__divider:has(+ pendo-action-row) {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > .pendo-guide__divider:has(+ pendo-action-row) {
     margin-bottom: 0;
 }
 
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > .pendo-guide__divider + pendo-action-row {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > .pendo-guide__divider + pendo-action-row {
     margin-top: max(calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs))), var(--pendo-divider-spacing, var(--pendo-spacing-xs)) - var(--pendo-action-row-padding-y, var(--pendo-spacing-xs)));
 }
 
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > pendo-action-row:has(+ .pendo-guide__divider) {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > pendo-action-row:has(+ .pendo-guide__divider) {
     margin-bottom: max(calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs))), var(--pendo-divider-spacing, var(--pendo-spacing-xs)) - var(--pendo-action-row-padding-y, var(--pendo-spacing-xs)));
 }
 
 /* Rows are one group: the line between two rows replaces the gap, so each row's padding is the
  * whole distance from it to the text.
  */
-.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > pendo-action-row + pendo-action-row {
+.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > pendo-action-row + pendo-action-row {
     margin-top: calc(-1 * var(--pendo-content-gap, var(--pendo-spacing-xs)));
 }
 
@@ -1737,6 +1840,12 @@ pendo-guide:has(> pendo-close-button) .pendo-guide__progress {
 /* Inset, unlike the button's: rows sit flush against each other inside a scrolling content region,
    and an outline drawn outside the row would be clipped by it. */
 .pendo-action-row:focus-visible {
+    outline: 2px solid var(--pendo-focus);
+    outline-offset: -2px;
+}
+
+/* Inset for the same reason: the label row spans the content region, which can scroll. */
+pendo-accordion-item::part(label):focus-visible {
     outline: 2px solid var(--pendo-focus);
     outline-offset: -2px;
 }

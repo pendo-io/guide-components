@@ -75,7 +75,7 @@ export const themeTokens = [
     // The content region holds its layout with `!important`, so these are the supported way to space
     // it: a theme's own `gap` on the region has no effect.
     { name: '--pendo-content-gap', default: 'var(--pendo-spacing-xs)', selector: 'pendo-guide-content', property: 'gap' },
-    { name: '--pendo-divider-spacing', default: 'var(--pendo-spacing-xs)', selector: '.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column) > .pendo-guide__divider', property: 'margin-block' },
+    { name: '--pendo-divider-spacing', default: 'var(--pendo-spacing-xs)', selector: '.pendo-guide.pendo-guide :is(pendo-guide-content, pendo-column, pendo-accordion-item) > .pendo-guide__divider', property: 'margin-block' },
 
     // ---- Action rows -------------------------------------------------------
     // `.pendo-action-row` is the real control inside the `pendo-action-row` host, so a theme rule on
@@ -108,6 +108,17 @@ export const themeTokens = [
     { name: '--pendo-table-header-bg', default: 'rgba(0, 0, 0, 0.04)', selector: 'pendo-table-row[header] > pendo-table-cell', property: 'background' },
     { name: '--pendo-table-header-text', default: 'var(--pendo-text)', selector: 'pendo-table-row[header] > pendo-table-cell', property: 'color' },
     { name: '--pendo-table-header-font-weight', default: '600', selector: 'pendo-table-row[header] > pendo-table-cell', property: 'font-weight' },
+
+    // ---- Accordions --------------------------------------------------------
+    // The label row and the body's box are an item's shadow parts, so a theme rule on the authored
+    // tag cannot reach them; setting the token is the supported route. The border is the line
+    // between two items; the first shown item draws none.
+    { name: '--pendo-accordion-border', default: '1px solid var(--pendo-border)', selector: 'pendo-accordion-item:not([hidden]) ~ pendo-accordion-item', property: 'border-top' },
+    { name: '--pendo-accordion-label-padding', default: 'var(--pendo-spacing-sm) var(--pendo-spacing-xs)', selector: 'pendo-accordion-item::part(label)', property: 'padding' },
+    { name: '--pendo-accordion-label-text', default: 'var(--pendo-text)', selector: 'pendo-accordion-item::part(label)', property: 'color' },
+    { name: '--pendo-accordion-label-font-size', default: '0.9375rem', selector: 'pendo-accordion-item::part(label)', property: 'font-size' },
+    { name: '--pendo-accordion-label-font-weight', default: '600', selector: 'pendo-accordion-item::part(label)', property: 'font-weight' },
+    { name: '--pendo-accordion-body-padding', default: '0 var(--pendo-spacing-xs) var(--pendo-spacing-sm)', selector: 'pendo-accordion-item::part(content)', property: 'padding' },
 
     // ---- NPS ---------------------------------------------------------------
     { name: '--pendo-nps-score-bg', default: 'var(--pendo-bg)', selector: '.pendo-nps__score', property: 'background' },
