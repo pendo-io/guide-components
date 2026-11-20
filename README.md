@@ -272,6 +272,41 @@ A step can act by itself after a set time. `auto-action` is what it does, and
 An agent with an older guide-components ignores both attributes: the step waits for
 a button, as before.
 
+## A step that celebrates
+
+A step can play confetti when it shows:
+
+```html
+<pendo-guide celebrate="confetti">…</pendo-guide>
+```
+
+- `celebrate` is `confetti`, nothing else for now. Any other value plays nothing.
+  `CELEBRATIONS` is exported, the list of values it plays.
+- About 120 small pieces fall over the page for 2.5 seconds, then the canvas they
+  are drawn on is removed. Their colors are the guide's `--pendo-primary` and a
+  fixed bright set. There are no other options.
+- It never gets in the way: the canvas takes no pointer events, so the guide and
+  the page take clicks as before, and it is hidden from assistive technology.
+  Those styles are set on the canvas itself, so they hold without the stylesheet.
+- No confetti plays when the visitor's system asks for reduced motion
+  (`prefers-reduced-motion: reduce`).
+- A step plays it once per page load. A renderer that draws the same step again,
+  as the Pendo agent does when a tooltip's target goes away and comes back, marks
+  the step with `data-step-id` on an ancestor of the guide (the agent's container
+  has it), or on the host of a shadow root it draws the guide in, before the
+  guide connects. That step does not play again until the page reloads. Without
+  a step id, the guide element itself plays once.
+- The run starts on its first drawn frame. A page in a background tab draws none,
+  so a step shown there plays when the visitor comes to the tab, and counts as
+  played only then.
+- Turning `celebrate` on in a live guide plays it at once, so an editor that sets
+  it on its preview shows it. Turning it off, or removing the guide, stops it.
+- The canvas goes on `document.body`, or in the shadow root the guide is drawn in,
+  where the components' stylesheet reaches it.
+
+An agent with an older guide-components ignores the attribute: the step shows
+with no confetti.
+
 ## Layout variants
 
 A card's layout is the renderer's choice, not the markup's, and arrives as a class
