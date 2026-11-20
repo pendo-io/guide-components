@@ -572,6 +572,54 @@ const mockGuides = [
         }
     },
 
+    // Celebration - The last step of a tour plays confetti when it shows
+    {
+        id: 'celebration',
+        name: 'Celebration',
+        steps: [
+            {
+                id: 'celebration-step-1',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide>
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>Set up your first report</pendo-title>
+                            <pendo-text>Pick a data source and a chart. That's all it takes.</pendo-text>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="next-step">I did it</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            },
+            {
+                id: 'celebration-step-2',
+                layoutType: 'lightbox',
+                htmlContent: `
+                    <pendo-guide celebrate="confetti">
+                        <pendo-close-button></pendo-close-button>
+                        <pendo-guide-content>
+                            <pendo-title>You built your first report</pendo-title>
+                            <pendo-text>This step plays confetti once when it shows. Go back and forth: it does not play again until the page reloads.</pendo-text>
+                        </pendo-guide-content>
+                        <pendo-guide-footer>
+                            <pendo-button action="previous-step" variant="secondary">Back</pendo-button>
+                            <pendo-button action="dismiss">Done</pendo-button>
+                        </pendo-guide-footer>
+                    </pendo-guide>
+                `
+            }
+        ],
+        buildingBlocks: {
+            container: {
+                background: '#ffffff',
+                borderColor: '#e5e7eb',
+                borderRadius: '12px'
+            }
+        }
+    },
+
     // Trial Banner - Embedded in the page rather than floating above it
     {
         id: 'trial-banner',

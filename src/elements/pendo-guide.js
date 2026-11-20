@@ -1,5 +1,6 @@
 import { PendoBaseElement } from '../base-element.js';
 import { AutoActionTimer, readAutoAction } from '../auto-action.js';
+import { celebrateNow, celebrateOnShow } from '../celebrate.js';
 
 /**
  * The layout class that makes a guide ordinary page content rather than a dialog.
@@ -76,6 +77,8 @@ function deepActiveElement(root) {
  *   auto-action - Optional: "next-step" or "dismiss", done by itself after `auto-action-ms`
  *   auto-action-ms - How long the step waits before its `auto-action`, in milliseconds. The timer
  *     pauses while the pointer is on the guide or the visitor's focus is in it. See `auto-action.js`.
+ *   celebrate - Optional: "confetti" plays confetti over the page when the step shows, once per step
+ *     per page load and never with reduced motion. See `celebrate.js`.
  *
  * Features:
  *   - Focus trapping for modal behavior
@@ -90,7 +93,7 @@ function deepActiveElement(root) {
  */
 class PendoGuide extends PendoBaseElement {
     static get observedAttributes() {
-        return ['auto-action', 'auto-action-ms'];
+        return ['auto-action', 'auto-action-ms', 'celebrate'];
     }
 
     connectedCallback() {
@@ -109,6 +112,10 @@ class PendoGuide extends PendoBaseElement {
         this._watchingAutoAction = true;
         this.restartAutoAction();
 
+        // And celebrate.
+        this._watchingCelebration = true;
+        this._celebration = celebrateOnShow(this);
+
         if (this.isEmbedded()) return;
 
         this.enterDialogMode();
@@ -123,16 +130,32 @@ class PendoGuide extends PendoBaseElement {
         // A step that has gone away must not act later.
         this._watchingAutoAction = false;
         this.stopAutoAction();
+        // Nor celebrate after it has gone.
+        this._watchingCelebration = false;
+        this.stopCelebration();
     }
 
     /**
-     * Changing the timer on a live guide starts it again with the new settings, so an editor that
-     * sets them on its preview shows them at once. Before connect the attributes are read there.
+     * Changing the timer on a live guide starts it again with the new settings, and turning a
+     * celebration on plays it, so an editor that sets them on its preview shows them at once. Before
+     * connect the attributes are read there.
      */
     attributeChangedCallback(name, oldValue, newValue) {
+        if (oldValue === newValue) return;
         const isTimerAttribute = name === 'auto-action' || name === 'auto-action-ms';
-        if (isTimerAttribute && this._watchingAutoAction && oldValue !== newValue) {
+        if (isTimerAttribute && this._watchingAutoAction) {
             this.restartAutoAction();
+        }
+        if (name === 'celebrate' && this._watchingCelebration) {
+            this.stopCelebration();
+            this._celebration = celebrateNow(this);
+        }
+    }
+
+    stopCelebration() {
+        if (this._celebration) {
+            this._celebration.stop();
+            this._celebration = null;
         }
     }
 
