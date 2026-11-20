@@ -4,7 +4,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { registerGuideComponents } from '../src/register.js';
 import { CELEBRATIONS } from '../src/index.js';
-import { ruleBody } from './css-source.js';
 
 registerGuideComponents();
 
@@ -110,6 +109,38 @@ describe('pendo-guide celebrate', () => {
         expect(contexts[0].filled.length).toBeGreaterThan(0);
     });
 
+    it('sits over the page and takes no clicks, without the stylesheet', () => {
+        mount();
+        const { style } = confettiCanvas();
+
+        expect(style.position).toBe('fixed');
+        expect([style.top, style.left, style.width, style.height]).toEqual(['0px', '0px', '100%', '100%']);
+        expect(style.pointerEvents).toBe('none');
+        expect(style.zIndex).toBe('2147483647');
+    });
+
+    it('starts its clock on the first frame, so a step shown in a background tab plays when seen', () => {
+        const frames = [];
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => frames.push(callback));
+        const stepId = freshStepId();
+        mount('class="pendo-guide--embedded" celebrate="confetti"', stepId);
+
+        // A background tab: no frames for 3 seconds, then the visitor comes to it.
+        frames.shift()(performance.now() + 3000);
+
+        expect(confettiCanvas()).not.toBeNull();
+        expect(contexts[0].filled.length).toBeGreaterThan(0);
+    });
+
+    it('plays for a guide moved before its first frame, as a renderer placing it does', () => {
+        document.body.innerHTML = `<div id="a"><pendo-guide celebrate="confetti">${BODY}</pendo-guide></div><div id="b"></div>`;
+        document.getElementById('b').appendChild(document.querySelector('pendo-guide'));
+
+        expect(document.querySelectorAll('canvas.pendo-confetti')).toHaveLength(1);
+        nextFrame();
+        expect(contexts.at(-1).filled.length).toBeGreaterThan(0);
+    });
+
     it('removes the canvas by itself when it ends', () => {
         mount();
         vi.advanceTimersByTime(2400);
@@ -172,16 +203,46 @@ describe('pendo-guide celebrate', () => {
     describe('once per step per page load', () => {
         it('does not play again when the renderer draws the same step again', () => {
             const stepId = freshStepId();
-            mount('celebrate="confetti"', stepId).parentNode.remove();
+            mount('celebrate="confetti"', stepId);
+            nextFrame();
+            confettiCanvas().previousElementSibling.remove();
 
             mount('celebrate="confetti"', stepId);
             expect(confettiCanvas()).toBeNull();
         });
 
         it('plays for another step', () => {
-            mount().parentNode.remove();
             mount();
             expect(confettiCanvas()).not.toBeNull();
+            nextFrame();
+            document.querySelector('[data-step-id]').remove();
+
+            mount();
+            expect(confettiCanvas()).not.toBeNull();
+        });
+
+        it('plays again for a step removed before its first frame was drawn', () => {
+            const stepId = freshStepId();
+            mount('celebrate="confetti"', stepId).parentNode.remove();
+
+            mount('celebrate="confetti"', stepId);
+            expect(confettiCanvas()).not.toBeNull();
+        });
+
+        it('reads the step id off the host of the shadow root the guide is drawn in', () => {
+            const show = () => {
+                const host = document.createElement('div');
+                host.setAttribute('data-step-id', 'shadow-hosted-step');
+                document.body.appendChild(host);
+                host.attachShadow({ mode: 'open' }).innerHTML = `<pendo-guide celebrate="confetti">${BODY}</pendo-guide>`;
+                return host;
+            };
+            const first = show();
+            expect(first.shadowRoot.querySelector('canvas.pendo-confetti')).not.toBeNull();
+            nextFrame();
+            first.remove();
+
+            expect(show().shadowRoot.querySelector('canvas.pendo-confetti')).toBeNull();
         });
 
         it('does not count a step that celebrated nothing', () => {
@@ -194,6 +255,7 @@ describe('pendo-guide celebrate', () => {
 
         it('plays once per guide element where the step has no id', () => {
             document.body.innerHTML = `<div id="a"><pendo-guide celebrate="confetti">${BODY}</pendo-guide></div><div id="b"></div>`;
+            vi.advanceTimersByTime(16);
             const guide = document.querySelector('pendo-guide');
             expect(confettiCanvas()).not.toBeNull();
             vi.advanceTimersByTime(3000);
@@ -257,11 +319,11 @@ describe('pendo-guide celebrate', () => {
         });
 
         it('uses only the bright set when the primary color cannot be painted', () => {
+            vi.spyOn(Math, 'random').mockImplementation(() => 0.1);
             mount('celebrate="confetti" style="--pendo-primary: not-a-color"');
             nextFrame();
-            for (const color of drawnColors()) {
-                expect(['#ffc700', '#ff5e7e', '#26ccff', '#88ff5a', '#a25afd']).toContain(color);
-            }
+            // 0.1 of the five bright colors picks the first. Were the primary kept, it would pick that.
+            expect(drawnColors()).toEqual(new Set(['#ffc700']));
         });
     });
 
@@ -273,12 +335,5 @@ describe('pendo-guide celebrate', () => {
 
         expect(shadow.querySelector('canvas.pendo-confetti')).not.toBeNull();
         expect(confettiCanvas()).toBeNull();
-    });
-
-    it('takes no pointer events and sits over the page', () => {
-        const rule = ruleBody('.pendo-confetti');
-        expect(rule).toMatch(/pointer-events: none/);
-        expect(rule).toMatch(/position: fixed/);
-        expect(rule).toMatch(/inset: 0/);
     });
 });

@@ -8,8 +8,11 @@
  * canvas, which is then removed. It plays:
  *   - once per step per page load. A renderer that draws the same step again (the Pendo agent does
  *     when a tooltip's target goes away and comes back) marks the step with `data-step-id` on an
- *     ancestor of the guide, and a step with that id does not play again until the page reloads.
- *     Without one, the guide element itself plays once;
+ *     ancestor of the guide, or on the host of a shadow root it draws the guide in, before the guide
+ *     connects. A step with that id does not play again until the page reloads. Without one, the
+ *     guide element itself plays once;
+ *   - only where the visitor can see it: the run starts on its first drawn frame, and a page in a
+ *     background tab draws none, so a step shown there plays when the visitor comes to it;
  *   - never when the visitor's system asks for reduced motion;
  *   - never in the way: the canvas takes no pointer events and is hidden from assistive technology.
  */
@@ -28,7 +31,26 @@ const BRIGHT_COLORS = ['#ffc700', '#ff5e7e', '#26ccff', '#88ff5a', '#a25afd'];
 const PRIMARY_WEIGHT = 3;
 
 /** A sharper canvas than this costs fill rate on a large screen and is not seen in moving pieces. */
-const MAX_PIXEL_RATIO = 2;
+const MAX_PIXEL_RATIO = 1.5;
+
+/**
+ * Where the canvas sits and that it takes no clicks, set on the element rather than in the
+ * stylesheet: the agent loads the stylesheet from a CDN apart from its script, and a canvas without
+ * these would sit at the end of the page as a block that takes clicks. Set through the CSSOM, which
+ * a strict Content Security Policy allows.
+ */
+const CANVAS_STYLE = Object.freeze({
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    margin: '0',
+    padding: '0',
+    border: '0',
+    pointerEvents: 'none',
+    zIndex: '2147483647'
+});
 
 /** Steps that celebrated since the page loaded, by the id their renderer gave them. */
 const celebratedSteps = new Set();
@@ -48,10 +70,20 @@ export function readCelebration(guide) {
     return CELEBRATIONS.includes(value) ? value : null;
 }
 
-/** The id a renderer gave the guide's step, or null. */
+/**
+ * The id a renderer gave the guide's step, or null: on an ancestor, looking out through the host of
+ * each shadow root the guide is drawn in.
+ */
 function stepIdOf(guide) {
-    const marked = guide.closest('[data-step-id]');
-    return (marked && marked.getAttribute('data-step-id')) || null;
+    let node = guide;
+    while (node) {
+        const marked = node.closest('[data-step-id]');
+        const stepId = marked && marked.getAttribute('data-step-id');
+        if (stepId) return stepId;
+        const root = node.getRootNode();
+        node = root && root.host ? root.host : null;
+    }
+    return null;
 }
 
 function alreadyCelebrated(guide) {
@@ -95,9 +127,7 @@ export function celebrateOnShow(guide) {
  * @returns {Confetti | null} The running effect, for the guide to stop when it goes away
  */
 export function celebrateNow(guide) {
-    if (!readCelebration(guide)) return null;
-    markCelebrated(guide);
-    if (prefersReducedMotion()) return null;
+    if (!readCelebration(guide) || prefersReducedMotion()) return null;
     const confetti = new Confetti(guide);
     return confetti.start() ? confetti : null;
 }
@@ -136,7 +166,8 @@ export class Confetti {
         this.context = null;
         this.pieces = [];
         this.frame = 0;
-        this.startedAt = 0;
+        // Set by the first drawn frame: see `draw`.
+        this.startedAt = null;
         this.lastAt = 0;
         this.draw = this.draw.bind(this);
     }
@@ -153,10 +184,10 @@ export class Confetti {
 
         canvas.className = 'pendo-confetti';
         canvas.setAttribute('aria-hidden', 'true');
+        Object.assign(canvas.style, CANVAS_STYLE);
 
         // Over the whole page, outside any box the renderer moved the guide into. Where the guide is
-        // drawn in a shadow root, as an editor's preview is, the canvas goes there instead, where the
-        // components' stylesheet reaches it.
+        // drawn in a shadow root, as an editor's preview is, the canvas goes there with it.
         const root = this.guide.getRootNode();
         const parent = root && root.host ? root : document.body;
         if (!parent) return false;
@@ -166,7 +197,6 @@ export class Confetti {
         this.context = context;
         this.size();
         this.pieces = this.makePieces();
-        this.startedAt = this.lastAt = performance.now();
         this.frame = requestAnimationFrame(this.draw);
         return true;
     }
@@ -189,8 +219,11 @@ export class Confetti {
 
     size() {
         const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
-        this.width = this.canvas.clientWidth || window.innerWidth;
-        this.height = this.canvas.clientHeight || window.innerHeight;
+        // On the page the canvas is the window's size, read without laying out the customer's page.
+        // In a shadow root an ancestor may scale or clip it, so it is measured.
+        const onPage = this.canvas.parentNode === document.body;
+        this.width = (!onPage && this.canvas.clientWidth) || window.innerWidth;
+        this.height = (!onPage && this.canvas.clientHeight) || window.innerHeight;
         this.canvas.width = Math.round(this.width * ratio);
         this.canvas.height = Math.round(this.height * ratio);
         this.context.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -231,8 +264,17 @@ export class Confetti {
         });
     }
 
-    /** One frame. Moves by elapsed time, so a slow or paused page ends on time all the same. */
+    /**
+     * One frame. Moves by elapsed time, so a slow page ends on time all the same.
+     *
+     * The run's clock starts on its first frame, and that is when the step counts as having played:
+     * a page in a background tab draws no frames, and a clock started earlier would run out unseen.
+     */
     draw(now) {
+        if (this.startedAt === null) {
+            this.startedAt = this.lastAt = now;
+            markCelebrated(this.guide);
+        }
         const elapsed = now - this.startedAt;
         if (elapsed >= DURATION_MS) {
             this.stop();

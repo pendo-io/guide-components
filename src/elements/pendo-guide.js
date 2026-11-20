@@ -112,17 +112,17 @@ class PendoGuide extends PendoBaseElement {
         this._watchingAutoAction = true;
         this.restartAutoAction();
 
-        // And celebrate.
+        if (!this.isEmbedded()) {
+            this.enterDialogMode();
+
+            // Page content does not take the reader's focus when it appears, so this is the dialog's
+            // alone.
+            requestAnimationFrame(() => this.focusFirst());
+        }
+
+        // An embed can celebrate too. Last, so the dialog is whole whatever a canvas does.
         this._watchingCelebration = true;
         this._celebration = celebrateOnShow(this);
-
-        if (this.isEmbedded()) return;
-
-        this.enterDialogMode();
-
-        // Page content does not take the reader's focus when it appears, so this is the dialog's
-        // alone.
-        requestAnimationFrame(() => this.focusFirst());
     }
 
     disconnectedCallback() {
